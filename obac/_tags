@@ -1,0 +1,11 @@
+"parsexpr.ml" : pp(camlp4o)
+
+## Note: To add an extra library to your program, you could
+## uncomment and adapt the following lines. The "use_xxxx"
+## is for libraries provided by OCaml (for instance Unix),
+## while the "package(xxxx)" is for third-party libraries to be
+## searched by ocamlfind (add a -use-ocamlfind to ocamlbuild in
+## Makefile)
+
+#<main.{native,byte}> : use_unix
+#true : package(foo), package(bar)

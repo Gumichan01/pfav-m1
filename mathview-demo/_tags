@@ -1,0 +1,1 @@
+<gui.*> : package(lablgtk2), package(lablgtkmathview)

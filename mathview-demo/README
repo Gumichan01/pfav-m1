@@ -1,0 +1,14 @@
+
+A simple OCaml program building a gtk window and displaying a MathML formula.
+
+Building this program via "make" requires the following:
+ - ocamlbuild
+ - ocamlfind
+ - lablgtk2
+ - lablgtkmathview
+
+On an debian/ubuntu machine, you can for instance run as root:
+apt-get install ocamlbuild ocaml-findlib liblablgtk2-ocaml-dev liblablgtkmathview-ocaml-dev
+
+On other platform, it is recommended to use the Opam package manager
+for OCaml for installing these dependencies.
