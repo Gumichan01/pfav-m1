@@ -2,3 +2,8 @@
 *main.native
 *main.byte
 obac/_build*
+*~
+*[oa]
+*cmi
+*cmo
+*cmx
