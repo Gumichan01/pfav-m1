@@ -40,6 +40,8 @@ and parse_basic_expr = function
   | ("e",[]) -> Exp0
   | ("+",[t]) -> let m1 = consMathExpr t in
 		  Unop ('+',m1)
+  | ("-",[t]) -> let m1 = consMathExpr t in
+		  Unop ('-',m1)
   | _ -> failwith "Unrecognized expression to parse"
 ;;
 
@@ -47,4 +49,5 @@ and parse_basic_expr = function
 consMathExpr (Num 5);;
 consMathExpr (Var "x");;
 consMathExpr (Op ("+",[Var "pi"]));;
+consMathExpr (Op ("-",[Var "pi"]));;
 consMathExpr (Op ("+",[]));;
