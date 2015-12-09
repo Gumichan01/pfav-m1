@@ -35,7 +35,7 @@ type math_expr = (Num.num,char) gen_math_expr;;
 *)
 let rec consBinop (op: char) (l : math_expr list) : math_expr = 
   match l with
-    | [] -> failwith "Binop cannot be applied on an empty/singleton list"
+    | [] -> failwith "Binop cannot be applied on an empty list"
     | [x] -> x
     | t::q -> Binop(op,t,(consBinop op q))
 ;;
@@ -46,7 +46,7 @@ let rec consFract:  math_expr list -> math_expr =
     match l with
       | [] -> failwith "Binop cannot be applied on an empty list"
       | [x] -> x
-      | t::q -> Frac(t,consFract(l))
+      | t::q -> Frac(t,consFract(q))
 ;;
 
 (* Build a mathematical expression from a basic expression *)
@@ -58,6 +58,8 @@ match b with
 
 (* Parse any kind of operation *)
 and parse_op = function
+  | ("pi",[]) -> Pi
+  | ("e",[]) -> Exp0
   | ("+",_) as p -> parse_basic_op p
   | ("-",_) as m -> parse_basic_op m
   | ("*",_) as f -> parse_basic_op f
@@ -76,6 +78,8 @@ and parse_basic_op = function
 				       consBinop '-' l
   | ("*",t::q) when (List.length (t::q) > 1) -> 
     let l = List.map (consMathExpr) (t::q) in consBinop '*' l
+  | ("/",t::q) when (List.length (t::q) > 1) ->
+    let l = List.map (consMathExpr) (t::q) in  consFract l
   | _ -> failwith "Unrecognized basic operator to parse"
 ;;
 
@@ -101,4 +105,7 @@ consMathExpr (Op ("+",[(Op("-",[Num 2;Num 3]));Num 5]));;
 consMathExpr (Op ("*",[(Op("*",[Num 2;Num 3]));Num 5]));;
 consMathExpr (Op ("*",[(Op("+",[Num 2;Num 3]));Num 5]));;
 consMathExpr (Op ("-",[(Op("*",[Num 2;Num 3]));Num 5]));;
+consMathExpr (Op ("/",[(Num 1);(Num 2)]));;
 consMathExpr (Op ("-",[(Op("/",[Num 2;Num 3]));Num 5]));;
+
+
