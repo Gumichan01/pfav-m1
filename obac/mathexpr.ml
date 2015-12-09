@@ -27,6 +27,14 @@ type ('n,'op) gen_math_expr =
 type math_expr = (Num.num,char) gen_math_expr;;
 
 (* Build a mathematical expression from a basic expression *)
-let consMathExpr (b : (*Expr.*)basic_expr) : math_expr = 
-  failwith "TODO create a mathematical expression from a basic_expr"
+let rec consMathExpr (b : (*Expr.*)basic_expr) : math_expr = 
+match b with
+  | Num n -> Val (Num.Int n)
+  | Var s -> Var s
+  | _ -> failwith "TODO create a mathematical expression from a basic_expr"
 ;;
+
+(* Test *)
+consMathExpr (Num 5);;
+consMathExpr (Var "x");;
+consMathExpr (Op ("+",[]));;
