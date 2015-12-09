@@ -24,7 +24,7 @@ type ('n,'op) gen_math_expr =
   | Frac of ('n,'op) gen_math_expr * ('n,'op) gen_math_expr (* Fraction       *)
 ;;
 
-(* The Mathetical expression that will be used in the program *)
+(* The Mathematical expression that will be used in the program *)
 type math_expr = (Num.num,char) gen_math_expr;;
 
 (* Build a recursive Binop expression with the same operator *)
