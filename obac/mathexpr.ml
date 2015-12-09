@@ -61,9 +61,9 @@ and parse_op = function
   | ("pi",[]) -> Pi
   | ("e",[]) -> Exp0
   | ("+",_) as p -> parse_basic_op p
-  | ("-",_) as m-> parse_basic_op m
-  | ("*",_) as m-> parse_basic_op m
-  | ("/",_) as m-> parse_basic_op m
+  | ("-",_) as m -> parse_basic_op m
+  | ("*",_) as m -> parse_basic_op m
+  | ("/",_) as m -> parse_basic_op m
   | _ -> failwith "Unrecognized operator to parse"
 
 (* Parse any kind of basic operation: '+', '-', '*', '/' *)
@@ -76,11 +76,8 @@ and parse_basic_op = function
 				       consBinop '+' l
   | ("-",t::q) -> let l = List.map (consMathExpr) (t::q) in
 				       consBinop '-' l
-  | ("*",t::q) -> let l = List.map (consMathExpr) (t::q) in
-				       consBinop '*' l
-(*  | ("/",t::q) when (List.length (t::q) > 1) -> 
-    let l = List.map (consMathExpr) (t::q) in
-    consBinop '/' l*)
+  | ("*",t::q) when (List.length (t::q) > 1) -> 
+    let l = List.map (consMathExpr) (t::q) in consBinop '*' l
   | _ -> failwith "Unrecognized basic operator to parse"
 ;;
 
@@ -88,10 +85,16 @@ and parse_basic_op = function
 (* Test *)
 consMathExpr (Num 5);;
 consMathExpr (Var "x");;
+consMathExpr (Op ("",[]));;                   (*Doit echouer*)
+consMathExpr (Op ("",[Var "pi"]));;           (*Doit echouer*)
+consMathExpr (Op ("+",[]));;                  (*Doit echouer*)
+consMathExpr (Op ("-",[]));;                  (*Doit echouer*)
+consMathExpr (Op ("*",[]));;                  (*Doit echouer*)
+consMathExpr (Op ("*",[Var "pi"]));;          (*Doit echouer*)
+consMathExpr (Op ("/",[]));;                  (*Doit echouer*)
+consMathExpr (Op ("/",[Var "pi"]));;          (*Doit echouer*)
 consMathExpr (Op ("+",[Var "pi"]));;
 consMathExpr (Op ("-",[Var "pi"]));;
-consMathExpr (Op ("",[Var "pi"]));;
-consMathExpr (Op ("+",[]));;
 consMathExpr (Op ("+",[(Num 1);(Num 2)]));;
 consMathExpr (Op ("+",[(Op("+",[Num 2;Num 3]));Num 5]));;
 consMathExpr (Op ("-",[(Num 1);(Num 2)]));;
