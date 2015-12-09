@@ -41,6 +41,14 @@ let rec consBinop (op: char) (l : math_expr list) : math_expr =
 ;;
 
 
+let rec consFract:  math_expr list -> math_expr = 
+  fun l -> 
+    match l with
+      | [] -> failwith "Binop cannot be applied on an empty/singleton list"
+      | [x] -> x
+      | t::q -> Frac(t,consFract(l))
+;;
+
 (* Build a mathematical expression from a basic expression *)
 let rec consMathExpr (b : (*Expr.*)basic_expr) : math_expr = 
 match b with
@@ -54,6 +62,8 @@ and parse_op = function
   | ("e",[]) -> Exp0
   | ("+",_) as p -> parse_basic_op p
   | ("-",_) as m-> parse_basic_op m
+  | ("*",_) as m-> parse_basic_op m
+  | ("/",_) as m-> parse_basic_op m
   | _ -> failwith "Unrecognized operator to parse"
 
 (* Parse any kind of basic operation: '+', '-', '*', '/' *)
@@ -62,10 +72,15 @@ and parse_basic_op = function
 		 Unop ('+',m1)
   | ("-",[t]) -> let m1 = consMathExpr t in
 		  Unop ('-',m1)
-  | ("+",t::q) -> print_string "'+'OK "; let l = List.map (consMathExpr) (t::q) in
+  | ("+",t::q) -> let l = List.map (consMathExpr) (t::q) in
 				       consBinop '+' l
-  | ("-",t::q) -> print_string "'+'OK "; let l = List.map (consMathExpr) (t::q) in
+  | ("-",t::q) -> let l = List.map (consMathExpr) (t::q) in
 				       consBinop '-' l
+  | ("*",t::q) -> let l = List.map (consMathExpr) (t::q) in
+				       consBinop '*' l
+(*  | ("/",t::q) when (List.length (t::q) > 1) -> 
+    let l = List.map (consMathExpr) (t::q) in
+    consBinop '/' l*)
   | _ -> failwith "Unrecognized basic operator to parse"
 ;;
 
@@ -81,3 +96,8 @@ consMathExpr (Op ("+",[(Num 1);(Num 2)]));;
 consMathExpr (Op ("+",[(Op("+",[Num 2;Num 3]));Num 5]));;
 consMathExpr (Op ("-",[(Num 1);(Num 2)]));;
 consMathExpr (Op ("-",[(Op("+",[Num 2;Num 3]));Num 5]));;
+consMathExpr (Op ("+",[(Op("-",[Num 2;Num 3]));Num 5]));;
+consMathExpr (Op ("*",[(Op("*",[Num 2;Num 3]));Num 5]));;
+consMathExpr (Op ("*",[(Op("+",[Num 2;Num 3]));Num 5]));;
+consMathExpr (Op ("-",[(Op("*",[Num 2;Num 3]));Num 5]));;
+consMathExpr (Op ("-",[(Op("/",[Num 2;Num 3]));Num 5]));;
