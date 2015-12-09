@@ -32,17 +32,21 @@ let rec consMathExpr (b : (*Expr.*)basic_expr) : math_expr =
 match b with
   | Num n -> Val (Num.Int n)
   | Var s -> Var s
-  | Op(s,l) -> parse_basic_expr (s,l)
-  | _ -> failwith "TODO create a mathematical expression from a basic_expr"
+  | Op(s,l) -> parse_op (s,l)
 
-and parse_basic_expr = function
+and parse_op = function
   | ("pi",[]) -> Pi
   | ("e",[]) -> Exp0
+  | ("+",_) as p -> parse_basic_op p
+  | ("-",_) as m-> parse_basic_op m
+  | _ -> failwith "Unrecognized operator to parse"
+
+and parse_basic_op = function
   | ("+",[t]) -> let m1 = consMathExpr t in
-		  Unop ('+',m1)
+		 Unop ('+',m1)
   | ("-",[t]) -> let m1 = consMathExpr t in
 		  Unop ('-',m1)
-  | _ -> failwith "Unrecognized expression to parse"
+  | _ -> failwith "Unrecognized basic operator to parse"
 ;;
 
 (* Test *)
@@ -50,4 +54,5 @@ consMathExpr (Num 5);;
 consMathExpr (Var "x");;
 consMathExpr (Op ("+",[Var "pi"]));;
 consMathExpr (Op ("-",[Var "pi"]));;
+consMathExpr (Op ("",[Var "pi"]));;
 consMathExpr (Op ("+",[]));;
