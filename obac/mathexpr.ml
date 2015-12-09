@@ -8,6 +8,7 @@ type ('n,'op) gen_math_expr =
   | Exp0                                                    (* e : exp(0)     *)
   | Val of 'n                                               (* Constant value *)
   | Var of string                                           (* Variable       *)
+  | Unop of 'op * ('n,'op) gen_math_expr                    (* '+','-' unaire *)
   | Binop of 'op * 
       ('n,'op) gen_math_expr * 
       ('n,'op) gen_math_expr                                (* '+','-','*'    *)
@@ -31,10 +32,19 @@ let rec consMathExpr (b : (*Expr.*)basic_expr) : math_expr =
 match b with
   | Num n -> Val (Num.Int n)
   | Var s -> Var s
+  | Op(s,l) -> parse_basic_expr (s,l)
   | _ -> failwith "TODO create a mathematical expression from a basic_expr"
+
+and parse_basic_expr = function
+  | ("pi",[]) -> Pi
+  | ("e",[]) -> Exp0
+  | ("+",[t]) -> let m1 = consMathExpr t in
+		  Unop ('+',m1)
+  | _ -> failwith "Unrecognized expression to parse"
 ;;
 
 (* Test *)
 consMathExpr (Num 5);;
 consMathExpr (Var "x");;
+consMathExpr (Op ("+",[Var "pi"]));;
 consMathExpr (Op ("+",[]));;
