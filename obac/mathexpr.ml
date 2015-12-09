@@ -105,7 +105,6 @@ consMathExpr (Op ("+",[(Op("-",[Num 2;Num 3]));Num 5]));;
 consMathExpr (Op ("*",[(Op("*",[Num 2;Num 3]));Num 5]));;
 consMathExpr (Op ("*",[(Op("+",[Num 2;Num 3]));Num 5]));;
 consMathExpr (Op ("-",[(Op("*",[Num 2;Num 3]));Num 5]));;
-consMathExpr (Op ("/",[(Num 1);(Num 2)]));;
 consMathExpr (Op ("-",[(Op("/",[Num 2;Num 3]));Num 5]));;
-
-
+consMathExpr (Op ("/",[(Num 1);(Num 2)]));;
+consMathExpr (Op ("/",[(Op("/",[Num 2;Num 3]));Num 5]));;
