@@ -64,6 +64,8 @@ and parse_basic_op = function
 		  Unop ('-',m1)
   | ("+",t::q) -> print_string "'+'OK "; let l = List.map (consMathExpr) (t::q) in
 				       consBinop '+' l
+  | ("-",t::q) -> print_string "'+'OK "; let l = List.map (consMathExpr) (t::q) in
+				       consBinop '-' l
   | _ -> failwith "Unrecognized basic operator to parse"
 ;;
 
@@ -77,4 +79,5 @@ consMathExpr (Op ("",[Var "pi"]));;
 consMathExpr (Op ("+",[]));;
 consMathExpr (Op ("+",[(Num 1);(Num 2)]));;
 consMathExpr (Op ("+",[(Op("+",[Num 2;Num 3]));Num 5]));;
-
+consMathExpr (Op ("-",[(Num 1);(Num 2)]));;
+consMathExpr (Op ("-",[(Op("+",[Num 2;Num 3]));Num 5]));;
