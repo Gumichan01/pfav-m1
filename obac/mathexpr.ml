@@ -40,7 +40,7 @@ let rec consBinop (op: char) (l : math_expr list) : math_expr =
     | t::q -> Binop(op,t,(consBinop op q))
 ;;
 
-
+(* Create the Fraction expression *)
 let rec consFract:  math_expr list -> math_expr = 
   fun l -> 
     match l with
