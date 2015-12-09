@@ -62,8 +62,8 @@ and parse_op = function
   | ("e",[]) -> Exp0
   | ("+",_) as p -> parse_basic_op p
   | ("-",_) as m -> parse_basic_op m
-  | ("*",_) as m -> parse_basic_op m
-  | ("/",_) as m -> parse_basic_op m
+  | ("*",_) as f -> parse_basic_op f
+  | ("/",_) as d -> parse_basic_op d
   | _ -> failwith "Unrecognized operator to parse"
 
 (* Parse any kind of basic operation: '+', '-', '*', '/' *)
