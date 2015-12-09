@@ -44,7 +44,7 @@ let rec consBinop (op: char) (l : math_expr list) : math_expr =
 let rec consFract:  math_expr list -> math_expr = 
   fun l -> 
     match l with
-      | [] -> failwith "Binop cannot be applied on an empty/singleton list"
+      | [] -> failwith "Binop cannot be applied on an empty list"
       | [x] -> x
       | t::q -> Frac(t,consFract(l))
 ;;
@@ -58,8 +58,6 @@ match b with
 
 (* Parse any kind of operation *)
 and parse_op = function
-  | ("pi",[]) -> Pi
-  | ("e",[]) -> Exp0
   | ("+",_) as p -> parse_basic_op p
   | ("-",_) as m -> parse_basic_op m
   | ("*",_) as f -> parse_basic_op f
