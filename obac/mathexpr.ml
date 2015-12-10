@@ -72,6 +72,7 @@ and parse_op = function
 and parse_math_function = function
   | ("sqrt",[x]) -> Sqrt(consMathExpr x)
   | ("exp",[x]) -> Expo(consMathExpr x)
+  | ("log",[x]) -> Log(consMathExpr x)
   | _ -> failwith "Unrecognized operator to parse"
 
 (* Parse any kind of basic operation: '+', '-', '*', '/' *)
