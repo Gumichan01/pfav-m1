@@ -151,14 +151,12 @@ let rec simpl : math_expr -> math_expr =
   fun x -> match x with
     | Binop(_,_,_) as b -> simpl_binop b
     | Frac(_,_) as f -> simpl_fract f
+    | Pow(_,_) as p -> simpl_pow p
     | Sqrt(_) as s -> simpl_sqrt s
     | Expo(_) as e -> simpl_exp e
     | Log(_) as l -> simpl_log l
     (* In this case, the operation is a trigonometric function *)
     | _ as s -> simpl_trigo s
-
-
-
 
 (* Simplify a binary operation *)
 and simpl_binop = function
@@ -166,6 +164,10 @@ and simpl_binop = function
 
 (* Simplify a fraction *)
 and simpl_fract = function
+  | _ as o -> o 
+
+(* Simplify a power *)
+and simpl_pow = function
   | _ as o -> o 
 
 (* Simplify a square root *)
@@ -200,7 +202,7 @@ let rec eval : math_expr -> float =
 
 (* Test *)
 (* Ces tests doivent échouer *)
-consMathExpr (Op ("",[]));;
+(*consMathExpr (Op ("",[]));;
 consMathExpr (Op ("",[Var "pi"]));;
 consMathExpr (Op ("+",[]));;
 consMathExpr (Op ("-",[]));;
@@ -210,10 +212,10 @@ consMathExpr (Op ("/",[]));;
 consMathExpr (Op ("/",[Var "pi"]));;
 consMathExpr (Op ("-",[(Num 1);(Num 2);(Num 3)]));;
 consMathExpr (Op ("^",[(Num 2);(Num 8);(Num 4)]));;
-consMathExpr (Op ("^",[(Num 2)]));;
+consMathExpr (Op ("^",[(Num 2)]));;*)
 
 (* Ces tests doivent réussir *)
-consMathExpr (Num 5);;
+(*consMathExpr (Num 5);;
 consMathExpr (Var "x");;
 consMathExpr (Op ("+",[Var "pi"]));;
 consMathExpr (Op ("-",[Var "pi"]));;
@@ -238,4 +240,4 @@ consMathExpr (Op ("sin",[(Op("/",[Op ("+",[Var "pi"]);Num 3]))]));;
 consMathExpr (Op ("tan",[(Op("/",[Op ("+",[Var "pi"]);Num 3]))]));;
 consMathExpr (Op ("acos",[(Op("/",[Op ("+",[Var "pi"]);Num 3]))]));;
 consMathExpr (Op ("asin",[(Op("/",[Op ("+",[Var "pi"]);Num 3]))]));;
-consMathExpr (Op ("atan",[(Op("/",[Op ("+",[Var "pi"]);Num 3]))]));;
+consMathExpr (Op ("atan",[(Op("/",[Op ("+",[Var "pi"]);Num 3]))]));;*)
