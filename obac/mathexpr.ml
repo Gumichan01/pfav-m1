@@ -27,6 +27,8 @@ type ('n,'op) gen_math_expr =
 (* The Mathematical expression that will be used in the program *)
 type math_expr = (Num.num,char) gen_math_expr;;
 
+
+
 (* Build a recursive Binop expression with the same operator *)
 (* It is used when the expression is one of the followings: 
    x1 + x2 + ... + xn
@@ -48,6 +50,8 @@ let rec consFract:  math_expr list -> math_expr =
       | [x] -> x
       | t::q -> Frac(t,consFract(q))
 ;;
+
+
 
 (* Build a mathematical expression from a basic expression *)
 let rec consMathExpr (b : (*Expr.*)basic_expr) : math_expr = 
@@ -99,17 +103,51 @@ and parse_basic_op = function
 ;;
 
 
+(* Integration of an expression *)
+let rec integ : math_expr -> string -> math_expr -> math_expr -> math_expr = 
+  failwith "TODO integ : math_expr -> string -> math_expr -> math_expr -> math_expr ";;
+
+
+(* Derive an expression *)
+let rec derive : math_expr -> string -> math_expr = 
+  failwith "TODO derive : math_expr -> string -> math_expr ";;
+
+
+(* Solve an equation finding a value that 
+   puts the expression to zero *)
+let rec solve : math_expr -> string -> math_expr = 
+  failwith "TODO solve : math_expr -> string -> math_expr ";;
+
+
+(* Simplify an expression *)
+let rec simpl : math_expr -> math_expr = 
+  failwith "TODO simpl : math_expr -> math_expr ";;
+
+(* Subtitution *)
+let rec subst : math_expr -> string -> math_expr -> math_expr = 
+  failwith "TODO subst : math_expr -> string -> math_expr -> math_expr ";;
+
+(* Evaluate an expression to get a floating point value *)
+let rec eval : math_expr -> float = 
+  failwith "TODO eval : math_expr -> float ";;
+
+
+
+
 (* Test *)
+(* Ces tests doivent échouer *)
+consMathExpr (Op ("",[]));;
+consMathExpr (Op ("",[Var "pi"]));;
+consMathExpr (Op ("+",[]));;
+consMathExpr (Op ("-",[]));;
+consMathExpr (Op ("*",[]));;
+consMathExpr (Op ("*",[Var "pi"]));;
+consMathExpr (Op ("/",[]));;
+consMathExpr (Op ("/",[Var "pi"]));;          
+
+(* Ces tests doivent réussir *)
 consMathExpr (Num 5);;
 consMathExpr (Var "x");;
-consMathExpr (Op ("",[]));;                   (*Doit echouer*)
-consMathExpr (Op ("",[Var "pi"]));;           (*Doit echouer*)
-consMathExpr (Op ("+",[]));;                  (*Doit echouer*)
-consMathExpr (Op ("-",[]));;                  (*Doit echouer*)
-consMathExpr (Op ("*",[]));;                  (*Doit echouer*)
-consMathExpr (Op ("*",[Var "pi"]));;          (*Doit echouer*)
-consMathExpr (Op ("/",[]));;                  (*Doit echouer*)
-consMathExpr (Op ("/",[Var "pi"]));;          (*Doit echouer*)
 consMathExpr (Op ("+",[Var "pi"]));;
 consMathExpr (Op ("-",[Var "pi"]));;
 consMathExpr (Op ("+",[(Num 1);(Num 2)]));;
