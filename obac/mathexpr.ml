@@ -24,6 +24,7 @@ type ('n,'op) gen_math_expr =
   | Atan of ('n,'op) gen_math_expr                          (* Cotangent      *)
 ;;
 
+
 (* The Mathematical expression that will be used in the program *)
 type math_expr = (Num.num,char) gen_math_expr;;
 
@@ -41,6 +42,7 @@ let rec consBinop (op: char) (l : math_expr list) : math_expr =
     | [x] -> x
     | t::q -> Binop(op,t,(consBinop op q))
 ;;
+
 
 (* Create the Fraction expression *)
 let rec consFract:  math_expr list -> math_expr = 
@@ -60,6 +62,7 @@ match b with
   | Var s -> Var s
   | Op(s,l) -> parse_op (s,l)
 
+
 (* Parse any kind of operation *)
 and parse_op = function
   | ("pi",[]) -> Pi
@@ -71,6 +74,7 @@ and parse_op = function
   | ("/",_) as d -> parse_basic_op d
   (* Mathematical functions *)
   | _ as o -> parse_math_function o
+
 
 (* Mathematical functions to parse *)
 and parse_math_function = function
@@ -85,6 +89,7 @@ and parse_math_function = function
   | ("atan",[x]) -> Atan(consMathExpr x)
   | _ -> failwith "Unrecognized operator to parse"
 
+
 (* Parse any kind of basic operation: '+', '-', '*', '/' *)
 and parse_basic_op = function
   | ("+",[t]) -> let m1 = consMathExpr t in
@@ -93,12 +98,13 @@ and parse_basic_op = function
 		  Unop ('-',m1)
   | ("+",t::q) -> let l = List.map (consMathExpr) (t::q) in
 				       consBinop '+' l
-  | ("-",t::q) -> let l = List.map (consMathExpr) (t::q) in
-				       consBinop '-' l
-  | ("*",t::q) when (List.length (t::q) > 1) -> 
-    let l = List.map (consMathExpr) (t::q) in consBinop '*' l
-  | ("/",t::q) when (List.length (t::q) > 1) ->
-    let l = List.map (consMathExpr) (t::q) in  consFract l
+  | ("-",l) when (List.length l = 2 ) -> 
+    let l = List.map (consMathExpr) l in
+    consBinop '-' l
+  | ("*",l) when (List.length l > 1) -> 
+    let ll = List.map (consMathExpr) l in consBinop '*' ll
+  | ("/",l) when (List.length l > 1) ->
+    let ll = List.map (consMathExpr) l in  consFract ll
   | _ -> failwith "Unrecognized basic operator to parse"
 ;;
 
@@ -129,6 +135,9 @@ let rec simpl : math_expr -> math_expr =
     | Log(_) as l -> simpl_log l
     (* In this case, the operation is a trigonometric function *)
     | _ as s -> simpl_trigo s
+
+
+
 
 (* Simplify a binary operation *)
 and simpl_binop = function
@@ -161,10 +170,10 @@ and simpl_trigo = function
 let rec subst : math_expr -> string -> math_expr -> math_expr = 
   failwith "TODO subst : math_expr -> string -> math_expr -> math_expr ";;
 
+
 (* Evaluate an expression to get a floating point value *)
 let rec eval : math_expr -> float = 
   failwith "TODO eval : math_expr -> float ";;
-
 
 
 
@@ -177,7 +186,8 @@ consMathExpr (Op ("-",[]));;
 consMathExpr (Op ("*",[]));;
 consMathExpr (Op ("*",[Var "pi"]));;
 consMathExpr (Op ("/",[]));;
-consMathExpr (Op ("/",[Var "pi"]));;          
+consMathExpr (Op ("/",[Var "pi"]));;
+consMathExpr (Op ("-",[(Num 1);(Num 2);(Num 3)]));;
 
 (* Ces tests doivent réussir *)
 consMathExpr (Num 5);;
