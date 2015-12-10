@@ -60,11 +60,14 @@ match b with
 and parse_op = function
   | ("pi",[]) -> Pi
   | ("e",[]) -> Exp0
+  (* Basic operations *)
   | ("+",_) as p -> parse_basic_op p
   | ("-",_) as m -> parse_basic_op m
   | ("*",_) as f -> parse_basic_op f
   | ("/",_) as d -> parse_basic_op d
+  (* Mathematical functions *)
   | ("sqrt",[x]) -> Sqrt(consMathExpr x)
+  | ("exp",[x]) -> Expo(consMathExpr x)
   | _ -> failwith "Unrecognized operator to parse"
 
 (* Parse any kind of basic operation: '+', '-', '*', '/' *)
@@ -112,3 +115,4 @@ consMathExpr (Op ("/",[(Op("/",[Num 2;Num 3]));Num 5]));;
 consMathExpr (Op ("sqrt",[(Num 1)]));;
 consMathExpr (Op ("sqrt",[(Op("/",[Num 2;Num 3]))]));;
 consMathExpr (Op ("sqrt",[Op ("-",[(Op("*",[Num 2;Num 3]));Num 5])]));;
+consMathExpr (Op ("exp",[(Num 1)]));;
