@@ -28,6 +28,8 @@ type ('n,'op) gen_math_expr =
 (* The Mathematical expression that will be used in the program *)
 type math_expr = (Num.num,char) gen_math_expr;;
 
+(* A shorcut to apply map *)
+let map_list f l = List.map f l;;
 
 
 (* Build a recursive Binop expression with the same operator *)
@@ -51,6 +53,17 @@ let rec consFract:  math_expr list -> math_expr =
       | [] -> failwith "Binop cannot be applied on an empty list"
       | [x] -> x
       | t::q -> Frac(t,consFract(q))
+;;
+
+(* Auxilliary function for binary operations *)
+let parse_binop_aux op l f = 
+      let ll = map_list f l in
+      match op with
+	| "+" -> consBinop '+' ll
+	| "-" -> consBinop '-' ll
+	| "*" -> consBinop '*' ll
+	| "/" -> consFract ll
+	| _ -> failwith "Invalid operator"
 ;;
 
 
@@ -96,17 +109,13 @@ and parse_basic_op = function
 		 Unop ('+',m1)
   | ("-",[t]) -> let m1 = consMathExpr t in
 		  Unop ('-',m1)
-  | ("+",t::q) -> let l = List.map (consMathExpr) (t::q) in
-				       consBinop '+' l
-  | ("-",l) when (List.length l = 2 ) -> 
-    let l = List.map (consMathExpr) l in
-    consBinop '-' l
-  | ("*",l) when (List.length l > 1) -> 
-    let ll = List.map (consMathExpr) l in consBinop '*' ll
-  | ("/",l) when (List.length l > 1) ->
-    let ll = List.map (consMathExpr) l in  consFract ll
+  | ("+",l) -> parse_binop_aux "+" l (consMathExpr)
+  | ("-",l) when (List.length l = 2 ) -> parse_binop_aux "-" l (consMathExpr)
+  | ("*",l) when (List.length l > 1) -> parse_binop_aux "*" l (consMathExpr)
+  | ("/",l) when (List.length l > 1) -> parse_binop_aux "/" l (consMathExpr)
   | _ -> failwith "Unrecognized basic operator to parse"
 ;;
+
 
 
 (* Integration of an expression *)
