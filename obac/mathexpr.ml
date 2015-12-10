@@ -12,6 +12,7 @@ type ('n,'op) gen_math_expr =
   | Binop of 'op * 
       ('n,'op) gen_math_expr * 
       ('n,'op) gen_math_expr                                (* '+','-','*'    *)
+  | Frac of ('n,'op) gen_math_expr * ('n,'op) gen_math_expr (* Fraction       *)
   | Sqrt of ('n,'op) gen_math_expr                          (* Square root    *)
   | Expo of ('n,'op) gen_math_expr                          (* Exponential    *)
   | Log of ('n,'op) gen_math_expr                           (* Logarithm      *)
@@ -21,7 +22,6 @@ type ('n,'op) gen_math_expr =
   | Acos of ('n,'op) gen_math_expr                          (* Secant         *)
   | Asin of ('n,'op) gen_math_expr                          (* Cosecant       *)
   | Atan of ('n,'op) gen_math_expr                          (* Cotangent      *)
-  | Frac of ('n,'op) gen_math_expr * ('n,'op) gen_math_expr (* Fraction       *)
 ;;
 
 (* The Mathematical expression that will be used in the program *)
@@ -121,7 +121,41 @@ let rec solve : math_expr -> string -> math_expr =
 
 (* Simplify an expression *)
 let rec simpl : math_expr -> math_expr = 
-  failwith "TODO simpl : math_expr -> math_expr ";;
+  fun x -> match x with
+    | Binop(_,_,_) as b -> simpl_binop b
+    | Frac(_,_) as f -> simpl_fract f
+    | Sqrt(_) as s -> simpl_sqrt s
+    | Expo(_) as e -> simpl_exp e
+    | Log(_) as l -> simpl_log l
+    (* In this case, the operation is a trigonometric function *)
+    | _ as s -> simpl_trigo s
+
+(* Simplify a binary operation *)
+and simpl_binop = function
+  | _ as o -> o 
+
+(* Simplify a fraction *)
+and simpl_fract = function
+  | _ as o -> o 
+
+(* Simplify a square root *)
+and simpl_sqrt = function
+  | _ as o -> o 
+
+(* Simplify a exponential function *)
+and simpl_exp = function
+  | _ as o -> o 
+
+(* Simplify the logarithm *)
+and simpl_log = function
+  | _ as o -> o 
+
+(* Simplify a trigonometric *)
+and simpl_trigo = function
+  | _ as o -> o 
+;;
+
+
 
 (* Subtitution *)
 let rec subst : math_expr -> string -> math_expr -> math_expr = 
