@@ -73,6 +73,7 @@ and parse_math_function = function
   | ("sqrt",[x]) -> Sqrt(consMathExpr x)
   | ("exp",[x]) -> Expo(consMathExpr x)
   | ("log",[x]) -> Log(consMathExpr x)
+  | ("cos",[x]) -> Cos(consMathExpr x)
   | _ -> failwith "Unrecognized operator to parse"
 
 (* Parse any kind of basic operation: '+', '-', '*', '/' *)
@@ -121,3 +122,4 @@ consMathExpr (Op ("sqrt",[(Num 1)]));;
 consMathExpr (Op ("sqrt",[(Op("/",[Num 2;Num 3]))]));;
 consMathExpr (Op ("sqrt",[Op ("-",[(Op("*",[Num 2;Num 3]));Num 5])]));;
 consMathExpr (Op ("exp",[Op ("sqrt",[Op ("-",[(Op("*",[Num 2;Num 3]));Num 5])])]));;
+consMathExpr (Op ("cos",[(Op("/",[Op ("+",[Var "pi"]);Num 3]))]));;
