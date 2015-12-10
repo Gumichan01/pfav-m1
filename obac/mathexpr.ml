@@ -49,13 +49,11 @@ let rec consBinop (op: char) (l : math_expr list) : math_expr =
 
 
 (* Create the Fraction expression *)
-(* TODO change the implementation, it is not good *)
-let rec consFract:  math_expr list -> math_expr = 
+let consFract:  math_expr list -> math_expr = 
   fun l -> 
     match l with
-      | [] -> failwith "A fraction cannot be applied on 0 element"
-      | [x] -> x
-      | t::q -> Frac(t,consFract(q))
+      | [x;y] -> Frac(x,y)
+      | _ -> failwith "A fraction cannot be applied on 0 element"
 ;;
 
 (* Create the Power expression *)
@@ -124,9 +122,9 @@ and parse_basic_op = function
   | ("-",[t]) -> let m1 = consMathExpr t in
 		  Unop ('-',m1)
   | ("+",l) -> parse_binop_aux "+" l (consMathExpr)
-  | ("-",l) when (List.length l = 2 ) -> parse_binop_aux "-" l (consMathExpr)
+  | ("-",l) when (List.length l = 2) -> parse_binop_aux "-" l (consMathExpr)
   | ("*",l) when (List.length l > 1) -> parse_binop_aux "*" l (consMathExpr)
-  | ("/",l) when (List.length l > 1) -> parse_binop_aux "/" l (consMathExpr)
+  | ("/",l) when (List.length l = 2) -> parse_binop_aux "/" l (consMathExpr)
   | _ -> failwith "Unrecognized basic operator to parse"
 ;;
 
