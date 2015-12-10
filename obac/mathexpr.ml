@@ -53,7 +53,7 @@ let consFract:  math_expr list -> math_expr =
   fun l -> 
     match l with
       | [x;y] -> Frac(x,y)
-      | _ -> failwith "A fraction cannot be applied on 0 element"
+      | _ -> failwith "Invalid fraction expression. Must not be reached"
 ;;
 
 (* Create the Power expression *)
