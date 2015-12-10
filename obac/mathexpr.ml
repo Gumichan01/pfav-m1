@@ -1,6 +1,7 @@
 
 
 #use "expr.mli";;
+(*#use "parseexpr.ml";;*)
 
 (* Generic mathematic expression *)
 type ('n,'op) gen_math_expr =
@@ -13,6 +14,7 @@ type ('n,'op) gen_math_expr =
       ('n,'op) gen_math_expr * 
       ('n,'op) gen_math_expr                                (* '+','-','*'    *)
   | Frac of ('n,'op) gen_math_expr * ('n,'op) gen_math_expr (* Fraction       *)
+  | Pow of ('n,'op) gen_math_expr * ('n,'op) gen_math_expr  (* Power          *)
   | Sqrt of ('n,'op) gen_math_expr                          (* Square root    *)
   | Expo of ('n,'op) gen_math_expr                          (* Exponential    *)
   | Log of ('n,'op) gen_math_expr                           (* Logarithm      *)
@@ -47,13 +49,23 @@ let rec consBinop (op: char) (l : math_expr list) : math_expr =
 
 
 (* Create the Fraction expression *)
+(* TODO change the implementation, it is not good *)
 let rec consFract:  math_expr list -> math_expr = 
   fun l -> 
     match l with
-      | [] -> failwith "Binop cannot be applied on an empty list"
+      | [] -> failwith "A fraction cannot be applied on 0 element"
       | [x] -> x
       | t::q -> Frac(t,consFract(q))
 ;;
+
+(* Create the Power expression *)
+let consPow: math_expr list -> math_expr = 
+  fun l -> 
+    match l with
+      | [x;y] -> Pow(x,y)
+      | _ -> failwith "Invalid power expression. Must not be reached"
+;;
+
 
 (* Auxilliary function for binary operations *)
 let parse_binop_aux op l f = 
@@ -91,6 +103,8 @@ and parse_op = function
 
 (* Mathematical functions to parse *)
 and parse_math_function = function
+  | ("^",l) when (List.length l = 2) -> 
+    let ll = map_list (consMathExpr) l in consPow ll
   | ("sqrt",[x]) -> Sqrt(consMathExpr x)
   | ("exp",[x]) -> Expo(consMathExpr x)
   | ("log",[x]) -> Log(consMathExpr x)
@@ -197,6 +211,8 @@ consMathExpr (Op ("*",[Var "pi"]));;
 consMathExpr (Op ("/",[]));;
 consMathExpr (Op ("/",[Var "pi"]));;
 consMathExpr (Op ("-",[(Num 1);(Num 2);(Num 3)]));;
+consMathExpr (Op ("^",[(Num 2);(Num 8);(Num 4)]));;
+consMathExpr (Op ("^",[(Num 2)]));;
 
 (* Ces tests doivent réussir *)
 consMathExpr (Num 5);;
@@ -214,6 +230,7 @@ consMathExpr (Op ("-",[(Op("*",[Num 2;Num 3]));Num 5]));;
 consMathExpr (Op ("-",[(Op("/",[Num 2;Num 3]));Num 5]));;
 consMathExpr (Op ("/",[(Num 1);(Num 2)]));;
 consMathExpr (Op ("/",[(Op("/",[Num 2;Num 3]));Num 5]));;
+consMathExpr (Op ("^",[(Num 2);(Num 8)]));;
 consMathExpr (Op ("sqrt",[(Num 1)]));;
 consMathExpr (Op ("sqrt",[(Op("/",[Num 2;Num 3]))]));;
 consMathExpr (Op ("sqrt",[Op ("-",[(Op("*",[Num 2;Num 3]));Num 5])]));;
