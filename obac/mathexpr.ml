@@ -66,6 +66,10 @@ and parse_op = function
   | ("*",_) as f -> parse_basic_op f
   | ("/",_) as d -> parse_basic_op d
   (* Mathematical functions *)
+  | _ as o -> parse_math_function o
+
+(* Mathematical functions to parse *)
+and parse_math_function = function
   | ("sqrt",[x]) -> Sqrt(consMathExpr x)
   | ("exp",[x]) -> Expo(consMathExpr x)
   | _ -> failwith "Unrecognized operator to parse"
@@ -115,4 +119,4 @@ consMathExpr (Op ("/",[(Op("/",[Num 2;Num 3]));Num 5]));;
 consMathExpr (Op ("sqrt",[(Num 1)]));;
 consMathExpr (Op ("sqrt",[(Op("/",[Num 2;Num 3]))]));;
 consMathExpr (Op ("sqrt",[Op ("-",[(Op("*",[Num 2;Num 3]));Num 5])]));;
-consMathExpr (Op ("exp",[(Num 1)]));;
+consMathExpr (Op ("exp",[Op ("sqrt",[Op ("-",[(Op("*",[Num 2;Num 3]));Num 5])])]));;
