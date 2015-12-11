@@ -35,6 +35,8 @@ type math_expr = (Num.num,char) gen_math_expr;;
 (* A function that print the tree of the given expression *)
 let rec print_tree_of_math : math_expr -> string = fun m ->
   match m with
+    | Pi -> "Pi"
+    | Exp0 -> "e"
     | Val(Num.Int(x)) -> "Val(Num.Int("^(string_of_int x)^"))"
     | Var s -> "Var("^s^")"
     | Unop(op,e) -> "Unop("^(Char.escaped op)^","^(print_tree_of_math e)^")"
