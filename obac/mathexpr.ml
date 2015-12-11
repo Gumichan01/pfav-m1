@@ -46,6 +46,7 @@ let rec print_tree_of_math : math_expr -> string = fun m ->
       (print_tree_of_math e2)^")"
     | Pow(e1,e2) -> "Pow("^(print_tree_of_math e1)^","^
       (print_tree_of_math e2)^")"
+    | Sqrt(n) -> "Sqrt("^(print_tree_of_math n)^")"
     | _ -> failwith "Unrecognized math to display"
 ;;
 
