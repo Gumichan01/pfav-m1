@@ -51,9 +51,27 @@ let rec print_tree_of_math : math_expr -> string = fun m ->
 ;;
 
 
+(* Check if the string is a reserved keyword *)
+let is_not_reserved_keyword = function
+  | "pow" | "sqrt" | "exp" | "log" -> false 
+  | "cos" | "sin" | "tan" | "acos" | "asin" | "atan" -> false
+  | _ -> true
+;;
+
+
+
 (* A shorcut to apply map *)
 let map_list f l = List.map f l;;
 
+
+let consVar: string -> math_expr = 
+  fun s ->
+    if is_not_reserved_keyword(s)
+    then 
+      (Var s)
+    else 
+      failwith (s^" is a keyword, it cannot be used as a variable")
+;;
 
 (* Build a recursive Binop expression with the same operator *)
 (* It is used when the expression is one of the followings: 
@@ -103,7 +121,7 @@ let parse_binop_aux op l f =
 let rec consMathExpr (b : basic_expr) : math_expr = 
 match b with
   | Num n -> Val (Num.Int n)
-  | Var s -> Var s
+  | Var s -> consVar s
   | Op(s,l) -> parse_op (s,l)
 
 
