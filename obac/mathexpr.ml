@@ -47,6 +47,14 @@ let rec print_tree_of_math : math_expr -> string = fun m ->
     | Pow(e1,e2) -> "Pow("^(print_tree_of_math e1)^","^
       (print_tree_of_math e2)^")"
     | Sqrt(n) -> "Sqrt("^(print_tree_of_math n)^")"
+    | Expo(n) -> "Expo("^(print_tree_of_math n)^")"
+    | Log(n) -> "Log("^(print_tree_of_math n)^")"
+    | Cos(n) -> "Cos("^(print_tree_of_math n)^")"
+    | Sin(n) -> "Sin("^(print_tree_of_math n)^")"
+    | Tan(n) -> "Tan("^(print_tree_of_math n)^")"
+    | Acos(n) -> "Acos("^(print_tree_of_math n)^")"
+    | Asin(n) -> "Asin("^(print_tree_of_math n)^")"
+    | Atan(n) -> "Atan("^(print_tree_of_math n)^")"
     | _ -> failwith "Unrecognized math to display"
 ;;
 
