@@ -42,6 +42,8 @@ let rec print_tree_of_math : math_expr -> string = fun m ->
     | Unop(op,e) -> "Unop("^(Char.escaped op)^","^(print_tree_of_math e)^")"
     | Binop(op,e1,e2) -> "Binop("^(Char.escaped op)^","^(print_tree_of_math e1)^
       ","^(print_tree_of_math e2)^")"
+    | Frac(e1,e2) -> "Frac("^(print_tree_of_math e1)^","^
+      (print_tree_of_math e2)^")"
     | _ -> failwith "Unrecognized math to display"
 ;;
 
