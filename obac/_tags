@@ -1,4 +1,5 @@
 "parsexpr.ml" : pp(camlp4o)
+"mathexpr.ml" : pp(camlp4o)
 
 ## Note: To add an extra library to your program, you could
 ## uncomment and adapt the following lines. The "use_xxxx"

@@ -1,7 +1,9 @@
+(** TODO : branche sur le parser pour testerle nouveau type 
+    + remplacer les failwith par des exceptions 
+    + renommage de certaines fonctions *)
 
-
-#use "expr.mli";;
-(*#use "parseexpr.ml";;*)
+open Expr;;
+(*#use "expr.mli";;*)
 
 (* Generic mathematic expression *)
 type ('n,'op) gen_math_expr =
@@ -29,6 +31,18 @@ type ('n,'op) gen_math_expr =
 
 (* The Mathematical expression that will be used in the program *)
 type math_expr = (Num.num,char) gen_math_expr;;
+
+(* A function that print the tree of the given expression *)
+let rec print_tree_of_math : math_expr -> string = fun m ->
+  match m with
+    | Val(Num.Int(x)) -> "Val(Num.Int("^(string_of_int x)^"))"
+    | Var s -> "Var("^s^")"
+    | Unop(op,e) -> "Unop("^(Char.escaped op)^","^(print_tree_of_math e)^")"
+    | Binop(op,e1,e2) -> "Binop("^(Char.escaped op)^","^(print_tree_of_math e1)^
+      ","^(print_tree_of_math e2)^")"
+    | _ -> failwith "Unrecognized math to display"
+;;
+
 
 (* A shorcut to apply map *)
 let map_list f l = List.map f l;;
@@ -79,7 +93,7 @@ let parse_binop_aux op l f =
 
 
 (* Build a mathematical expression from a basic expression *)
-let rec consMathExpr (b : (*Expr.*)basic_expr) : math_expr = 
+let rec consMathExpr (b : basic_expr) : math_expr = 
 match b with
   | Num n -> Val (Num.Int n)
   | Var s -> Var s
@@ -132,18 +146,22 @@ and parse_basic_op = function
 
 (* Integration of an expression *)
 let rec integ : math_expr -> string -> math_expr -> math_expr -> math_expr = 
-  failwith "TODO integ : math_expr -> string -> math_expr -> math_expr -> math_expr ";;
+fun x s a b -> match x with
+  | _ -> failwith "TODO integ : math_expr -> string -> math_expr -> math_expr -> math_expr ";;
 
 
 (* Derive an expression *)
 let rec derive : math_expr -> string -> math_expr = 
-  failwith "TODO derive : math_expr -> string -> math_expr ";;
+fun x s -> match x with
+  | _ -> failwith "TODO derive : math_expr -> string -> math_expr ";;
+  
 
 
 (* Solve an equation finding a value that 
    puts the expression to zero *)
 let rec solve : math_expr -> string -> math_expr = 
-  failwith "TODO solve : math_expr -> string -> math_expr ";;
+  fun x s -> match x with
+    | _ -> failwith "TODO solve : math_expr -> string -> math_expr ";;
 
 
 (* Simplify an expression *)
@@ -191,12 +209,14 @@ and simpl_trigo = function
 
 (* Subtitution *)
 let rec subst : math_expr -> string -> math_expr -> math_expr = 
-  failwith "TODO subst : math_expr -> string -> math_expr -> math_expr ";;
+  fun x s m -> match x with
+    | _ -> failwith "TODO subst : math_expr -> string -> math_expr -> math_expr ";;
 
 
 (* Evaluate an expression to get a floating point value *)
 let rec eval : math_expr -> float = 
-  failwith "TODO eval : math_expr -> float ";;
+  fun m -> match m with
+    | _ -> failwith "TODO eval : math_expr -> float ";;
 
 
 
