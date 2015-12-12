@@ -212,14 +212,18 @@ let rec simpl : math_expr -> math_expr =
 and simpl_binop = function
   (* x + x*y = x * (y + 1) *)
   | Binop('+',x,Binop('*',y,Val(Num.Int(z)))) 
-      when x = y -> Binop('*',x,Val(Num.Int(z+1)))
+      when x = y -> simpl_binop(Binop('*',simpl(x),Val(Num.Int(z+1))))
   (* x + x*y = x * (y+z), z is an expression *)
   | Binop('+',x,Binop('*',y,z)) 
-      when x = y -> Binop('*',x,Binop('+',z,Val(Num.Int 1)))
+      when x = y -> simpl_binop(Binop('*',x,Binop('+',z,Val(Num.Int 1))))
   (* x + x = x * 2 *)
-  | Binop('+',x,y) when x = y -> Binop('*',simpl(x),Val(Num.Int 2))
+  | Binop('+',x,y) when x = y -> simpl_binop(Binop('*',simpl(x),Val(Num.Int 2)))
   (* Sum of x1 + x1 + ... + xn, x[1-n] are the same expression *)
   | Binop('+' as p,x,y) -> simpl_binop_aux p x y
+  (* x - x = 0 *)
+  | Binop('-',x,y) when x = y -> Val(Num.Int 0)
+    (* x - (-y) = x + y *)
+  | Binop('-',x,Unop('-',y)) -> simpl_binop(Binop('+',simpl(x),simpl(y)))
   | _ as o -> o 
 
 (* Auxiliary function of simpl_binop *)
