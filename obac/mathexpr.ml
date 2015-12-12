@@ -217,6 +217,11 @@ and simpl_unop = function
 
 (* Simplify a binary operation *)
 and simpl_binop = function
+  (* a² + 2ab +b² = (a + b)² *)
+  | Binop('+',Pow(a,p1),Binop('+',Binop('*',Val(Num.Int(2)),
+					Binop('*',aa,bb)),Pow(b,p2)))
+      when ((p1 = p2) && (a = aa) && (b = bb)) ->
+    Pow(Binop('+',a,b),Val(Num.Int 2))
   (* x + x*y = x * (y + 1) *)
   | Binop('+',x,Binop('*',y,Val(Num.Int(z)))) 
       when x = y -> simpl_binop(Binop('*',simpl(x),Val(Num.Int(z+1))))
@@ -234,14 +239,18 @@ and simpl_binop = function
   | Binop('-',x,y) when x = y -> Val(Num.Int 0)
   (* x - (-y) = x + y *)
   | Binop('-',x,Unop('-',y)) -> simpl_binop(Binop('+',simpl(x),simpl(y)))
-  | Binop(op,x,y) -> Binop(op,(simpl x),(simpl y))
-  | _ as o -> o 
+  | _ as bf -> simpl_binop_factorize bf
 
 (* Auxiliary function of simpl_binop *)
 and simpl_binop_aux op x y = 
   let t = simpl x in let z = simpl y in 
 		     let ex = (Binop(op,t,z)) in
 		     if z <> y then simpl_binop (ex) else ex    
+
+(* Deal with particular formulas *)
+and simpl_binop_factorize = function
+  | Binop(op,x,y) -> Binop(op,(simpl x),(simpl y))
+  | _ as o -> o
 
 (* Simplify a fraction *)
 and simpl_fract = function
