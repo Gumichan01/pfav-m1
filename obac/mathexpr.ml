@@ -210,6 +210,7 @@ let rec simpl : math_expr -> math_expr =
 
 (* Simplify a binary operation *)
 and simpl_binop = function
+  | Binop('+',x,y) when x = y -> Binop('*',x,Val(Num.Int 2))
   | _ as o -> o 
 
 (* Simplify a fraction *)
