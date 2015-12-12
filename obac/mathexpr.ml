@@ -1,4 +1,4 @@
-(** TODO : remplacer les failwith par des exceptions *)
+
 
 open Expr;;
 (*#use "expr.mli";*)
@@ -30,6 +30,14 @@ type ('n,'op) gen_math_expr =
 (* The Mathematical expression that will be used in the program *)
 type math_expr = (Num.num,char) gen_math_expr;;
 
+(* Exceptions *)
+exception Reserved_keyword of string;;
+exception Parsing_error of string;;
+exception Invalid_binop of string;;
+exception Invalid_fraction of string;;
+exception Invalid_power of string;;
+exception Invalid_math_expr of string;;
+
 (* A function that print the tree of the given expression *)
 let rec print_tree_of_math : math_expr -> string = fun m ->
   match m with
@@ -53,7 +61,7 @@ let rec print_tree_of_math : math_expr -> string = fun m ->
     | Acos(n) -> "Acos("^(print_tree_of_math n)^")"
     | Asin(n) -> "Asin("^(print_tree_of_math n)^")"
     | Atan(n) -> "Atan("^(print_tree_of_math n)^")"
-    | _ -> failwith "Unrecognized mathematic expression to display"
+    | _ -> raise (Invalid_math_expr "Invalid mathematic expression to print")
 ;;
 
 
@@ -76,13 +84,13 @@ let consVar: string -> math_expr =
     then 
       (Var s)
     else 
-      failwith (s^" is a keyword, it cannot be used as a variable")
+      raise (Reserved_keyword (s^" is a keyword, not usable as a variable"))
 ;;
 
 (* Build a recursive Binop expression with the same operator *)
 let rec cons_binop (op: char) (l : math_expr list) : math_expr = 
   match l with
-    | [] -> failwith "Binop cannot be applied on an empty list"
+    | [] -> raise (Invalid_binop "Binop cannot be applied on an empty list")
     | [x] -> x
     | t::q -> Binop(op,t,(cons_binop op q))
 ;;
@@ -93,7 +101,7 @@ let cons_frac:  math_expr list -> math_expr =
   fun l -> 
     match l with
       | [x;y] -> Frac(x,y)
-      | _ -> failwith "Invalid fraction expression. Must not be reached"
+      | _ -> raise (Invalid_fraction "Invalid fraction expression")
 ;;
 
 (* Create the Power expression *)
@@ -101,7 +109,7 @@ let cons_pow: math_expr list -> math_expr =
   fun l -> 
     match l with
       | [x;y] -> Pow(x,y)
-      | _ -> failwith "Invalid power expression. Must not be reached"
+      | _ -> raise (Invalid_power "Invalid power expression")
 ;;
 
 
@@ -113,7 +121,7 @@ let parse_binop_aux op l f =
 	| "-" -> cons_binop '-' ll
 	| "*" -> cons_binop '*' ll
 	| "/" -> cons_frac ll
-	| _ -> failwith "Invalid operator"
+	| _  as s -> raise (Invalid_math_expr (s^"is not a valid operator"))
 ;;
 
 
@@ -152,8 +160,7 @@ and parse_math_function = function
   | ("acos",[x]) -> Acos(cons_math_expr x)
   | ("asin",[x]) -> Asin(cons_math_expr x)
   | ("atan",[x]) -> Atan(cons_math_expr x)
-  | _ -> failwith "Unrecognized operator to parse"
-
+  | _ -> raise (Parsing_error "Unrecognized mathematic operator to parse")
 
 (* Parse any kind of basic operation: '+', '-', '*', '/' *)
 and parse_basic_op = function
@@ -165,7 +172,7 @@ and parse_basic_op = function
   | ("-",l) when (List.length l = 2) -> parse_binop_aux "-" l (cons_math_expr)
   | ("*",l) when (List.length l > 1) -> parse_binop_aux "*" l (cons_math_expr)
   | ("/",l) when (List.length l = 2) -> parse_binop_aux "/" l (cons_math_expr)
-  | _ -> failwith "Unrecognized basic operator to parse"
+  | _ -> raise (Parsing_error "Unrecognized basic operator to parse")
 ;;
 
 
