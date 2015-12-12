@@ -231,6 +231,7 @@ and simpl_binop = function
   | Binop('-',x,y) when x = y -> Val(Num.Int 0)
     (* x - (-y) = x + y *)
   | Binop('-',x,Unop('-',y)) -> simpl_binop(Binop('+',simpl(x),simpl(y)))
+  | Binop(op,x,y) -> Binop(op,(simpl x),(simpl y))
   | _ as o -> o 
 
 (* Auxiliary function of simpl_binop *)
