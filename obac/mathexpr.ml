@@ -211,6 +211,11 @@ let rec simpl : math_expr -> math_expr =
 (* Simplify a binary operation *)
 and simpl_binop = function
   | Binop('+',x,y) when x = y -> Binop('*',x,Val(Num.Int 2))
+  (* x + x*y = x * (y+1) *)
+  | Binop('+',x,Binop('*',y,Val(Num.Int(z)))) 
+      when x = y -> Binop('*',x,Val(Num.Int(z+1))) (* example: 3+3*4 = 3*5 *)
+  | Binop('+',x,Binop('*',y,z)) 
+      when x = y -> Binop('*',x,Binop('+',z,Val(Num.Int 1)))
   | _ as o -> o 
 
 (* Simplify a fraction *)
