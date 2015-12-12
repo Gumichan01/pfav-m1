@@ -199,6 +199,7 @@ let rec solve : math_expr -> string -> math_expr =
 (* Simplify an expression *)
 let rec simpl : math_expr -> math_expr = 
   fun x -> match x with
+    | Unop(_,_) as u -> simpl_unop u
     | Binop(_,_,_) as b -> simpl_binop b
     | Frac(_,_) as f -> simpl_fract f
     | Pow(_,_) as p -> simpl_pow p
@@ -207,6 +208,12 @@ let rec simpl : math_expr -> math_expr =
     | Log(_) as l -> simpl_log l
     (* In this case, the operation is a trigonometric function *)
     | _ as s -> simpl_trigo s
+
+(* Simplify a unary operation *)
+and simpl_unop = function
+  | Unop('-',Unop('-',x)) -> simpl(x)
+  | Unop(s,x) -> Unop(s,simpl(x))
+  | _ as o -> o
 
 (* Simplify a binary operation *)
 and simpl_binop = function
