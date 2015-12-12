@@ -14,7 +14,7 @@ let something () =
     | Var v -> "variable "^v
     | Num i -> "number "^(string_of_int i)
   
-  and r = consMathExpr e in
+  and r = cons_math_expr e in
   print_string ("We have parsed "^example^" and its tree starts with "^s^"\n");
   print_string("math_expr: "^(print_tree_of_math r)^"\n");;
 

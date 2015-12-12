@@ -1,9 +1,7 @@
-(** TODO : branche sur le parser pour testerle nouveau type 
-    + remplacer les failwith par des exceptions 
-    + renommage de certaines fonctions *)
+(** TODO : remplacer les failwith par des exceptions *)
 
 open Expr;;
-(*#use "expr.mli";;*)
+(*#use "expr.mli";*)
 
 (* Generic mathematic expression *)
 type ('n,'op) gen_math_expr =
@@ -55,7 +53,7 @@ let rec print_tree_of_math : math_expr -> string = fun m ->
     | Acos(n) -> "Acos("^(print_tree_of_math n)^")"
     | Asin(n) -> "Asin("^(print_tree_of_math n)^")"
     | Atan(n) -> "Atan("^(print_tree_of_math n)^")"
-    | _ -> failwith "Unrecognized math to display"
+    | _ -> failwith "Unrecognized mathematic expression to display"
 ;;
 
 
@@ -82,21 +80,16 @@ let consVar: string -> math_expr =
 ;;
 
 (* Build a recursive Binop expression with the same operator *)
-(* It is used when the expression is one of the followings: 
-   x1 + x2 + ... + xn
-   x1 - x2 - ... - xn
-   x1 * x2 * ... * xn
-*)
-let rec consBinop (op: char) (l : math_expr list) : math_expr = 
+let rec cons_binop (op: char) (l : math_expr list) : math_expr = 
   match l with
     | [] -> failwith "Binop cannot be applied on an empty list"
     | [x] -> x
-    | t::q -> Binop(op,t,(consBinop op q))
+    | t::q -> Binop(op,t,(cons_binop op q))
 ;;
 
 
 (* Create the Fraction expression *)
-let consFract:  math_expr list -> math_expr = 
+let cons_frac:  math_expr list -> math_expr = 
   fun l -> 
     match l with
       | [x;y] -> Frac(x,y)
@@ -104,7 +97,7 @@ let consFract:  math_expr list -> math_expr =
 ;;
 
 (* Create the Power expression *)
-let consPow: math_expr list -> math_expr = 
+let cons_pow: math_expr list -> math_expr = 
   fun l -> 
     match l with
       | [x;y] -> Pow(x,y)
@@ -116,17 +109,17 @@ let consPow: math_expr list -> math_expr =
 let parse_binop_aux op l f = 
       let ll = map_list f l in
       match op with
-	| "+" -> consBinop '+' ll
-	| "-" -> consBinop '-' ll
-	| "*" -> consBinop '*' ll
-	| "/" -> consFract ll
+	| "+" -> cons_binop '+' ll
+	| "-" -> cons_binop '-' ll
+	| "*" -> cons_binop '*' ll
+	| "/" -> cons_frac ll
 	| _ -> failwith "Invalid operator"
 ;;
 
 
 
 (* Build a mathematical expression from a basic expression *)
-let rec consMathExpr (b : basic_expr) : math_expr = 
+let rec cons_math_expr (b : basic_expr) : math_expr = 
 match b with
   | Num n -> Val (Num.Int n)
   | Var s -> consVar s
@@ -149,29 +142,29 @@ and parse_op = function
 (* Mathematical functions to parse *)
 and parse_math_function = function
   | ("^",l) when (List.length l = 2) -> 
-    let ll = map_list (consMathExpr) l in consPow ll
-  | ("sqrt",[x]) -> Sqrt(consMathExpr x)
-  | ("exp",[x]) -> Expo(consMathExpr x)
-  | ("log",[x]) -> Log(consMathExpr x)
-  | ("cos",[x]) -> Cos(consMathExpr x)
-  | ("sin",[x]) -> Sin(consMathExpr x)
-  | ("tan",[x]) -> Tan(consMathExpr x)
-  | ("acos",[x]) -> Acos(consMathExpr x)
-  | ("asin",[x]) -> Asin(consMathExpr x)
-  | ("atan",[x]) -> Atan(consMathExpr x)
+    let ll = map_list (cons_math_expr) l in cons_pow ll
+  | ("sqrt",[x]) -> Sqrt(cons_math_expr x)
+  | ("exp",[x]) -> Expo(cons_math_expr x)
+  | ("log",[x]) -> Log(cons_math_expr x)
+  | ("cos",[x]) -> Cos(cons_math_expr x)
+  | ("sin",[x]) -> Sin(cons_math_expr x)
+  | ("tan",[x]) -> Tan(cons_math_expr x)
+  | ("acos",[x]) -> Acos(cons_math_expr x)
+  | ("asin",[x]) -> Asin(cons_math_expr x)
+  | ("atan",[x]) -> Atan(cons_math_expr x)
   | _ -> failwith "Unrecognized operator to parse"
 
 
 (* Parse any kind of basic operation: '+', '-', '*', '/' *)
 and parse_basic_op = function
-  | ("+",[t]) -> let m1 = consMathExpr t in
+  | ("+",[t]) -> let m1 = cons_math_expr t in
 		 Unop ('+',m1)
-  | ("-",[t]) -> let m1 = consMathExpr t in
+  | ("-",[t]) -> let m1 = cons_math_expr t in
 		  Unop ('-',m1)
-  | ("+",l) -> parse_binop_aux "+" l (consMathExpr)
-  | ("-",l) when (List.length l = 2) -> parse_binop_aux "-" l (consMathExpr)
-  | ("*",l) when (List.length l > 1) -> parse_binop_aux "*" l (consMathExpr)
-  | ("/",l) when (List.length l = 2) -> parse_binop_aux "/" l (consMathExpr)
+  | ("+",l) -> parse_binop_aux "+" l (cons_math_expr)
+  | ("-",l) when (List.length l = 2) -> parse_binop_aux "-" l (cons_math_expr)
+  | ("*",l) when (List.length l > 1) -> parse_binop_aux "*" l (cons_math_expr)
+  | ("/",l) when (List.length l = 2) -> parse_binop_aux "/" l (cons_math_expr)
   | _ -> failwith "Unrecognized basic operator to parse"
 ;;
 
@@ -255,42 +248,42 @@ let rec eval : math_expr -> float =
 
 (* Test *)
 (* Ces tests doivent échouer *)
-(*consMathExpr (Op ("",[]));;
-consMathExpr (Op ("",[Var "pi"]));;
-consMathExpr (Op ("+",[]));;
-consMathExpr (Op ("-",[]));;
-consMathExpr (Op ("*",[]));;
-consMathExpr (Op ("*",[Var "pi"]));;
-consMathExpr (Op ("/",[]));;
-consMathExpr (Op ("/",[Var "pi"]));;
-consMathExpr (Op ("-",[(Num 1);(Num 2);(Num 3)]));;
-consMathExpr (Op ("^",[(Num 2);(Num 8);(Num 4)]));;
-consMathExpr (Op ("^",[(Num 2)]));;*)
+(*cons_math_expr (Op ("",[]));;
+cons_math_expr (Op ("",[Var "pi"]));;
+cons_math_expr (Op ("+",[]));;
+cons_math_expr (Op ("-",[]));;
+cons_math_expr (Op ("*",[]));;
+cons_math_expr (Op ("*",[Var "pi"]));;
+cons_math_expr (Op ("/",[]));;
+cons_math_expr (Op ("/",[Var "pi"]));;
+cons_math_expr (Op ("-",[(Num 1);(Num 2);(Num 3)]));;
+cons_math_expr (Op ("^",[(Num 2);(Num 8);(Num 4)]));;
+cons_math_expr (Op ("^",[(Num 2)]));;*)
 
 (* Ces tests doivent réussir *)
-(*consMathExpr (Num 5);;
-consMathExpr (Var "x");;
-consMathExpr (Op ("+",[Var "pi"]));;
-consMathExpr (Op ("-",[Var "pi"]));;
-consMathExpr (Op ("+",[(Num 1);(Num 2)]));;
-consMathExpr (Op ("+",[(Op("+",[Num 2;Num 3]));Num 5]));;
-consMathExpr (Op ("-",[(Num 1);(Num 2)]));;
-consMathExpr (Op ("-",[(Op("+",[Num 2;Num 3]));Num 5]));;
-consMathExpr (Op ("+",[(Op("-",[Num 2;Num 3]));Num 5]));;
-consMathExpr (Op ("*",[(Op("*",[Num 2;Num 3]));Num 5]));;
-consMathExpr (Op ("*",[(Op("+",[Num 2;Num 3]));Num 5]));;
-consMathExpr (Op ("-",[(Op("*",[Num 2;Num 3]));Num 5]));;
-consMathExpr (Op ("-",[(Op("/",[Num 2;Num 3]));Num 5]));;
-consMathExpr (Op ("/",[(Num 1);(Num 2)]));;
-consMathExpr (Op ("/",[(Op("/",[Num 2;Num 3]));Num 5]));;
-consMathExpr (Op ("^",[(Num 2);(Num 8)]));;
-consMathExpr (Op ("sqrt",[(Num 1)]));;
-consMathExpr (Op ("sqrt",[(Op("/",[Num 2;Num 3]))]));;
-consMathExpr (Op ("sqrt",[Op ("-",[(Op("*",[Num 2;Num 3]));Num 5])]));;
-consMathExpr (Op ("exp",[Op ("sqrt",[Op ("-",[(Op("*",[Num 2;Num 3]));Num 5])])]));;
-consMathExpr (Op ("cos",[(Op("/",[Op ("+",[Var "pi"]);Num 3]))]));;
-consMathExpr (Op ("sin",[(Op("/",[Op ("+",[Var "pi"]);Num 3]))]));;
-consMathExpr (Op ("tan",[(Op("/",[Op ("+",[Var "pi"]);Num 3]))]));;
-consMathExpr (Op ("acos",[(Op("/",[Op ("+",[Var "pi"]);Num 3]))]));;
-consMathExpr (Op ("asin",[(Op("/",[Op ("+",[Var "pi"]);Num 3]))]));;
-consMathExpr (Op ("atan",[(Op("/",[Op ("+",[Var "pi"]);Num 3]))]));;*)
+(*cons_math_expr (Num 5);;
+cons_math_expr (Var "x");;
+cons_math_expr (Op ("+",[Var "pi"]));;
+cons_math_expr (Op ("-",[Var "pi"]));;
+cons_math_expr (Op ("+",[(Num 1);(Num 2)]));;
+cons_math_expr (Op ("+",[(Op("+",[Num 2;Num 3]));Num 5]));;
+cons_math_expr (Op ("-",[(Num 1);(Num 2)]));;
+cons_math_expr (Op ("-",[(Op("+",[Num 2;Num 3]));Num 5]));;
+cons_math_expr (Op ("+",[(Op("-",[Num 2;Num 3]));Num 5]));;
+cons_math_expr (Op ("*",[(Op("*",[Num 2;Num 3]));Num 5]));;
+cons_math_expr (Op ("*",[(Op("+",[Num 2;Num 3]));Num 5]));;
+cons_math_expr (Op ("-",[(Op("*",[Num 2;Num 3]));Num 5]));;
+cons_math_expr (Op ("-",[(Op("/",[Num 2;Num 3]));Num 5]));;
+cons_math_expr (Op ("/",[(Num 1);(Num 2)]));;
+cons_math_expr (Op ("/",[(Op("/",[Num 2;Num 3]));Num 5]));;
+cons_math_expr (Op ("^",[(Num 2);(Num 8)]));;
+cons_math_expr (Op ("sqrt",[(Num 1)]));;
+cons_math_expr (Op ("sqrt",[(Op("/",[Num 2;Num 3]))]));;
+cons_math_expr (Op ("sqrt",[Op ("-",[(Op("*",[Num 2;Num 3]));Num 5])]));;
+cons_math_expr (Op ("exp",[Op ("sqrt",[Op ("-",[(Op("*",[Num 2;Num 3]));Num 5])])]));;
+cons_math_expr (Op ("cos",[(Op("/",[Op ("+",[Var "pi"]);Num 3]))]));;
+cons_math_expr (Op ("sin",[(Op("/",[Op ("+",[Var "pi"]);Num 3]))]));;
+cons_math_expr (Op ("tan",[(Op("/",[Op ("+",[Var "pi"]);Num 3]))]));;
+cons_math_expr (Op ("acos",[(Op("/",[Op ("+",[Var "pi"]);Num 3]))]));;
+cons_math_expr (Op ("asin",[(Op("/",[Op ("+",[Var "pi"]);Num 3]))]));;
+cons_math_expr (Op ("atan",[(Op("/",[Op ("+",[Var "pi"]);Num 3]))]));;*)
