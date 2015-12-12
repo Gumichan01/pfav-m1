@@ -225,11 +225,14 @@ and simpl_binop = function
       when x = y -> simpl_binop(Binop('*',x,Binop('+',z,Val(Num.Int 1))))
   (* x + x = x * 2 *)
   | Binop('+',x,y) when x = y -> simpl_binop(Binop('*',simpl(x),Val(Num.Int 2)))
+    (* ax + ay = a * (x + y) *)
+  | Binop('+',Binop('*',a,x),Binop('*',b,y)) when a = b -> 
+    Binop('*',simpl(a),simpl(Binop('+',x,y)))
   (* Sum of x1 + x1 + ... + xn, x[1-n] are the same expression *)
   | Binop('+' as p,x,y) -> simpl_binop_aux p x y
   (* x - x = 0 *)
   | Binop('-',x,y) when x = y -> Val(Num.Int 0)
-    (* x - (-y) = x + y *)
+  (* x - (-y) = x + y *)
   | Binop('-',x,Unop('-',y)) -> simpl_binop(Binop('+',simpl(x),simpl(y)))
   | Binop(op,x,y) -> Binop(op,(simpl x),(simpl y))
   | _ as o -> o 
