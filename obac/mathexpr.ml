@@ -210,17 +210,23 @@ let rec simpl : math_expr -> math_expr =
 
 (* Simplify a binary operation *)
 and simpl_binop = function
-  (* x + x*y = x * (y+1), x and y are variables *)
+  (* x + x*y = x * (y + 1) *)
   | Binop('+',x,Binop('*',y,Val(Num.Int(z)))) 
-      when x = y -> Binop('*',x,Val(Num.Int(z+1))) (* example: 3+3*4 = 3*5 *)
-  (* x + x*y = x * (y+1), x and y are expressions *)
+      when x = y -> Binop('*',x,Val(Num.Int(z+1)))
+  (* x + x*y = x * (y+z), z is an expression *)
   | Binop('+',x,Binop('*',y,z)) 
       when x = y -> Binop('*',x,Binop('+',z,Val(Num.Int 1)))
   (* x + x = x * 2 *)
-  | Binop('+',x,y) when x = y -> Binop('*',x,Val(Num.Int 2))
+  | Binop('+',x,y) when x = y -> Binop('*',simpl(x),Val(Num.Int 2))
   (* Sum of x1 + x1 + ... + xn, x[1-n] are the same expression *)
-(*  | Binop('+',x,y) -> let z = simpl y in simpl_binop (Binop('+',x,z))*)
+  | Binop('+' as p,x,y) -> simpl_binop_aux p x y
   | _ as o -> o 
+
+(* Auxiliary function of simpl_binop *)
+and simpl_binop_aux op x y = 
+  let t = simpl x in let z = simpl y in 
+		     let ex = (Binop(op,t,z)) in
+		     if z <> y then simpl_binop (ex) else ex    
 
 (* Simplify a fraction *)
 and simpl_fract = function
