@@ -218,10 +218,7 @@ and simpl_unop = function
 (* Simplify a binary operation *)
 and simpl_binop = function
   | Binop ('+',_,_) as bplus-> simpl_plus bplus
-  (* x - x = 0 *)
-  | Binop('-',x,y) when x = y -> Val(Num.Int 0)
-  (* x - (-y) = x + y *)
-  | Binop('-',x,Unop('-',y)) -> simpl_binop(Binop('+',simpl(x),simpl(y)))
+  | Binop ('-',_,_) as bminus-> simpl_plus bminus
   | _ as bf -> simpl_binop_factorize bf
 
 
@@ -245,6 +242,12 @@ and simpl_plus = function
   | Binop('+' as p,x,y) -> simpl_binop_aux p x y
   | _ as o -> o
 
+and simpl_minus = function
+  (* x - x = 0 *)
+  | Binop('-',x,y) when x = y -> Val(Num.Int 0)
+  (* x - (-y) = x + y *)
+  | Binop('-',x,Unop('-',y)) -> simpl_binop(Binop('+',simpl(x),simpl(y)))
+  | _ as o -> o
 
 (* Simplify a² +2ab+ b² *)
 and simpl_identity id a aa b bb p =
