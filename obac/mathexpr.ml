@@ -219,7 +219,9 @@ and simpl_unop = function
 and simpl_binop = function
   | Binop ('+',_,_) as bplus-> simpl_plus bplus
   | Binop ('-',_,_) as bminus-> simpl_plus bminus
-  | _ as bf -> simpl_binop_factorize bf
+(** TODO : '*' et '/' *)
+  | Binop(op,x,y) -> Binop(op,(simpl x),(simpl y))
+  | _ as bf -> bf
 
 (* Simplify additions *)
 and simpl_plus = function
@@ -254,6 +256,7 @@ and simpl_minus = function
   | Binop('-',x,y) when x = y -> Val(Num.Int 0)
   (* x - (-y) = x + y *)
   | Binop('-',x,Unop('-',y)) -> simpl_binop(Binop('+',simpl(x),simpl(y)))
+  (** TODO : x - 2*x | 2*x - x | x - x - ... - x *)
   | _ as o -> o
 
 (* Simplify a² +2ab+ b² *)
@@ -270,11 +273,6 @@ and simpl_binop_aux op x y =
   let t = simpl x in let z = simpl y in 
 		     let ex = (Binop(op,t,z)) in
 		     if z <> y then simpl_binop (ex) else ex    
-
-(* Deal with particular formulas *)
-and simpl_binop_factorize = function
-  | Binop(op,x,y) -> Binop(op,(simpl x),(simpl y))
-  | _ as o -> o
 
 (* Simplify a fraction *)
 and simpl_fract = function
