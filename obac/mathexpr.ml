@@ -221,7 +221,7 @@ and simpl_binop = function
   | Binop ('-',_,_) as bminus-> simpl_plus bminus
   | _ as bf -> simpl_binop_factorize bf
 
-
+(* Simplify additions *)
 and simpl_plus = function
   (* a² + 2ab +b² = (a + b)² *)
   | (Binop('+',Pow(a,p1),Binop('+',Binop('*',Val(Num.Int(2)),
@@ -242,6 +242,7 @@ and simpl_plus = function
   | Binop('+' as p,x,y) -> simpl_binop_aux p x y
   | _ as o -> o
 
+(* Simplify substractions *)
 and simpl_minus = function
   (* x - x = 0 *)
   | Binop('-',x,y) when x = y -> Val(Num.Int 0)
