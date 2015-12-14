@@ -217,6 +217,15 @@ and simpl_unop = function
 
 (* Simplify a binary operation *)
 and simpl_binop = function
+  | Binop ('+',_,_) as bplus-> simpl_plus bplus
+  (* x - x = 0 *)
+  | Binop('-',x,y) when x = y -> Val(Num.Int 0)
+  (* x - (-y) = x + y *)
+  | Binop('-',x,Unop('-',y)) -> simpl_binop(Binop('+',simpl(x),simpl(y)))
+  | _ as bf -> simpl_binop_factorize bf
+
+
+and simpl_plus = function
   (* a² + 2ab +b² = (a + b)² *)
   | (Binop('+',Pow(a,p1),Binop('+',Binop('*',Val(Num.Int(2)),
 					 Binop('*',aa,bb)),Pow(b,p2))) as id)
@@ -234,14 +243,7 @@ and simpl_binop = function
     Binop('*',simpl(a),simpl(Binop('+',x,y)))
   (* Sum of x1 + x1 + ... + xn, x[1-n] are the same expression *)
   | Binop('+' as p,x,y) -> simpl_binop_aux p x y
-  (* x - x = 0 *)
-  | Binop('-',x,y) when x = y -> Val(Num.Int 0)
-  (* x - (-y) = x + y *)
-  | Binop('-',x,Unop('-',y)) -> simpl_binop(Binop('+',simpl(x),simpl(y)))
-  | _ as bf -> simpl_binop_factorize bf
-
-
-(*and simpl_plus = function*)
+  | _ as o -> o
 
 
 (* Simplify a² +2ab+ b² *)
