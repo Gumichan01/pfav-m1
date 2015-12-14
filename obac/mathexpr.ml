@@ -218,10 +218,9 @@ and simpl_unop = function
 (* Simplify a binary operation *)
 and simpl_binop = function
   (* a² + 2ab +b² = (a + b)² *)
-  | Binop('+',Pow(a,p1),Binop('+',Binop('*',Val(Num.Int(2)),
-					Binop('*',aa,bb)),Pow(b,p2)))
-      when ((p1 = p2) && (a = aa) && (b = bb)) ->
-    Pow(Binop('+',a,b),Val(Num.Int 2))
+  | (Binop('+',Pow(a,p1),Binop('+',Binop('*',Val(Num.Int(2)),
+					 Binop('*',aa,bb)),Pow(b,p2))) as id)
+    when (p1 = p2) && (p1 = Val(Num.Int(2))) -> simpl_identity id a aa b bb p1
   (* x + x*y = x * (y + 1) *)
   | Binop('+',x,Binop('*',y,Val(Num.Int(z)))) 
       when x = y -> simpl_binop(Binop('*',simpl(x),Val(Num.Int(z+1))))
@@ -241,7 +240,20 @@ and simpl_binop = function
   | Binop('-',x,Unop('-',y)) -> simpl_binop(Binop('+',simpl(x),simpl(y)))
   | _ as bf -> simpl_binop_factorize bf
 
-(* Auxiliary function of simpl_binop *)
+
+(*and simpl_plus = function*)
+
+
+(* Simplify a² +2ab+ b² *)
+and simpl_identity id a aa b bb p =
+  let a' = (simpl a) and aa' = (simpl aa)
+  and b' = (simpl b) and bb' = (simpl bb) in
+  if((a' = aa') && (b' = bb')) then
+    Pow(Binop('+',simpl(a),simpl(b)),p)
+  else
+    id
+    
+(* Auxiliary function of simpl_binop when operation : '+' *)
 and simpl_binop_aux op x y = 
   let t = simpl x in let z = simpl y in 
 		     let ex = (Binop(op,t,z)) in
