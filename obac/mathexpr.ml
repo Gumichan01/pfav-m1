@@ -229,8 +229,12 @@ and simpl_plus = function
   | Binop('+',x,Val(Num.Int(0))) -> simpl(x)
   (* a² + 2ab +b² = (a + b)² *)
   | (Binop('+',Pow(a,p1),Binop('+',Binop('*',Val(Num.Int(2)),
-					 Binop('*',aa,bb)),Pow(b,p2))) as id)
-    when (p1 = p2) && (p1 = Val(Num.Int(2))) -> simpl_identity id a aa b bb p1
+					 Binop('*',aa,bb)),Pow(b,p2))) as i)
+    when (p1 = p2) && (p1 = Val(Num.Int(2))) -> simpl_identity '+' i a aa b bb p1
+  (* a² + 2ab +b² = (a + b)² *)
+  | (Binop('+',Binop('-',Pow(a,p1),(Binop('*',Val(Num.Int(2)),
+					  Binop('*',aa,bb)))),Pow(b,p2)) as i)
+      when (p1 = p2) && (p1 = Val(Num.Int(2))) -> simpl_identity '-' i a aa b bb p1
   (* x + x*y = x * (y + 1) *)
   | Binop('+',x,Binop('*',y,Val(Num.Int(z)))) 
       when x = y -> simpl_binop(Binop('*',simpl(x),Val(Num.Int(z+1))))
@@ -283,11 +287,11 @@ and simpl_minus = function
   | _ as o -> o
 
 (* Simplify a² + 2ab + b² *)
-and simpl_identity id a aa b bb p =
+and simpl_identity op id a aa b bb p =
   let a' = (simpl a) and aa' = (simpl aa)
   and b' = (simpl b) and bb' = (simpl bb) in
   if((a' = aa') && (b' = bb')) then
-    Pow(Binop('+',simpl(a),simpl(b)),p)
+    Pow(Binop(op,simpl(a),simpl(b)),p)
   else
     id
     
