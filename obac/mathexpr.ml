@@ -276,12 +276,12 @@ and simpl_minus = function
   (* x - x*z : z is a value *)
   | Binop('-',x,Binop('*',Val(Num.Int(z)),y))
       when x = y -> simpl_binop(Unop('-',Binop('*',Val(Num.Int(z-1)),simpl(x))))
-  (* x - x*y = x * (y+z), z is an expression *)
+  (* x - x*y = (y+1)*y, y is an expression *)
   | Binop('-',x,Binop('*',y,z))
       when x = y -> simpl_binop(Unop('-',
 				     Binop('*',x,Binop('-',simpl(z),
 						       Val(Num.Int 1)))))
-  (* x - z*x = x * (y+z), z is an expression *)
+  (* x - y*x = (y+1)*y, y is an expression *)
   | Binop('-',x,Binop('*',z,y))
       when x = y -> simpl_binop(Unop('-',
 				     Binop('*',x,Binop('-',simpl(z),
