@@ -252,11 +252,13 @@ and simpl_plus = function
 
 (* Simplify substractions *)
 and simpl_minus = function
+  (* x - 0 = x *)
+  | Binop('-',x,Val(Num.Int(0))) -> simpl(x)
   (* x - x = 0 *)
   | Binop('-',x,y) when x = y -> Val(Num.Int 0)
   (* x - (-y) = x + y *)
   | Binop('-',x,Unop('-',y)) -> simpl_binop(Binop('+',simpl(x),simpl(y)))
-  (** TODO : x - x*y | x*y - x | x - x - ... - x *)
+  (** TODO : x - x - ... - x *)
   (* x - z*x : z is a value *)
   | Binop('-',x,Binop('*',y,Val(Num.Int(z)))) 
       when x = y -> simpl_binop(Unop('-',Binop('*',Val(Num.Int(z-1)),simpl(x))))
@@ -265,10 +267,14 @@ and simpl_minus = function
       when x = y -> simpl_binop(Unop('-',Binop('*',Val(Num.Int(z-1)),simpl(x))))
   (* x + x*y = x * (y+z), z is an expression *)
   | Binop('-',x,Binop('*',y,z))
-      when x = y -> simpl_binop(Unop('-',Binop('*',x,Binop('-',simpl(z),Val(Num.Int 1)))))
+      when x = y -> simpl_binop(Unop('-',
+				     Binop('*',x,Binop('-',simpl(z),
+						       Val(Num.Int 1)))))
   (* x + z*x = x * (y+z), z is an expression *)
   | Binop('-',x,Binop('*',z,y))
-      when x = y -> simpl_binop(Unop('-',Binop('*',x,Binop('-',simpl(z),Val(Num.Int 1)))))
+      when x = y -> simpl_binop(Unop('-',
+				     Binop('*',x,Binop('-',simpl(z),
+						       Val(Num.Int 1)))))
   | _ as o -> o
 
 (* Simplify a² +2ab+ b² *)
