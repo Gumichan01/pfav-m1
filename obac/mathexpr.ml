@@ -231,7 +231,7 @@ and simpl_plus = function
   | (Binop('+',Pow(a,p1),Binop('+',Binop('*',Val(Num.Int(2)),
 					 Binop('*',aa,bb)),Pow(b,p2))) as i)
     when (p1 = p2) && (p1 = Val(Num.Int(2))) -> simpl_identity '+' i a aa b bb p1
-  (* a² + 2ab +b² = (a + b)² *)
+  (* a² - 2ab +b² = (a + b)² *)
   | (Binop('+',Binop('-',Pow(a,p1),(Binop('*',Val(Num.Int(2)),
 					  Binop('*',aa,bb)))),Pow(b,p2)) as i)
       when (p1 = p2) && (p1 = Val(Num.Int(2))) -> simpl_identity '-' i a aa b bb p1
@@ -263,6 +263,15 @@ and simpl_plus = function
 
 (* Simplify substractions *)
 and simpl_minus = function
+  (* a² -b² *)
+  | Binop('-',Pow(x,p1),Pow(y,p2))
+      when p1 = p2 && p1 = Val(Num.Int(2)) -> 
+    let xx = simpl(x) in let yy = simpl(y) in 
+			 if xx <> yy 
+			 then
+			   Binop('*',Binop('+',xx,yy),Binop('-',xx,yy))
+			 else
+			   Binop('*',Val(Num.Int(2)),xx)
   (* x - 0 = x *)
   | Binop('-',x,Val(Num.Int(0))) -> simpl(x)
   (* x - x = 0 *)
