@@ -225,6 +225,8 @@ and simpl_binop = function
 
 (* Simplify additions *)
 and simpl_plus = function
+  (* x + 0 = x *)
+  | Binop('+',x,Val(Num.Int(0))) -> simpl(x)
   (* a² + 2ab +b² = (a + b)² *)
   | (Binop('+',Pow(a,p1),Binop('+',Binop('*',Val(Num.Int(2)),
 					 Binop('*',aa,bb)),Pow(b,p2))) as id)
