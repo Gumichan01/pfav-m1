@@ -277,9 +277,9 @@ and simpl_minus = function
       when x = y -> simpl_binop(Unop('-',
 				     Binop('*',x,Binop('-',simpl(z),
 						       Val(Num.Int 1)))))
-  (* x - x - x = -2x *)
-  | Binop('-',Binop('-',x,y),z) 
-      when (x = y) && (y = z) -> Unop('-',Binop('*',Val(Num.Int 2),simpl(x)))
+  (* -x - x = -2x *)
+  | Binop('-',Unop('-',x),y) 
+      when (x = y) -> Unop('-',Binop('*',Val(Num.Int 2),simpl(x)))
   | _ as o -> o
 
 (* Simplify a² +2ab+ b² *)
