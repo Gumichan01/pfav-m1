@@ -218,7 +218,7 @@ and simpl_unop = function
 (* Simplify a binary operation *)
 and simpl_binop = function
   | Binop ('+',_,_) as bplus-> simpl_plus bplus
-  | Binop ('-',_,_) as bminus-> simpl_plus bminus
+  | Binop ('-',_,_) as bminus-> simpl_minus bminus
 (** TODO : '*' et '/' *)
   | Binop(op,x,y) -> Binop(op,(simpl x),(simpl y))
   | _ as bf -> bf
@@ -256,7 +256,13 @@ and simpl_minus = function
   | Binop('-',x,y) when x = y -> Val(Num.Int 0)
   (* x - (-y) = x + y *)
   | Binop('-',x,Unop('-',y)) -> simpl_binop(Binop('+',simpl(x),simpl(y)))
-  (** TODO : x - 2*x | 2*x - x | x - x - ... - x *)
+  (** TODO : x - x*y | x*y - x | x - x - ... - x *)
+  (* x - z*x : z est une valeur *)
+  | Binop('-',x,Binop('*',y,Val(Num.Int(z)))) 
+      when x = y -> simpl_binop(Unop('-',Binop('*',simpl(x),Val(Num.Int(z-1)))))
+  (* x - x*z : z est une valeur *)
+  | Binop('-',x,Binop('*',Val(Num.Int(z)),y))
+      when x = y -> simpl_binop(Unop('-',Binop('*',Val(Num.Int(z-1)),simpl(x))))
   | _ as o -> o
 
 (* Simplify a² +2ab+ b² *)
