@@ -282,7 +282,7 @@ and simpl_minus = function
       when (x = y) -> Unop('-',Binop('*',Val(Num.Int 2),simpl(x)))
   | _ as o -> o
 
-(* Simplify a² +2ab+ b² *)
+(* Simplify a² + 2ab + b² *)
 and simpl_identity id a aa b bb p =
   let a' = (simpl a) and aa' = (simpl aa)
   and b' = (simpl b) and bb' = (simpl bb) in
