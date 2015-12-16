@@ -289,6 +289,12 @@ and simpl_minus = function
   (* -x - x = -2x *)
   | Binop('-',Unop('-',x),y) 
       when (x = y) -> Unop('-',Binop('*',Val(Num.Int 2),simpl(x)))
+  (* yx - x = -(y+1)x : y is a value *)
+  | Binop('-',Binop('*',Val(Num.Int(z)),x),y) when x = y -> 
+    simpl_binop(Binop('*',Val(Num.Int(z-1)),x))
+  (* yx - x = -(y+1)x *)
+  | Binop('-',Binop('*',z,x),y) when x = y -> 
+    Binop('*',Binop('+',z,Val(Num.Int(1))),x)
   (* *)
   | Binop('-',x,y) -> Binop('-',simpl(x),simpl(y))
   | _ as o -> o
