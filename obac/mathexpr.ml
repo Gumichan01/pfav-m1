@@ -197,7 +197,7 @@ let rec solve : math_expr -> string -> math_expr =
 
 
 (* Simplify an expression *)
-let rec 	simpl : math_expr -> math_expr = 
+let rec simpl : math_expr -> math_expr = 
   fun x -> match x with
     | Unop(_,_) as u -> simpl_unop u
     | Binop(_,_,_) as b -> simpl_binop b
@@ -219,12 +219,21 @@ and simpl_unop = function
 and simpl_binop = function
   | Binop ('+',_,_) as bplus-> simpl_plus bplus
   | Binop ('-',_,_) as bminus-> simpl_minus bminus
-(** TODO : '*' et '/' *)
+  | Binop ('*',_,_) as bmulty-> simpl_fois bmulty
+(** TODO : '/' ----> no need for / we have FRAC *)
   | Binop(op,x,y) -> Binop(op,(simpl x),(simpl y))
   | _ as bf -> bf
 
+(* Simplify multiply *)
+and simpl_fois = function
+  | Binop('*',n, Log(a) ) | Binop('*', Log(a),n )-> simpl_log (Log( simpl_pow (Pow(a,n) )) )
+  | _ as o -> o
+
 (* Simplify additions *)
 and simpl_plus = function
+  (* log(a)+log(b) -> log(a*b) *)
+  | Binop('+',Log(a),Log(b)) -> simpl_binop (Log(Binop('*',simpl(a),simpl(b))))
+
   (* x + 0 = x *)
   | Binop('+',x,Val(Num.Int(0))) -> simpl(x)
   (* a² + 2ab +b² = (a + b)² *)
@@ -259,6 +268,7 @@ and simpl_plus = function
     Binop('*',simpl(a),simpl(Binop('+',x,y)))
   (* Sum of x1 + x1 + ... + xn, x[1-n] are the same expression *)
   | Binop('+' as p,x,y) -> simpl_binop_aux p x y
+
   | _ as o -> o
 
 (* Simplify substractions *)
@@ -325,6 +335,8 @@ and simpl_binop_aux op x y =
 
 (* Simplify a fraction *)
 and simpl_fract = function
+
+  | Frac(Val(Num.Int(1)),Log(a)) -> simpl_binop (Unop('-', simpl (Log(a))))
   | _ as o -> o 
 
 (* Simplify a power *)
@@ -343,6 +355,7 @@ and simpl_exp = function
 and simpl_log = function
   | Log( Val(Num.Int(x)) )
 	when x=1 -> Val(Num.Int(0))
+  | Log( Exp0 ) -> Val(Num.Int(1))
   | _ as o -> o 
 
 (* Simplify a trigonometric *)
