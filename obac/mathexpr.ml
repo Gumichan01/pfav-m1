@@ -1,5 +1,3 @@
-
-
 open Expr;;
 (*#use "expr.mli";*)
 
@@ -188,6 +186,13 @@ fun x s -> match x with
   | _ -> failwith "TODO derive : math_expr -> string -> math_expr ";;
   
 
+let derive_Val = function
+   | Val(x)-> Val(Num.Int(0))
+   | _ as o -> o
+let derive_log = function
+   | Log(Val(_)) as x -> Frac (  Val(Num.Int(1)) , x )
+   | Log(x) -> Frac (derive x " TO DO " , x )
+   | _ as o -> o
 
 (* Solve an equation finding a value that 
    puts the expression to zero *)
@@ -226,7 +231,13 @@ and simpl_binop = function
 
 (* Simplify multiply *)
 and simpl_fois = function
-  | Binop('*',n, Log(a) ) | Binop('*', Log(a),n )-> simpl_log (Log( simpl_pow (Pow(a,n) )) )
+  | Binop('*', Log(a) ,Frac( Val(Num.Int(1)) ,Val(Num.Int(2)) ) ) |
+	Binop('*',Frac( Val(Num.Int(1)) ,Val(Num.Int(2)) ), Log(a) ) -> 
+	simpl_log (Log( simpl_sqrt ( Sqrt(a) ) ))	
+ 
+  | Binop('*',n, Log(a) ) | Binop('*', Log(a),n )-> 
+	simpl_log (Log( simpl_pow (Pow(a,n) )) )
+ 
   | _ as o -> o
 
 (* Simplify additions *)
@@ -337,6 +348,7 @@ and simpl_binop_aux op x y =
 and simpl_fract = function
 
   | Frac(Val(Num.Int(1)),Log(a)) -> simpl_binop (Unop('-', simpl (Log(a))))
+
   | _ as o -> o 
 
 (* Simplify a power *)
