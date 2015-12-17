@@ -197,7 +197,7 @@ let rec solve : math_expr -> string -> math_expr =
 
 
 (* Simplify an expression *)
-let rec simpl : math_expr -> math_expr = 
+let rec 	simpl : math_expr -> math_expr = 
   fun x -> match x with
     | Unop(_,_) as u -> simpl_unop u
     | Binop(_,_,_) as b -> simpl_binop b
@@ -341,13 +341,14 @@ and simpl_exp = function
 
 (* Simplify the logarithm *)
 and simpl_log = function
+  | Log( Val(Num.Int(x)) )
+	when x=1 -> Val(Num.Int(0))
   | _ as o -> o 
 
 (* Simplify a trigonometric *)
 and simpl_trigo = function
   | _ as o -> o 
 ;;
-
 
 
 (* Subtitution *)
@@ -362,6 +363,14 @@ let rec eval : math_expr -> float =
     | _ -> failwith "TODO eval : math_expr -> float ";;
 
 
+let rec pgcd x y = 
+	if y==0 then x else pgcd  y (x mod y)
+
+let rec extend_pgcd x y =
+	if y= 0 then (1, 0, x)
+	else 
+	let q= x/y in let (u,v,g ) =extend_pgcd y ( x - q * y ) in
+	(v , u-q * v , g)
 
 (* Test *)
 (* Ces tests doivent échouer *)
