@@ -180,19 +180,59 @@ fun x s a b -> match x with
   | _ -> failwith "TODO integ : math_expr -> string -> math_expr -> math_expr -> math_expr ";;
 
 
-(* Derive an expression *)
+(* Derive an expression
 let rec derive : math_expr -> string -> math_expr = 
 fun x s -> match x with
   | _ -> failwith "TODO derive : math_expr -> string -> math_expr ";;
-  
+ *)
 
-let derive_Val = function
+
+let rec derive : math_expr -> math_expr = 
+  fun x -> match x with
+    | Unop(_,_) as u -> derive_unop u
+    | Binop(_,_,_) as b -> derive_binop b
+    | Frac(_,_) as f -> derive_fract f
+    | Pow(_,_) as p -> derive_pow p
+    | Sqrt(_) as s -> derive_sqrt s
+    | Expo(_) as e -> derive_exp e
+    | Log(_) as l -> derive_log l
+    | _ as s -> derive_val s
+    
+
+and derive_val = function
    | Val(x)-> Val(Num.Int(0))
    | _ as o -> o
-let derive_log = function
-   | Log(Val(_)) as x -> Frac (  Val(Num.Int(1)) , x )
-   | Log(x) -> Frac (derive x " TO DO " , x )
+
+
+and derive_unop = function
    | _ as o -> o
+
+
+and derive_binop = function
+   | _ as o -> o
+
+
+and derive_fract = function
+   | _ as o -> o
+
+
+and derive_pow = function 
+   | Pow (x,n) -> Pow ( Binop('*',n,x) , Binop('-',n,1) )
+   | _ as o -> o
+
+
+and derive_sqrt = function
+   | _ as o -> o
+
+
+and derive_exp = function
+   | _ as o -> o
+
+and derive_log = function
+   | Log(Val(_)) | Log(Var(_)) as x -> Frac (  Val(Num.Int(1)) , x )
+   | Log(x) -> Frac (derive x, x )
+   | _ as o -> o
+;;
 
 (* Solve an equation finding a value that 
    puts the expression to zero *)
