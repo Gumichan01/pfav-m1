@@ -360,8 +360,15 @@ let rec simpl : math_expr -> math_expr =
     | Sqrt(_) as s -> simpl_sqrt s
     | Expo(_) as e -> simpl_exp e
     | Log(_) as l -> simpl_log l
+
     (* In this case, the operation is a trigonometric function *)
-    | _ as s -> simpl_trigo s
+    | Cos(_) as c -> simpl_cos c
+    | Sin(_) as s -> simpl_sin s
+    | Tan(_) as t -> simpl_tan t
+    | Acos(_) as c -> simpl_acos c
+    | Asin(_) as s -> simpl_asin s
+    | Atan(_) as t -> simpl_atan t
+    | _ as o -> o
 
 (* Simplify a unary operation *)
 and simpl_unop = function
@@ -559,16 +566,6 @@ and simpl_log = function
   | Log( Expo(x) ) -> x
   | _ as o -> o 
 
-(* Simplify a trigonometric *)
-and simpl_trigo = function
-  | Cos(_) as c -> simpl_cos c
-(*
-  | Sin(_) as s -> simpl_sin s
-  | Tan(_) as t -> simpl_tan t
-  | Acos(_) as c -> simpl_acos c
-  | Asin(_) as s -> simpl_asin s
-  | Atan(_) as t -> simpl_atan t*)
-
 
 and pisur2 = Frac ( Pi , Val(Num.Int(2)) )
 and pisur3 = Frac ( Pi , Val(Num.Int(3)) )
@@ -583,31 +580,61 @@ and unSur2 = Frac( Val(Num.Int(1)),Val(Num.Int(2)) )
 and sqrt3sur2 = Frac( Sqrt(Val(Num.Int(3))),Val(Num.Int(2)) )
 and sqrt2sur2 = Frac( Sqrt(Val(Num.Int(2))),Val(Num.Int(2)) )
 
+
+(**TODO un moyen moin verbeux de traiter les valeurs remarquable des fonctions trigo *)
 and simpl_cos =function
  | Cos(x) ->begin match x with
-	|  pisur6	->  sqrt3sur2
-	|  pisur4	->  sqrt2sur2
-	|  pisur3	->  unSur2
-	|  pisur2	->  Val(Num.Int(0))
-	|  deuxPisur3	->  Unop('-', unSur2 )
-	|  troisPisur4	->  Unop('-',sqrt2sur2 )
-	|  cinqPisur6	->  Unop('-',sqrt3sur2 )
-	|  Pi		->  Unop('-',Val(Num.Int(1)))
+	(* valeurs remarques de cos *)
 	|  Val(Num.Int(0)) ->  Val(Num.Int(1))
+	|  Frac ( Pi , Val(Num.Int(6)) )	->  sqrt3sur2
+	|  Frac ( Pi , Val(Num.Int(4)) )	->  sqrt2sur2
+	|  Frac ( Pi , Val(Num.Int(3)) )	->  unSur2
+	|  Frac ( Pi , Val(Num.Int(2)) )	->  Val(Num.Int(0))
+	|  Frac ( Binop ('*',Val(Num.Int(2)) ,Pi) , Val(Num.Int(3)) ) 	->  Unop('-', unSur2 )
+	|  Frac ( Binop ('*',Val(Num.Int(3)) ,Pi) , Val(Num.Int(4)) )	->  Unop('-',sqrt2sur2 )
+	|  Frac ( Binop ('*',Val(Num.Int(5)) ,Pi) , Val(Num.Int(6)) )	->  Unop('-',sqrt3sur2 )
+	|  Pi		->  Unop('-',Val(Num.Int(1)))
+	| _ as  x -> x
 	end
-(*
+  | _ as  x -> x
+
 and simpl_sin =function
-  | Sin(x) -> Begin match x with
-	|  pisur6	->  unSur2
-	|  pisur4	->  sqrt2sur2
-	|  pisur3	->  sqrt3sur2
-	|  pisur2	->  Val(Num.Int(1))
-	|  deuxPisur3	->  sqrt3sur2
-	|  troisPisur4	->  sqrt2sur2
-	|  cinqPisur6	->  unSur2
-	|  Pi 		->  Val(Num.Int(0))
-	|  Val(Num.Int(0)) ->  Val(Num.Int(0))
-	end*)
+  | Sin(x) -> begin match x with
+	|  Frac ( Pi , Val(Num.Int(6)) )	->  unSur2
+	|  Frac ( Pi , Val(Num.Int(4)) )	->  sqrt2sur2
+	|  Frac ( Pi , Val(Num.Int(3)) )	->  sqrt3sur2
+	|  Frac ( Pi , Val(Num.Int(2)) )	->  Val(Num.Int(1))
+	|  Frac ( Binop ('*',Val(Num.Int(2)) ,Pi) , Val(Num.Int(3)) )	->  sqrt3sur2
+	|  Frac ( Binop ('*',Val(Num.Int(3)) ,Pi) , Val(Num.Int(4)) )	->  sqrt2sur2
+	|  Frac ( Binop ('*',Val(Num.Int(5)) ,Pi) , Val(Num.Int(6)) )	->  unSur2
+	|  Pi | Val(Num.Int(0)) ->  Val(Num.Int(0))
+	| _ as  x -> x
+	end
+  | _ as  x -> x
+
+and simpl_tan =function
+  | Sin(x) -> begin match x with
+	  | _ as  x -> x
+	end
+  | _ as  x -> x
+
+and simpl_acos =function
+  | Sin(x) -> begin match x with
+	  | _ as  x -> x
+	end
+  | _ as  x -> x
+
+and simpl_asin =function
+  | Sin(x) -> begin match x with
+	  | _ as  x -> x
+	end
+  | _ as  x -> x
+
+and simpl_atan =function
+  | Sin(x) -> begin match x with
+	  | _ as  x -> x
+	end
+  | _ as  x -> x
 ;;
 
 
