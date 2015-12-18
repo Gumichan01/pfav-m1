@@ -516,19 +516,16 @@ and simpl_fract = function
 	  Val(Num.Int(a/coeff)) ,	Val(Num.Int(b/coeff))
 	)
     end
-    
-  (* 1/log(a) -> -log(a) *)
-  | Frac(Val(Num.Int(1)),Log(a)) -> simpl (Unop('-', simpl (Log(a))))
 
   (* 1/log(a) -> -log(a) *)
-  | Frac(Val(Num.Int(1)),Log(a)) -> Unop('-', simpl(Log(simpl a)))
+  | Frac(Val(Num.Int(1)),Log(a)) -> Unop('-', Log(simpl a))
   | _ as o -> o 
 
 (* Simplify a power *)
 (** TODO : improve the code *)
 and simpl_pow = function
   (* x^(-1) = 1/x *)
-  | Pow(x,Val(Num.Int(n)) when n < 0 -> Frac((-n), (simpl x) )
+  | Pow(x,Val(Num.Int(n))) when n < 0 -> Frac(Val(Num.Int(-n)),(simpl x))
   (* 0^n = 0 *)
   | Pow(Val(Num.Int(0)),n) -> Val(Num.Int(0))
   (* 1^n = 1 *)
