@@ -383,11 +383,11 @@ and simpl_plus = function
 
   (* x + 0 = x *)
   | Binop('+',x,Val(Num.Int(0))) -> simpl(x)
-  (* a\B2 + 2ab +b\B2 = (a + b)\B2 *)
+  (* a² + 2ab + b² = (a + b)² *)
   | (Binop('+',Pow(a,p1),Binop('+',Binop('*',Val(Num.Int(2)),
 					 Binop('*',aa,bb)),Pow(b,p2))) as i)
     when (p1 = p2) && (p1 = Val(Num.Int(2))) -> simpl_identity '+' i a aa b bb p1
-  (* a\B2 - 2ab +b\B2 = (a + b)\B2 *)
+  (* a² - 2ab + b² = (a + b)² *)
   | (Binop('+',Binop('-',Pow(a,p1),(Binop('*',Val(Num.Int(2)),
 					  Binop('*',aa,bb)))),Pow(b,p2)) as i)
       when (p1 = p2) && (p1 = Val(Num.Int(2))) -> simpl_identity '-' i a aa b bb p1
@@ -420,7 +420,7 @@ and simpl_plus = function
 
 (* Simplify substractions *)
 and simpl_minus = function
-  (* a\B2 -b\B2 *)
+  (* a² -b² *)
   | Binop('-',Pow(x,p1),Pow(y,p2))
       when p1 = p2 && p1 = Val(Num.Int(2)) -> 
     let xx = simpl(x) in let yy = simpl(y) in 
@@ -465,7 +465,7 @@ and simpl_minus = function
   | Binop('-',x,y) -> Binop('-',simpl(x),simpl(y))
   | _ as o -> o
 
-(* Simplify a\B2 + 2ab + b\B2 *)
+(* Simplify a² (+/-) 2ab + b² *)
 and simpl_identity op id a aa b bb p =
   let a' = (simpl a) and aa' = (simpl aa)
   and b' = (simpl b) and bb' = (simpl bb) in
@@ -484,26 +484,21 @@ and simpl_binop_aux op x y =
 (* Simplify a fraction *)
 and simpl_fract = function
 
-	(* exp(a)/exp(b) -> exp(a-b) *)
-  | Frac(Expo(a) , Expo(b) ) -> Expo(
-					Binop('-', (simpl a) ,(simpl b) )
-					)
+  (* exp(a)/exp(b) -> exp(a-b) *)
+  | Frac(Expo(a) , Expo(b) ) -> Expo(Binop('-',(simpl a),(simpl b)))
+    
+  (* 1/exp(b) -> exp(-a) *)
+  | Frac(Val(Num.Int(1)),Expo(a) ) -> Expo(Unop('-', (simpl a)))
 
-	(* 1/exp(b) -> exp(-a) *)
-  | Frac(Val(Num.Int(1)),Expo(a) ) -> Expo(
-					Unop('-', (simpl a ))
-					)
-	(* 1/log(a) -> -log(a) *)
-  | Frac(Val(Num.Int(1)),Log(a)) -> simpl (Unop('-', simpl (Log(a))))
-
+  (* 1/log(a) -> -log(a) *)
+  | Frac(Val(Num.Int(1)),Log(a)) -> Unop('-', simpl(Log(simpl a)))
   | _ as o -> o 
 
 (* Simplify a power *)
 and simpl_pow = function
-  | Pow( x , 
-	(Val(Num.Int(n2)) as n)
-	) when n2<0 -> Frac( n, (simpl x) )
-  | Pow(Val(Num.Int(x)),n) when x=0 -> Val(Num.Int(-1))
+  (* x^(-1) = 1/x *)
+  | Pow(x,Val(Num.Int(n)) when n < 0 -> Frac((-n), (simpl x) )
+  | Pow(Val(Num.Int(x)),n) when x = 0 -> Val(Num.Int(-1))
   | Pow( (Val(Num.Int(x2)) as x),n) when x2=1 -> Unop('+',x)
   | Pow(x,n) -> Pow ((simpl x),(simpl n))
   | _ as o -> o 
