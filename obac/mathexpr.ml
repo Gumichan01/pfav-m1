@@ -207,6 +207,7 @@ and derive_val = function
 
 
 and derive_unop = function
+   | Unop(op,x) -> Unop (op, (derive x))
    | _ as o -> o
 
 
@@ -220,6 +221,7 @@ and derive_binop = function
 
 
 and derive_fract = function
+	(*  u/v -> u'*v  - v'*u  / v^2  *)
    | Frac(a,b) -> Frac ( 
 			Binop ('-' , Binop('*',(derive a),b) , Binop ('*',( derive b ) , a ) )
 			, Pow(b,Val(Num.Int(2))) 
@@ -228,16 +230,17 @@ and derive_fract = function
 
 
 and derive_pow = function 
-
+	(* u^a ->  au' * u^(a-1)  *)
     |Pow(u,a) -> Binop ('*' , 
 			Binop ('*' , a , (derive u) )
-			Pow ( u , Binop ('-' , a , 1) )
-			)
+			,Pow ( u , Binop ('-' , a , Val(Num.Int(1))) )
+		)
 (*   | Pow (x,n) -> Pow ( Binop('*',n,x) , Binop('-',n,1) )*)
    | _ as o -> o
 
 
 and derive_sqrt = function
+	(* Sqrt(a) -> u' / 2*Sqrt(u)  *)
    | Sqrt(a) -> Frac ( 
 			(derive a ), 
 			Binop ( '*' , Val(Num.Int(2)) , Sqrt(a) )
@@ -249,7 +252,10 @@ and derive_exp = function
    | _ as o -> o
 
 and derive_log = function
+	(* log(val) -> 1/a  *)
    | Log(Val(_)) | Log(Var(_)) as x -> Frac (  Val(Num.Int(1)) , x )
+
+	(* log(x) -> x'/x *)
    | Log(x) -> Frac (derive x, x )
    | _ as o -> o
 ;;
@@ -298,6 +304,9 @@ and simpl_binop = function
 
 (* Simplify multiply *)
 and simpl_fois = function
+
+
+  | Binop('*',Expo(a),Expo(b) )-> Expo( Binop('+',a,b) )
   | Binop('*', Log(a) ,Frac( Val(Num.Int(1)) ,Val(Num.Int(2)) ) ) |
 	Binop('*',Frac( Val(Num.Int(1)) ,Val(Num.Int(2)) ), Log(a) ) -> 
 	simpl_log (Log( simpl_sqrt ( Sqrt(a) ) ))	
@@ -314,11 +323,11 @@ and simpl_plus = function
 
   (* x + 0 = x *)
   | Binop('+',x,Val(Num.Int(0))) -> simpl(x)
-  (* a² + 2ab +b² = (a + b)² *)
+  (* a\B2 + 2ab +b\B2 = (a + b)\B2 *)
   | (Binop('+',Pow(a,p1),Binop('+',Binop('*',Val(Num.Int(2)),
 					 Binop('*',aa,bb)),Pow(b,p2))) as i)
     when (p1 = p2) && (p1 = Val(Num.Int(2))) -> simpl_identity '+' i a aa b bb p1
-  (* a² - 2ab +b² = (a + b)² *)
+  (* a\B2 - 2ab +b\B2 = (a + b)\B2 *)
   | (Binop('+',Binop('-',Pow(a,p1),(Binop('*',Val(Num.Int(2)),
 					  Binop('*',aa,bb)))),Pow(b,p2)) as i)
       when (p1 = p2) && (p1 = Val(Num.Int(2))) -> simpl_identity '-' i a aa b bb p1
@@ -351,7 +360,7 @@ and simpl_plus = function
 
 (* Simplify substractions *)
 and simpl_minus = function
-  (* a² -b² *)
+  (* a\B2 -b\B2 *)
   | Binop('-',Pow(x,p1),Pow(y,p2))
       when p1 = p2 && p1 = Val(Num.Int(2)) -> 
     let xx = simpl(x) in let yy = simpl(y) in 
@@ -396,7 +405,7 @@ and simpl_minus = function
   | Binop('-',x,y) -> Binop('-',simpl(x),simpl(y))
   | _ as o -> o
 
-(* Simplify a² + 2ab + b² *)
+(* Simplify a\B2 + 2ab + b\B2 *)
 and simpl_identity op id a aa b bb p =
   let a' = (simpl a) and aa' = (simpl aa)
   and b' = (simpl b) and bb' = (simpl bb) in
@@ -411,15 +420,32 @@ and simpl_binop_aux op x y =
 		     let ex = (Binop(op,t,z)) in
 		     if z <> y then simpl_binop (ex) else ex    
 
+
 (* Simplify a fraction *)
 and simpl_fract = function
 
-  | Frac(Val(Num.Int(1)),Log(a)) -> simpl_binop (Unop('-', simpl (Log(a))))
+	(* exp(a)/exp(b) -> exp(a-b) *)
+  | Frac(Expo(a) , Expo(b) ) -> Expo(
+					Binop('-', (simpl a) ,(simpl b) )
+					)
+
+	(* 1/exp(b) -> exp(-a) *)
+  | Frac(Val(Num.Int(1)),Expo(a) ) -> Expo(
+					Unop('-', (simpl a ))
+					)
+	(* 1/log(a) -> -log(a) *)
+  | Frac(Val(Num.Int(1)),Log(a)) -> simpl (Unop('-', simpl (Log(a))))
 
   | _ as o -> o 
 
 (* Simplify a power *)
 and simpl_pow = function
+  | Pow( x , 
+	(Val(Num.Int(n2)) as n)
+	) when n2<0 -> Frac( n, (simpl x) )
+  | Pow(Val(Num.Int(x)),n) when x=0 -> Val(Num.Int(-1))
+  | Pow( (Val(Num.Int(x2)) as x),n) when x2=1 -> Unop('+',x)
+  | Pow(x,n) -> Pow ((simpl x),(simpl n))
   | _ as o -> o 
 
 (* Simplify a square root *)
@@ -428,12 +454,19 @@ and simpl_sqrt = function
 
 (* Simplify a exponential function *)
 and simpl_exp = function
+
+	(* exp(0) -> 1    | exp(1) -> e *)
+  |Expo(Val(Num.Int(0))) -> Val(Num.Int(1))
+  |Expo(Val(Num.Int(1))) -> Exp0
   | _ as o -> o 
 
 (* Simplify the logarithm *)
 and simpl_log = function
-  | Log( Val(Num.Int(x)) )
-	when x=1 -> Val(Num.Int(0))
+
+	(* log(1) -> 0 *)
+  | Log( Val(Num.Int(x)) ) when x=1 -> Val(Num.Int(0))
+
+	(* log (e) -> 1 *)
   | Log( Exp0 ) -> Val(Num.Int(1))
   | _ as o -> o 
 
@@ -465,7 +498,7 @@ let rec extend_pgcd x y =
 	(v , u-q * v , g)
 
 (* Test *)
-(* Ces tests doivent échouer *)
+(* Ces tests doivent echouer *)
 (*cons_math_expr (Op ("",[]));;
 cons_math_expr (Op ("",[Var "pi"]));;
 cons_math_expr (Op ("+",[]));;
@@ -478,7 +511,7 @@ cons_math_expr (Op ("-",[(Num 1);(Num 2);(Num 3)]));;
 cons_math_expr (Op ("^",[(Num 2);(Num 8);(Num 4)]));;
 cons_math_expr (Op ("^",[(Num 2)]));;*)
 
-(* Ces tests doivent réussir *)
+(* Ces tests doivent reussir *)
 (*cons_math_expr (Num 5);;
 cons_math_expr (Var "x");;
 cons_math_expr (Op ("+",[Var "pi"]));;
