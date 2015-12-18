@@ -76,6 +76,16 @@ let is_not_reserved_keyword = function
 let map_list f l = List.map f l;;
 
 
+let rec pgcd x y = 
+	if y==0 then x else pgcd  y (x mod y)
+
+let rec extend_pgcd x y =
+	if y= 0 then (1, 0, x)
+	else 
+	let q= x/y in let (u,v,g ) =extend_pgcd y ( x - q * y ) in
+	(v , u-q * v , g)
+
+
 let consVar: string -> math_expr = 
   fun s ->
     if is_not_reserved_keyword(s)
@@ -191,6 +201,8 @@ fun x s -> match x with
 
 let rec derive : math_expr -> math_expr = 
   fun x -> match x with
+
+    | Var(_) as u -> derive_var u
     | Unop(_,_) as u -> derive_unop u
     | Binop(_,_,_) as b -> derive_binop b
     | Frac(_,_) as f -> derive_fract f
@@ -206,13 +218,17 @@ let rec derive : math_expr -> math_expr =
     | Asin(_) as l -> derive_asin l
     | Atan(_) as l -> derive_atan l
 
-    | _ as s -> derive_val s
+    | Pi -> derive_val
+    | Exp0 -> derive_val
+    | Val(_) -> derive_val
+   (* | _ -> derive_val *)
     
 
-and derive_val = function
-   | Val(x)-> Val(Num.Int(0))
-   | _ as o -> o
+and derive_val =  Val(Num.Int(0))
 
+and derive_var = function
+   | Var(s) -> Val(Num.Int(1))
+   | _ as o -> o
 
 and derive_unop = function
    | Unop(op,x) -> Unop (op, (derive x))
@@ -484,12 +500,22 @@ and simpl_binop_aux op x y =
 (* Simplify a fraction *)
 and simpl_fract = function
 
+	(*  simplification de base
+	5/25 -> 1/5   |  25/5  -> 5  |  74/12 -> 37/6 *)
+  | Frac(Val(Num.Int(a as a2) ),Val(Num.Int(b as b2) ) ) as fract-> begin match a2,b2 with
+	| (a,b) when a mod b=0 -> Val(Num.Int(a/b))
+	| (a,b) when b mod a=0 -> Frac(Val(Num.Int(1)),Val(Num.Int(b/a)) )
+	| (a,b) -> let coeff=(pgcd a b) in if coeff=0 then fract
+		else Frac(
+			Val(Num.Int(a/coeff)) ,	Val(Num.Int(b/coeff))
+			)
+		end
+
 	(* exp(a)/exp(b) -> exp(a-b) *)
   | Frac(Expo(a) , Expo(b) ) -> Expo(
 					Binop('-', (simpl a) ,(simpl b) )
 					)
-
-	(* 1/exp(b) -> exp(-a) *)
+	(* 1/exp(a) -> exp(-a) *)
   | Frac(Val(Num.Int(1)),Expo(a) ) -> Expo(
 					Unop('-', (simpl a ))
 					)
@@ -502,7 +528,7 @@ and simpl_fract = function
 and simpl_pow = function
   | Pow( x , 
 	(Val(Num.Int(n2)) as n)
-	) when n2<0 -> Frac( n, (simpl x) )
+	) when n2<0 -> Frac( 	n, (simpl x) )
   | Pow(Val(Num.Int(x)),n) when x=0 -> Val(Num.Int(-1))
   | Pow( (Val(Num.Int(x2)) as x),n) when x2=1 -> Unop('+',x)
   | Pow(x,n) -> Pow ((simpl x),(simpl n))
@@ -548,14 +574,6 @@ let rec eval : math_expr -> float =
     | _ -> failwith "TODO eval : math_expr -> float ";;
 
 
-let rec pgcd x y = 
-	if y==0 then x else pgcd  y (x mod y)
-
-let rec extend_pgcd x y =
-	if y= 0 then (1, 0, x)
-	else 
-	let q= x/y in let (u,v,g ) =extend_pgcd y ( x - q * y ) in
-	(v , u-q * v , g)
 
 (* Test *)
 (* Ces tests doivent echouer *)
