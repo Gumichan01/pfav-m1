@@ -35,6 +35,7 @@ exception Invalid_binop of string;;
 exception Invalid_fraction of string;;
 exception Invalid_power of string;;
 exception Invalid_math_expr of string;;
+exception Invalid_derive_n_Argument of string;;
 
 (* A function that print the tree of the given expression *)
 let rec print_tree_of_math : math_expr -> string = fun m ->
@@ -187,6 +188,7 @@ fun x s -> match x with
  *)
 
 
+
 let rec derive : math_expr -> math_expr = 
   fun x -> match x with
     | Unop(_,_) as u -> derive_unop u
@@ -209,19 +211,37 @@ and derive_unop = function
 
 
 and derive_binop = function
+   |Binop ('+',a,b) -> Binop ('+', (derive a) , (derive b))
+   |Binop ('-',a,b) -> Binop ('+', (derive a) , (derive (Unop('-',b) )) )
+   |Binop ('*',a,b) -> Binop (
+				'+',Binop('*', (derive a) ,b )  , Binop ('*',(derive b) , a)
+				)
    | _ as o -> o
 
 
 and derive_fract = function
+   | Frac(a,b) -> Frac ( 
+			Binop ('-' , Binop('*',(derive a),b) , Binop ('*',( derive b ) , a ) )
+			, Pow(b,Val(Num.Int(2))) 
+			)
    | _ as o -> o
 
 
 and derive_pow = function 
-   | Pow (x,n) -> Pow ( Binop('*',n,x) , Binop('-',n,1) )
+
+    |Pow(u,a) -> Binop ('*' , 
+			Binop ('*' , a , (derive u) )
+			Pow ( u , Binop ('-' , a , 1) )
+			)
+(*   | Pow (x,n) -> Pow ( Binop('*',n,x) , Binop('-',n,1) )*)
    | _ as o -> o
 
 
 and derive_sqrt = function
+   | Sqrt(a) -> Frac ( 
+			(derive a ), 
+			Binop ( '*' , Val(Num.Int(2)) , Sqrt(a) )
+			)
    | _ as o -> o
 
 
@@ -233,6 +253,13 @@ and derive_log = function
    | Log(x) -> Frac (derive x, x )
    | _ as o -> o
 ;;
+
+(* give the n derivation of an math_expr *)
+let  rec derive_n : math_expr -> int -> math_expr = 
+  fun x y -> match y with
+    | 0 -> x
+(*    | y when y<0 -> raise Invalid_derive_n_Argument ("argument de derivation_n inferieur a 0 ") *)
+    | y -> derive_n  (derive x) (y-1)
 
 (* Solve an equation finding a value that 
    puts the expression to zero *)
