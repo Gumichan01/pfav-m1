@@ -554,11 +554,60 @@ and simpl_log = function
 
 	(* log (e) -> 1 *)
   | Log( Exp0 ) -> Val(Num.Int(1))
+
+	(* log ( expo(x) -> x *)
+  | Log( Expo(x) ) -> x
   | _ as o -> o 
 
 (* Simplify a trigonometric *)
 and simpl_trigo = function
-  | _ as o -> o 
+  | Cos(_) as c -> simpl_cos c
+(*
+  | Sin(_) as s -> simpl_sin s
+  | Tan(_) as t -> simpl_tan t
+  | Acos(_) as c -> simpl_acos c
+  | Asin(_) as s -> simpl_asin s
+  | Atan(_) as t -> simpl_atan t*)
+
+
+and pisur2 = Frac ( Pi , Val(Num.Int(2)) )
+and pisur3 = Frac ( Pi , Val(Num.Int(3)) )
+and pisur4 = Frac ( Pi , Val(Num.Int(4)) )
+and pisur6 = Frac ( Pi , Val(Num.Int(6)) )
+
+and deuxPisur3	= Frac ( Binop ('*',Val(Num.Int(2)) ,Pi) , Val(Num.Int(3)) ) 
+and troisPisur4	= Frac ( Binop ('*',Val(Num.Int(3)) ,Pi) , Val(Num.Int(4)) )
+and cinqPisur6	= Frac ( Binop ('*',Val(Num.Int(5)) ,Pi) , Val(Num.Int(6)) )
+
+and unSur2 = Frac( Val(Num.Int(1)),Val(Num.Int(2)) )
+and sqrt3sur2 = Frac( Sqrt(Val(Num.Int(3))),Val(Num.Int(2)) )
+and sqrt2sur2 = Frac( Sqrt(Val(Num.Int(2))),Val(Num.Int(2)) )
+
+and simpl_cos =function
+ | Cos(x) ->begin match x with
+	|  pisur6	->  sqrt3sur2
+	|  pisur4	->  sqrt2sur2
+	|  pisur3	->  unSur2
+	|  pisur2	->  Val(Num.Int(0))
+	|  deuxPisur3	->  Unop('-', unSur2 )
+	|  troisPisur4	->  Unop('-',sqrt2sur2 )
+	|  cinqPisur6	->  Unop('-',sqrt3sur2 )
+	|  Pi		->  Unop('-',Val(Num.Int(1)))
+	|  Val(Num.Int(0)) ->  Val(Num.Int(1))
+	end
+(*
+and simpl_sin =function
+  | Sin(x) -> Begin match x with
+	|  pisur6	->  unSur2
+	|  pisur4	->  sqrt2sur2
+	|  pisur3	->  sqrt3sur2
+	|  pisur2	->  Val(Num.Int(1))
+	|  deuxPisur3	->  sqrt3sur2
+	|  troisPisur4	->  sqrt2sur2
+	|  cinqPisur6	->  unSur2
+	|  Pi 		->  Val(Num.Int(0))
+	|  Val(Num.Int(0)) ->  Val(Num.Int(0))
+	end*)
 ;;
 
 
