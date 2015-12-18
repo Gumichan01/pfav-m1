@@ -76,6 +76,16 @@ let is_not_reserved_keyword = function
 let map_list f l = List.map f l;;
 
 
+let rec pgcd x y = 
+	if y==0 then x else pgcd  y (x mod y)
+
+let rec extend_pgcd x y =
+	if y= 0 then (1, 0, x)
+	else 
+	let q= x/y in let (u,v,g ) =extend_pgcd y ( x - q * y ) in
+	(v , u-q * v , g)
+
+
 let consVar: string -> math_expr = 
   fun s ->
     if is_not_reserved_keyword(s)
@@ -191,6 +201,8 @@ fun x s -> match x with
 
 let rec derive : math_expr -> math_expr = 
   fun x -> match x with
+
+    | Var(_) as u -> derive_var u
     | Unop(_,_) as u -> derive_unop u
     | Binop(_,_,_) as b -> derive_binop b
     | Frac(_,_) as f -> derive_fract f
@@ -206,13 +218,17 @@ let rec derive : math_expr -> math_expr =
     | Asin(_) as l -> derive_asin l
     | Atan(_) as l -> derive_atan l
 
-    | _ as s -> derive_val s
+    | Pi -> derive_val
+    | Exp0 -> derive_val
+    | Val(_) -> derive_val
+   (* | _ -> derive_val *)
     
 
-and derive_val = function
-   | Val(x)-> Val(Num.Int(0))
-   | _ as o -> o
+and derive_val =  Val(Num.Int(0))
 
+and derive_var = function
+   | Var(s) -> Val(Num.Int(1))
+   | _ as o -> o
 
 and derive_unop = function
    | Unop(op,x) -> Unop (op, (derive x))
@@ -490,16 +506,33 @@ and simpl_fract = function
   (* 1/exp(b) -> exp(-a) *)
   | Frac(Val(Num.Int(1)),Expo(a) ) -> Expo(Unop('-', (simpl a)))
 
+  (*  simplification de base 5/25 -> 1/5   |  25/5  -> 5  |  74/12 -> 37/6 *)
+  | Frac(Val(Num.Int(a as a2) ),Val(Num.Int(b as b2) ) ) as fract-> 
+    begin match a2,b2 with
+      | (a,b) when a mod b=0 -> Val(Num.Int(a/b))
+      | (a,b) when b mod a=0 -> Frac(Val(Num.Int(1)),Val(Num.Int(b/a)) )
+      | (a,b) -> let coeff=(pgcd a b) in if coeff=0 then fract
+	else Frac(
+	  Val(Num.Int(a/coeff)) ,	Val(Num.Int(b/coeff))
+	)
+    end
+    
+  (* 1/log(a) -> -log(a) *)
+  | Frac(Val(Num.Int(1)),Log(a)) -> simpl (Unop('-', simpl (Log(a))))
+
   (* 1/log(a) -> -log(a) *)
   | Frac(Val(Num.Int(1)),Log(a)) -> Unop('-', simpl(Log(simpl a)))
   | _ as o -> o 
 
 (* Simplify a power *)
+(** TODO : improve the code *)
 and simpl_pow = function
   (* x^(-1) = 1/x *)
   | Pow(x,Val(Num.Int(n)) when n < 0 -> Frac((-n), (simpl x) )
-  | Pow(Val(Num.Int(x)),n) when x = 0 -> Val(Num.Int(-1))
-  | Pow( (Val(Num.Int(x2)) as x),n) when x2=1 -> Unop('+',x)
+  (* 0^n = 0 *)
+  | Pow(Val(Num.Int(0)),n) -> Val(Num.Int(0))
+  (* 1^n = 1 *)
+  | Pow( (Val(Num.Int(1)) as x),n) -> Unop('+',x)
   | Pow(x,n) -> Pow ((simpl x),(simpl n))
   | _ as o -> o 
 
@@ -518,7 +551,7 @@ and simpl_exp = function
 (* Simplify the logarithm *)
 and simpl_log = function
 
-	(* log(1) -> 0 *)
+  (* log(1) -> 0 *)
   | Log( Val(Num.Int(x)) ) when x=1 -> Val(Num.Int(0))
 
 	(* log (e) -> 1 *)
@@ -543,14 +576,6 @@ let rec eval : math_expr -> float =
     | _ -> failwith "TODO eval : math_expr -> float ";;
 
 
-let rec pgcd x y = 
-	if y==0 then x else pgcd  y (x mod y)
-
-let rec extend_pgcd x y =
-	if y= 0 then (1, 0, x)
-	else 
-	let q= x/y in let (u,v,g ) =extend_pgcd y ( x - q * y ) in
-	(v , u-q * v , g)
 
 (* Test *)
 (* Ces tests doivent echouer *)
