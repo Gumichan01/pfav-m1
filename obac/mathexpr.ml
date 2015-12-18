@@ -198,6 +198,14 @@ let rec derive : math_expr -> math_expr =
     | Sqrt(_) as s -> derive_sqrt s
     | Expo(_) as e -> derive_exp e
     | Log(_) as l -> derive_log l
+
+    | Cos(_) as l -> derive_cos l
+    | Sin(_) as l -> derive_sin l
+    | Tan(_) as l -> derive_tan l
+    | Acos(_) as l -> derive_acos l
+    | Asin(_) as l -> derive_asin l
+    | Atan(_) as l -> derive_atan l
+
     | _ as s -> derive_val s
     
 
@@ -247,7 +255,6 @@ and derive_sqrt = function
 			)
    | _ as o -> o
 
-
 and derive_exp = function
    | _ as o -> o
 
@@ -258,6 +265,59 @@ and derive_log = function
 	(* log(x) -> x'/x *)
    | Log(x) -> Frac (derive x, x )
    | _ as o -> o
+
+and derive_cos =function
+
+    | Cos(x) -> Unop('-' , Sin(x) )
+    | _ as o -> o
+
+and derive_sin =function
+    | Sin(x) -> Unop('+' , Cos(x) )
+    | _ as o -> o
+
+and derive_tan =function
+    | Tan(x) -> Binop('+' , 
+			Val(Num.Int(1)) 
+			, Pow ( Tan(x) , Val(Num.Int(2)) )
+			)
+    | _ as o -> o
+
+and derive_acos =function
+    | Acos(x) -> Unop('-' , 
+			Frac (
+				Val(Num.Int(1))
+				, Sqrt ( 
+					Binop ('-' , 
+						Val(Num.Int(1)) 
+						,Pow(x,Val(Num.Int(2)) ) )
+					)
+				)
+			)
+    | _ as o -> o
+
+and derive_asin =function
+    | Acos(x) -> Unop('+' , 
+			Frac (
+				Val(Num.Int(1))
+				, Sqrt ( 
+					Binop ('-' , 
+						Val(Num.Int(1)) 
+						,Pow(x,Val(Num.Int(2)) ) )
+					)
+				)
+			)
+    | _ as o -> o
+
+and derive_atan =function
+    | Atan(x) -> Frac (
+			Val(Num.Int(1)) 
+			,Pow(
+				Binop ('+' , Val(Num.Int(1)) , x )
+				,Val(Num.Int(2))
+			)
+		)
+    | _ as o -> o
+
 ;;
 
 (* give the n derivation of an math_expr *)
