@@ -382,6 +382,10 @@ and simpl_plus = function
   (* x + 0 = x *)
   | Binop('+',x,Val(Num.Int(0))) | Binop('+',Val(Num.Int(0)),x) -> simpl(x)
 
+  (* x + (-y) = x - y : y is a value *)
+  | Binop('+',x,Val(Num.Int(y))) when y < 0 -> Binop('-',simpl(x),
+						     Val(Num.Int(-y)))
+
   (* x + (-y) = x - y *)
   | Binop('+',x,Unop('-',y)) -> Binop('-',simpl(x),simpl(y))
 
