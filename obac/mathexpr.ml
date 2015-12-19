@@ -437,6 +437,9 @@ and simpl_minus = function
 
   (* x - x = 0 *)
   | Binop('-',x,y) when x = y -> Val(Num.Int 0)
+  
+  (* 0 - x = -x *)
+  | Binop('-',Val(Num.Int(0)),x) -> simpl_unop(Unop('-',simpl(x)))
 
   (* ln(a) - ln(b) *)
   | Binop('-',Log(a),Log(b)) -> simpl_log (Log(simpl_fract(Frac(a,b))))
