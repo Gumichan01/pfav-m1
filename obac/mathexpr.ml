@@ -198,7 +198,7 @@ fun x s -> match x with
  *)
 
 
-
+(* TODO revoir derivation, signature non conforme vis-à-vis de l'énoncé*)
 let rec derive : math_expr -> math_expr = 
   fun x -> match x with
 
@@ -438,7 +438,6 @@ and simpl_minus = function
 
   (* x - (-y) = x + y *)
   | Binop('-',x,Unop('-',y)) -> simpl_binop(Binop('+',simpl(x),simpl(y)))
-  (** TODO : x - x - ... - x *)
   (* x - z*x : z is a value *)
   | Binop('-',x,Binop('*',y,Val(Num.Int(z)))) 
       when x = y -> simpl_binop(Unop('-',Binop('*',Val(Num.Int(z-1)),simpl(x))))
@@ -459,7 +458,7 @@ and simpl_minus = function
 						       Val(Num.Int 1)))))
   (* -x - x = -2x *)
   | Binop('-',Unop('-',x),y) 
-      when (x = y) -> Unop('-',Binop('*',Val(Num.Int 2),simpl(x)))
+      when (x = y) -> Binop('*',Val(Num.Int (-2)),simpl(x))
 
   (* yx - x = -(y+1)x : y is a value *)
   | Binop('-',Binop('*',Val(Num.Int(z)),x),y) when x = y -> 
@@ -476,8 +475,8 @@ and simpl_minus = function
   (* xy - x = -(y+1)x : y is an expression *)
   | Binop('-',Binop('*',x,z),y) when x = y -> 
     Binop('*',Binop('+',simpl(z),Val(Num.Int(1))),x)
-  (* *)
-  | Binop('-',x,y) -> Binop('-',simpl(x),simpl(y))
+  (* Sub: -x1 - x2 - ... - x[n-1] = n*x with x[0...n-1] as same expression *)
+  | Binop('-' as m,x,y) -> simpl_binop_aux m x y
   | _ as o -> o
 
 
@@ -508,7 +507,10 @@ and simpl_mult = function
 and simpl_binop_aux op x y = 
   let t = simpl x in let z = simpl y in 
 		     let ex = (Binop(op,t,z)) in
-		     if z <> y then simpl_binop (ex) else ex    
+		     match op with 
+		       | '+' -> if z <> y then simpl_binop (ex) else ex
+		       | '-' -> if z <> y then ex else simpl_binop (ex)
+		       | _ -> failwith "Invalid Operation to simplify"
 
 
 (* Simplify a fraction *)
