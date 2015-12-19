@@ -432,6 +432,9 @@ and simpl_plus = function
 
 (* Simplify substractions *)
 and simpl_minus = function
+  (* ln(a) - ln(b) *)
+  | Binop('-',Log(a),Log(b)) -> simpl_log (Log(simpl_fract(Frac(a,b))))
+
   (* a² -b² *)
   | Binop('-',Pow(x,p1),Pow(y,p2))
       when p1 = p2 && p1 = Val(Num.Int(2)) -> 
