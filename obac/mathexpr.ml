@@ -380,7 +380,7 @@ and simpl_binop = function
 (* Simplify additions *)
 and simpl_plus = function
   (* x + 0 = x *)
-  | Binop('+',x,Val(Num.Int(0))) -> simpl(x)
+  | Binop('+',x,Val(Num.Int(0))) | Binop('+',Val(Num.Int(0)),x) -> simpl(x)
 
   (* ln(a) + ln(b) *)
   | Binop('+',Log(a),Log(b)) -> simpl_log (Log(simpl_mult(Binop('*',a,b))))
@@ -508,6 +508,12 @@ and simpl_identity op id a aa b bb p =
 (* Simplify multiply *)
 and simpl_mult = function
 (** TODO simplify the multiplication *)
+  (* x * 1 = x *)
+  | Binop('*',x,Val(Num.Int(1))) | Binop('*',Val(Num.Int(1)),x) -> simpl(x)
+
+  (* x * 0 = x *)
+  | Binop('*',x,Val(Num.Int(0))) | Binop('*',Val(Num.Int(0)),x) -> Val(Num.Int(0))
+
   (* e(a) * e(b) = e⁽a+b⁾ *)
   | Binop('*',Expo(a),Expo(b))-> simpl_exp(Expo(simpl_plus(Binop('+',
 								 simpl_exp(a),
