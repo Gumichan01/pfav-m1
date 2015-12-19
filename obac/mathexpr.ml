@@ -577,6 +577,10 @@ and simpl_mult = function
   | Binop('*',x,Pow(z,y)) | Binop('*',Pow(z,y),x) 
       when x = z -> simpl_pow(Pow(simpl(x),Binop('+',simpl(y),Val(Num.Int(1)))))
 
+  (* x^a * x^b = x⁽a+b⁾ *)
+  | Binop('*',Pow(x,Val(Num.Int(a))),Pow(y,Val(Num.Int(b)))) 
+      when x = y -> simpl_pow(Pow(simpl(x),Val(Num.Int(a+b))))
+
   (* Product of x1 * x2 * ... * xn, x[1-n] are the same expression *)
   | Binop('*' as p,x,y) -> simpl_binop_aux p x y
   | _ as o -> o
