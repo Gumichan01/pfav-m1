@@ -519,7 +519,7 @@ and simpl_mult = function
   | Binop('*',n,Log(x)) | Binop('*',Log(x),n)-> Log(simpl_pow(Pow(x,n)))
 
   (* x * x = x²*)
-  | Binop('*',x,y) when x = y -> Pow(x,Val(Num.Int(2)))
+  | Binop('*',x,y) when x = y -> Pow(simpl(x),Val(Num.Int(2)))
   | _ as o -> o
 
     
