@@ -372,7 +372,7 @@ and simpl_unop = function
       let xx = simpl x in 
       match xx with
 	| Unop('-',y) -> y
-	| _ -> xx
+	| _ -> Unop('-',xx)
     )
   | Unop(s,x) -> Unop(s,simpl(x))
   | _ as o -> o
@@ -548,6 +548,9 @@ and simpl_mult = function
   |Binop('*',Val(Num.Int(x)),Val(Num.Int(y)))
       when (x < 0 && y > 0) -> simpl_unop(Unop('-',Binop('*',Val(Num.Int(-x)),
 							 Val(Num.Int(y)))))
+  (* x * y when x < 0 and y < 0 *)
+  | Binop('*',Val(Num.Int(x)),Val(Num.Int(y))) 
+      when (x < 0 && y < 0) -> Binop('*',Val(Num.Int(-x)),Val(Num.Int(-y)))
 
   (* e(a) * e(b) = e⁽a+b⁾ *)
   | Binop('*',Expo(a),Expo(b))-> simpl_exp(Expo(simpl_plus(Binop('+',
