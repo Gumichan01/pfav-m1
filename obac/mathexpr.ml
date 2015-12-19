@@ -568,7 +568,6 @@ and simpl_mult = function
   (* x * x = x²*)
   | Binop('*',x,y) when x = y -> Pow(simpl(x),Val(Num.Int(2)))
 
-
   (* x * x^y = x⁽y+1⁾ : y is value *)
   | Binop('*',x,Pow(z,Val(Num.Int(y)))) | Binop('*',Pow(z,Val(Num.Int(y))),x)
       when x = z -> simpl_pow(Pow(simpl(x),Val(Num.Int(y+1))))
@@ -577,9 +576,14 @@ and simpl_mult = function
   | Binop('*',x,Pow(z,y)) | Binop('*',Pow(z,y),x) 
       when x = z -> simpl_pow(Pow(simpl(x),Binop('+',simpl(y),Val(Num.Int(1)))))
 
-  (* x^a * x^b = x⁽a+b⁾ *)
+  (* x^a * x^b = x⁽a+b⁾ : a  and b are values *)
   | Binop('*',Pow(x,Val(Num.Int(a))),Pow(y,Val(Num.Int(b)))) 
       when x = y -> simpl_pow(Pow(simpl(x),Val(Num.Int(a+b))))
+
+  (* x^a * x^b = x⁽a+b⁾ : a and b are expresions *)
+  | Binop('*',Pow(x,a),Pow(y,b)) 
+      when x = y -> simpl_pow(Pow(simpl(x),
+				  simpl_plus(Binop('+',simpl(a),simpl(b)))))
 
   (* Product of x1 * x2 * ... * xn, x[1-n] are the same expression *)
   | Binop('*' as p,x,y) -> simpl_binop_aux p x y
