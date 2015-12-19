@@ -614,7 +614,10 @@ and simpl_binop_aux op x y =
 		       | _ -> failwith "Invalid Operation to simplify"
 
 (** TODO *)
-and simpl_mult_aux x y =  Binop('+',x,y)
+and simpl_mult_aux x y =  
+  let xx = simpl x in let yy = simpl y in 
+		     let ex = Binop('*',xx,yy) in
+		     if yy <> y then simpl_mult(ex) else ex
 
 (* Simplify a fraction *)
 and simpl_fract = function
