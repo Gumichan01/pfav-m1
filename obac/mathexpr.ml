@@ -509,13 +509,17 @@ and simpl_mult = function
 (** TODO simplify the multiplication *)
   (* e(a) * e(b) = e⁽a+b⁾ *)
   | Binop('*',Expo(a),Expo(b) )-> Expo(Binop('+',a,b))
+
   (* ln(a)⁽¹/²⁾ = ln(sqrt(a))  *)
   | Binop('*',Log(a),Frac(Val(Num.Int(1)),Val(Num.Int(2)))) 
   | Binop('*',Frac(Val(Num.Int(1)),Val(Num.Int(2))),Log(a)) 
     -> Log(simpl_sqrt(Sqrt(a)))
-    (* n * ln(x) *)
+
+  (* n * ln(x) *)
   | Binop('*',n,Log(x)) | Binop('*',Log(x),n)-> Log(simpl_pow(Pow(x,n)))
- 
+
+  (* x * x = x²*)
+  | Binop('*',x,y) when x = y -> Pow(x,Val(Num.Int(2)))
   | _ as o -> o
 
     
