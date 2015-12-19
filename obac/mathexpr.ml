@@ -633,6 +633,12 @@ and simpl_pow = function
   (* x^(-1) = 1/x *)
   | Pow(x,Val(Num.Int(n))) when n < 0 -> Frac(Val(Num.Int(-n)),(simpl x))
 
+  (* 0^0 = 0 *)
+  | Pow(Val(Num.Int(0)),Val(Num.Int(0))) -> Val(Num.Int(1))
+
+  (* x^0 = 1 *)
+  | Pow(x,Val(Num.Int(0))) -> simpl(x)
+
   (* 0^n = 0 *)
   | Pow(Val(Num.Int(0)) as x,n) -> simpl(x)
 
