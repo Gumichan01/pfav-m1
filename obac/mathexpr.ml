@@ -506,14 +506,15 @@ and simpl_identity op id a aa b bb p =
 
 (* Simplify multiply *)
 and simpl_mult = function
-  (* e⁽a+b⁾ = e(a) + e(b) *)
+(** TODO simplify the multiplication *)
+  (* e(a) * e(b) = e⁽a+b⁾ *)
   | Binop('*',Expo(a),Expo(b) )-> Expo(Binop('+',a,b))
-
+  (* ln(a)⁽¹/²⁾ = ln(sqrt(a))  *)
   | Binop('*',Log(a),Frac(Val(Num.Int(1)),Val(Num.Int(2)))) 
   | Binop('*',Frac(Val(Num.Int(1)),Val(Num.Int(2))),Log(a)) 
     -> Log(simpl_sqrt(Sqrt(a)))
- 
-  | Binop('*',n,Log(a)) | Binop('*',Log(a),n)-> Log(simpl_pow (Pow(a,n)))
+    (* n * ln(x) *)
+  | Binop('*',n,Log(x)) | Binop('*',Log(x),n)-> Log(simpl_pow(Pow(x,n)))
  
   | _ as o -> o
 
@@ -530,7 +531,7 @@ and simpl_binop_aux op x y =
 
 (* Simplify a fraction *)
 and simpl_fract = function
-
+  (** TODO simplify the fraction *)
   (* exp(a)/exp(b) -> exp(a-b) *)
   | Frac(Expo(a) , Expo(b) ) -> Expo(Binop('-',(simpl a),(simpl b)))
     
@@ -553,15 +554,19 @@ and simpl_fract = function
   | _ as o -> o 
 
 (* Simplify a power *)
-(** TODO : improve the code *)
+(** TODO simplify the power *)
 and simpl_pow = function
   (* x^(-1) = 1/x *)
   | Pow(x,Val(Num.Int(n))) when n < 0 -> Frac(Val(Num.Int(-n)),(simpl x))
+
   (* 0^n = 0 *)
-  | Pow(Val(Num.Int(0)),n) -> Val(Num.Int(0))
+  | Pow(Val(Num.Int(0)) as x,n) -> simpl(x)
+
   (* 1^n = 1 *)
-  | Pow( (Val(Num.Int(1)) as x),n) -> Unop('+',x)
-  | Pow(x,n) -> Pow ((simpl x),(simpl n))
+  | Pow((Val(Num.Int(1)) as x),n) -> simpl(x)
+
+  (* x^n *)
+  | Pow(x,n) -> Pow((simpl x),(simpl n))
   | _ as o -> o 
 
 (* Simplify a square root *)
@@ -570,15 +575,15 @@ and simpl_sqrt = function
 
 (* Simplify a exponential function *)
 and simpl_exp = function
-
-	(* exp(0) -> 1    | exp(1) -> e *)
+  (** TODO simplify the exponential *)
+  (* exp(0) -> 1    | exp(1) -> e *)
   |Expo(Val(Num.Int(0))) -> Val(Num.Int(1))
   |Expo(Val(Num.Int(1))) -> Exp0
   | _ as o -> o 
 
 (* Simplify the logarithm *)
 and simpl_log = function
-
+(** TODO simplify the normal logarithm *)
   (* log(1) -> 0 *)
   | Log( Val(Num.Int(x)) ) when x=1 -> Val(Num.Int(0))
 
@@ -586,7 +591,7 @@ and simpl_log = function
   | Log( Exp0 ) -> Val(Num.Int(1))
   | _ as o -> o 
 
-(* Simplify a trigonometric *)
+(* Simplify a trigonometric function *)
 and simpl_trigo = function
   | _ as o -> o 
 ;;
