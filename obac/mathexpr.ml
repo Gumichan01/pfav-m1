@@ -379,11 +379,11 @@ and simpl_binop = function
 
 (* Simplify additions *)
 and simpl_plus = function
-  (* ln(a) + ln(b) *)
-  | Binop('+',Log(a),Log(b)) -> simpl_log (Log(simpl_mult(Binop('*',a,b))))
-
   (* x + 0 = x *)
   | Binop('+',x,Val(Num.Int(0))) -> simpl(x)
+
+  (* ln(a) + ln(b) *)
+  | Binop('+',Log(a),Log(b)) -> simpl_log (Log(simpl_mult(Binop('*',a,b))))
  
   (* a² + 2ab + b² = (a + b)² *)
   | (Binop('+',Pow(a,p1),Binop('+',Binop('*',Val(Num.Int(2)),
