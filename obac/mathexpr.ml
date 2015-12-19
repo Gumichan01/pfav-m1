@@ -365,15 +365,16 @@ let rec simpl : math_expr -> math_expr =
 
 (* Simplify a unary operation *)
 and simpl_unop = function
+  | Unop('-',Val(Num.Int 0)) -> Val(Num.Int 0)
   | Unop('-',Unop('-',x)) -> simpl(x)
   | Unop(s,x) -> Unop(s,simpl(x))
   | _ as o -> o
 
 (* Simplify a binary operation *)
 and simpl_binop = function
-  | Binop ('+',_,_) as bplus-> simpl_plus bplus
-  | Binop ('-',_,_) as bminus-> simpl_minus bminus
-  | Binop ('*',_,_) as bmulty-> simpl_mult bmulty
+  | Binop ('+',_,_) as bplus -> simpl_plus bplus
+  | Binop ('-',_,_) as bminus -> simpl_minus bminus
+  | Binop ('*',_,_) as bmult -> simpl_mult bmult
   | Binop(op,x,y) -> Binop(op,(simpl x),(simpl y))
   | _ as bf -> bf
 
