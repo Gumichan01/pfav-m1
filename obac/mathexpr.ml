@@ -436,11 +436,11 @@ and simpl_plus = function
   (* x + x = x * 2 *)
   | Binop('+',x,y) when x = y -> simpl_binop(Binop('*',Val(Num.Int 2),simpl(x)))
 
-    (* ax + ay = a * (x + y) *)
+  (* ax + ay = a * (x + y) *)
   | Binop('+',Binop('*',a,x),Binop('*',b,y)) when a = b -> 
     Binop('*',simpl(a),simpl(Binop('+',x,y)))
 
-  (* Sum of x1 + x1 + ... + xn, x[1-n] are the same expression *)
+  (* Sum of x1 + x2 + ... + xn, x[1-n] are the same expression *)
   | Binop('+' as p,x,y) -> simpl_binop_aux p x y
 
   | _ as o -> o
@@ -567,14 +567,29 @@ and simpl_mult = function
 
   (* x * x = x²*)
   | Binop('*',x,y) when x = y -> Pow(simpl(x),Val(Num.Int(2)))
+
+
+  (* x * x^y = x⁽y+1⁾ : y is value *)
+  | Binop('*',x,Pow(z,Val(Num.Int(y)))) | Binop('*',Pow(z,Val(Num.Int(y))),x)
+      when x = z -> simpl_pow(Pow(simpl(x),Val(Num.Int(y+1))))
+
+  (* x * x^y = x⁽y+1⁾ : y is an expression *)
+  | Binop('*',x,Pow(z,y)) | Binop('*',Pow(z,y),x) 
+      when x = z -> simpl_pow(Pow(simpl(x),Binop('+',simpl(y),Val(Num.Int(1)))))
+
+  (* Product of x1 * x2 * ... * xn, x[1-n] are the same expression *)
+  | Binop('*' as p,x,y) -> simpl_binop_aux p x y
   | _ as o -> o
 
     
-(* Auxiliary function of simpl_binop when operation : '+' *)
+(* 
+   Auxiliary function of simpl_binop when an operation 
+   is applied on the same term n times ('+','-')
+*)
 and simpl_binop_aux op x y = 
   let t = simpl x in let z = simpl y in 
 		     let ex = (Binop(op,t,z)) in
-		     match op with 
+		     match op with   
 		       | '+' -> if z <> y then simpl_binop (ex) else ex
 		       | '-' -> if z <> y then ex else simpl_binop (ex)
 		       | _ -> failwith "Invalid Operation to simplify"
