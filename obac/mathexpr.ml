@@ -373,24 +373,9 @@ and simpl_unop = function
 and simpl_binop = function
   | Binop ('+',_,_) as bplus-> simpl_plus bplus
   | Binop ('-',_,_) as bminus-> simpl_minus bminus
-  | Binop ('*',_,_) as bmulty-> simpl_fois bmulty
-(** TODO : '/' ----> no need for / we have FRAC *)
+  | Binop ('*',_,_) as bmulty-> simpl_mult bmulty
   | Binop(op,x,y) -> Binop(op,(simpl x),(simpl y))
   | _ as bf -> bf
-
-(* Simplify multiply *)
-and simpl_fois = function
-
-
-  | Binop('*',Expo(a),Expo(b) )-> Expo( Binop('+',a,b) )
-  | Binop('*', Log(a) ,Frac( Val(Num.Int(1)) ,Val(Num.Int(2)) ) ) |
-	Binop('*',Frac( Val(Num.Int(1)) ,Val(Num.Int(2)) ), Log(a) ) -> 
-	simpl_log (Log( simpl_sqrt ( Sqrt(a) ) ))	
- 
-  | Binop('*',n, Log(a) ) | Binop('*', Log(a),n )-> 
-	simpl_log (Log( simpl_pow (Pow(a,n) )) )
- 
-  | _ as o -> o
 
 (* Simplify additions *)
 and simpl_plus = function
@@ -474,7 +459,10 @@ and simpl_minus = function
   (* yx - x = -(y+1)x : y is a value *)
   | Binop('-',Binop('*',Val(Num.Int(z)),x),y) when x = y -> 
     simpl_binop(Binop('*',Val(Num.Int(z-1)),x))
-  (* yx - x = -(y+1)x *)
+  (* xy - x = -(y+1)x : y is a value *)
+  | Binop('-',Binop('*',x,Val(Num.Int(z))),y) when x = y -> 
+    simpl_binop(Binop('*',Val(Num.Int(z-1)),x))
+  (* yx - x = -(y+1)x : y is an expression *)
   | Binop('-',Binop('*',z,x),y) when x = y -> 
     Binop('*',Binop('+',z,Val(Num.Int(1))),x)
   (* *)
@@ -489,6 +477,20 @@ and simpl_identity op id a aa b bb p =
     Pow(Binop(op,simpl(a),simpl(b)),p)
   else
     id
+
+(* Simplify multiply *)
+and simpl_mult = function
+
+  | Binop('*',Expo(a),Expo(b) )-> Expo( Binop('+',a,b) )
+  | Binop('*', Log(a) ,Frac( Val(Num.Int(1)) ,Val(Num.Int(2)) ) ) |
+	Binop('*',Frac( Val(Num.Int(1)) ,Val(Num.Int(2)) ), Log(a) ) -> 
+	simpl_log (Log( simpl_sqrt ( Sqrt(a) ) ))	
+ 
+  | Binop('*',n, Log(a) ) | Binop('*', Log(a),n )-> 
+	simpl_log (Log( simpl_pow (Pow(a,n) )) )
+ 
+  | _ as o -> o
+
     
 (* Auxiliary function of simpl_binop when operation : '+' *)
 and simpl_binop_aux op x y = 
