@@ -382,6 +382,9 @@ and simpl_plus = function
   (* x + 0 = x *)
   | Binop('+',x,Val(Num.Int(0))) | Binop('+',Val(Num.Int(0)),x) -> simpl(x)
 
+  (* x + (-y) = x - y *)
+  | Binop('+',x,Unop('-',y)) -> Binop('-',simpl(x),simpl(y))
+
   (* ln(a) + ln(b) *)
   | Binop('+',Log(a),Log(b)) -> simpl_log (Log(simpl_mult(Binop('*',a,b))))
  
