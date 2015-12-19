@@ -524,6 +524,14 @@ and simpl_mult = function
   (* x * 0 = x *)
   | Binop('*',x,Val(Num.Int(0))) | Binop('*',Val(Num.Int(0)),x) -> Val(Num.Int(0))
 
+  (* x * (-1) = -x : x is a value *)
+  | Binop('*',Val(Num.Int(x)),Val(Num.Int(-1))) 
+  | Binop('*',Val(Num.Int(-1)),Val(Num.Int(x))) -> Val(Num.Int(-x))
+
+  (* x * (-1) = -x :  x is an expression *)
+  | Binop('*',x,Val(Num.Int(-1))) 
+  | Binop('*',Val(Num.Int(-1)),x) -> simpl_unop(Unop('-',simpl(x)))
+
   (* e(a) * e(b) = e⁽a+b⁾ *)
   | Binop('*',Expo(a),Expo(b))-> simpl_exp(Expo(simpl_plus(Binop('+',
 								 simpl_exp(a),
