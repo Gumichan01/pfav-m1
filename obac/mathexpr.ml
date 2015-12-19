@@ -432,6 +432,12 @@ and simpl_plus = function
 
 (* Simplify substractions *)
 and simpl_minus = function
+  (* x - 0 = x *)
+  | Binop('-',x,Val(Num.Int(0))) -> simpl(x)
+
+  (* x - x = 0 *)
+  | Binop('-',x,y) when x = y -> Val(Num.Int 0)
+
   (* ln(a) - ln(b) *)
   | Binop('-',Log(a),Log(b)) -> simpl_log (Log(simpl_fract(Frac(a,b))))
 
@@ -444,11 +450,6 @@ and simpl_minus = function
 			   Binop('*',Binop('+',xx,yy),Binop('-',xx,yy))
 			 else
 			   Binop('*',Val(Num.Int(2)),xx)
-  (* x - 0 = x *)
-  | Binop('-',x,Val(Num.Int(0))) -> simpl(x)
-
-  (* x - x = 0 *)
-  | Binop('-',x,y) when x = y -> Val(Num.Int 0)
 
   (* x - (-y) = x + y *)
   | Binop('-',x,Unop('-',y)) -> simpl_binop(Binop('+',simpl(x),simpl(y)))
