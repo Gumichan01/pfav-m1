@@ -445,7 +445,7 @@ and simpl_plus = function
     Binop('*',simpl(a),simpl(Binop('+',x,y)))
 
   (* x + y : x and y are constant values *)
-  | Binop('+',Val(Num.Int(_)),Val(Num.Int(_))) as b -> b
+(*  | Binop('+',Val(Num.Int(_)),Val(Num.Int(_))) as b -> b*)
 
   (* Sum of x1 + x2 + ... + xn, x[1-n] are the same expression *)
   | Binop('+' as p,x,y) -> simpl_binop_aux p x y
@@ -597,7 +597,7 @@ and simpl_mult = function
 				  simpl_plus(Binop('+',simpl(a),simpl(b)))))
 
   (* Product of x1 * x2 * ... * xn, x[1-n] are the same expression *)
-  | Binop('*' as p,x,y) -> simpl_binop_aux p x y
+  | Binop('*',x,y) -> simpl_mult_aux x y
   | _ as o -> o
 
     
@@ -613,6 +613,8 @@ and simpl_binop_aux op x y =
 		       | '-' -> if z <> y then ex else simpl_binop (ex)
 		       | _ -> failwith "Invalid Operation to simplify"
 
+(** TODO *)
+and simpl_mult_aux x y =  Binop('+',x,y)
 
 (* Simplify a fraction *)
 and simpl_fract = function
