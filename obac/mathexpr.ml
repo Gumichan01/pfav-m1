@@ -367,6 +367,13 @@ let rec simpl : math_expr -> math_expr =
 and simpl_unop = function
   | Unop('-',Val(Num.Int 0)) -> Val(Num.Int 0)
   | Unop('-',Unop('-',x)) -> simpl(x)
+  | Unop('-', x) -> 
+    (
+      let xx = simpl x in 
+      match xx with
+	| Unop('-',y) -> y
+	| _ -> xx
+    )
   | Unop(s,x) -> Unop(s,simpl(x))
   | _ as o -> o
 
@@ -533,12 +540,21 @@ and simpl_mult = function
   | Binop('*',x,Val(Num.Int(-1))) 
   | Binop('*',Val(Num.Int(-1)),x) -> simpl_unop(Unop('-',simpl(x)))
 
+  (* x * y  = -(x*y) if and only if (x > 0, y < 0) *)
+  |Binop('*',Val(Num.Int(x)),Val(Num.Int(y)))
+      when (x > 0 && y < 0) -> simpl_unop(Unop('-',Binop('*',Val(Num.Int(x)),
+							 Val(Num.Int(-y)))))
+  (* x * y  = -(x*y) if and only if (x < 0, y > 0) *)
+  |Binop('*',Val(Num.Int(x)),Val(Num.Int(y)))
+      when (x < 0 && y > 0) -> simpl_unop(Unop('-',Binop('*',Val(Num.Int(-x)),
+							 Val(Num.Int(y)))))
+
   (* e(a) * e(b) = e⁽a+b⁾ *)
   | Binop('*',Expo(a),Expo(b))-> simpl_exp(Expo(simpl_plus(Binop('+',
 								 simpl_exp(a),
 								 simpl_exp(b)))))
 
-  (* ln(a)⁽¹/²⁾ = ln(sqrt(a))  *)
+  (* ln(a)⁽¹/²⁾ = ln(sqrt(a)) *)
   | Binop('*',Log(a),Frac(Val(Num.Int(1)),Val(Num.Int(2)))) 
   | Binop('*',Frac(Val(Num.Int(1)),Val(Num.Int(2))),Log(a)) 
     -> Log(simpl_sqrt(Sqrt(a)))
