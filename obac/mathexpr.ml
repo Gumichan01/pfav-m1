@@ -637,7 +637,7 @@ and simpl_pow = function
   | Pow(Val(Num.Int(0)),Val(Num.Int(0))) -> Val(Num.Int(1))
 
   (* x^0 = 1 *)
-  | Pow(x,Val(Num.Int(0))) -> simpl(x)
+  | Pow(x,Val(Num.Int(0))) -> Val(Num.Int(1))
 
   (* 0^n = 0 *)
   | Pow(Val(Num.Int(0)) as x,n) -> simpl(x)
@@ -646,7 +646,13 @@ and simpl_pow = function
   | Pow((Val(Num.Int(1)) as x),n) -> simpl(x)
 
   (* x^n *)
-  | Pow(x,n) -> Pow((simpl x),(simpl n))
+  | Pow(x,n) -> 
+    (
+      let xx = simpl x in 
+      let yy = simpl n in 
+      if xx = x && yy = n then Pow(xx,yy) 
+      else simpl_pow(Pow(xx,yy))
+    )
   | _ as o -> o 
 
 (* Simplify a square root *)
