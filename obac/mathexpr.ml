@@ -597,27 +597,23 @@ and simpl_mult = function
 				  simpl_plus(Binop('+',simpl(a),simpl(b)))))
 
   (* Product of x1 * x2 * ... * xn, x[1-n] are the same expression *)
-  | Binop('*',x,y) -> simpl_mult_aux x y
+  | Binop('*' as m,x,y) -> simpl_binop_aux m x y
   | _ as o -> o
 
     
 (* 
    Auxiliary function of simpl_binop when an operation 
-   is applied on the same term n times ('+','-')
+   is applied on the same term n times ('+','-', '*')
 *)
 and simpl_binop_aux op x y = 
   let t = simpl x in let z = simpl y in 
 		     let ex = (Binop(op,t,z)) in
 		     match op with   
-		       | '+' -> if z <> y then simpl_binop (ex) else ex
+		       | '+' -> if z <> y then simpl_binop(ex) else ex
 		       | '-' -> if z <> y then ex else simpl_binop (ex)
+		       | '*' -> if z <> y then simpl_mult(ex) else ex
 		       | _ -> failwith "Invalid Operation to simplify"
 
-(** TODO *)
-and simpl_mult_aux x y =  
-  let xx = simpl x in let yy = simpl y in 
-		     let ex = Binop('*',xx,yy) in
-		     if yy <> y then simpl_mult(ex) else ex
 
 (* Simplify a fraction *)
 and simpl_fract = function
