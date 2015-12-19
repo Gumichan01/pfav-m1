@@ -210,19 +210,16 @@ let rec derive : math_expr -> math_expr =
     | Sqrt(_) as s -> derive_sqrt s
     | Expo(_) as e -> derive_exp e
     | Log(_) as l -> derive_log l
-
     | Cos(_) as l -> derive_cos l
     | Sin(_) as l -> derive_sin l
     | Tan(_) as l -> derive_tan l
     | Acos(_) as l -> derive_acos l
     | Asin(_) as l -> derive_asin l
     | Atan(_) as l -> derive_atan l
-
     | Pi -> derive_val
     | Exp0 -> derive_val
     | Val(_) -> derive_val
    (* | _ -> derive_val *)
-    
 
 and derive_val =  Val(Num.Int(0))
 
@@ -237,7 +234,7 @@ and derive_unop = function
 
 and derive_binop = function
    |Binop ('+',a,b) -> Binop ('+', (derive a) , (derive b))
-   |Binop ('-',a,b) -> Binop ('+', (derive a) , (derive (Unop('-',b) )) )
+   |Binop ('-',a,b) -> Binop ('-', (derive a) , (derive b))
    |Binop ('*',a,b) -> Binop (
 				'+',Binop('*', (derive a) ,b )  , Binop ('*',(derive b) , a)
 				)
@@ -387,20 +384,34 @@ and simpl_binop = function
 
 (* Simplify multiply *)
 and simpl_fois = function
+	(*     2*5 -> 10  *)
+  | Binop('*' , Val(Num.Int(a)) , Val(Num.Int(b)) ) -> (Val(Num.Int(a*b))) 
 
+	(* _ *0 -> _ *)
+  | Binop('*' , Val(Num.Int(0)) , _ ) ->Val(Num.Int(0))
+	(* _ *1 -> _ *)
+  | Binop('*' , Val(Num.Int(1)) , (_ as a)) ->simpl a
 
-  | Binop('*',Expo(a),Expo(b) )-> Expo( Binop('+',a,b) )
+	(* exp(a)*exp(b) -> exp(a+b)  *)
+  | Binop('*',Expo(a),Expo(b) )-> simpl (Expo( Binop('+',a,b) ))
+
+	(* 1/2(log(a))   -> log(Sqrt(a))  *)
   | Binop('*', Log(a) ,Frac( Val(Num.Int(1)) ,Val(Num.Int(2)) ) ) |
 	Binop('*',Frac( Val(Num.Int(1)) ,Val(Num.Int(2)) ), Log(a) ) -> 
 	simpl_log (Log( simpl_sqrt ( Sqrt(a) ) ))	
  
+	(*  *)
   | Binop('*',n, Log(a) ) | Binop('*', Log(a),n )-> 
 	simpl_log (Log( simpl_pow (Pow(a,n) )) )
+
+  | Binop('*' , (_ as a) , (_ as b) ) ->  Binop ('*' ,(simpl a) , (simpl b) )
  
   | _ as o -> o
 
 (* Simplify additions *)
 and simpl_plus = function
+	(*     2+5 -> 7  *)
+  | Binop('+' , Val(Num.Int(a)) , Val(Num.Int(b)) ) ->Val(Num.Int(a+b)) 
   (* log(a)+log(b) -> log(a*b) *)
   | Binop('+',Log(a),Log(b)) -> simpl_binop (Log(Binop('*',simpl(a),simpl(b))))
 
@@ -443,6 +454,10 @@ and simpl_plus = function
 
 (* Simplify substractions *)
 and simpl_minus = function
+
+	(*     7-5 -> 2  *)
+  | Binop('-' , Val(Num.Int(a)) , Val(Num.Int(b)) ) ->Val(Num.Int((a-b))) 
+
   (* a\B2 -b\B2 *)
   | Binop('-',Pow(x,p1),Pow(y,p2))
       when p1 = p2 && p1 = Val(Num.Int(2)) -> 
@@ -533,11 +548,16 @@ and simpl_fract = function
 
 (* Simplify a power *)
 and simpl_pow = function
-  | Pow( x , 
-	(Val(Num.Int(n2)) as n)
-	) when n2<0 -> Frac( 	n, (simpl x) )
-  | Pow(Val(Num.Int(x)),n) when x=0 -> Val(Num.Int(-1))
-  | Pow( (Val(Num.Int(x2)) as x),n) when x2=1 -> Unop('+',x)
+
+	(* (x^a)^b -> x^(a*b)  *)
+  |Pow ( x,Pow (n1, n2) ) -> simpl (
+			Pow (x ,(simpl (Binop ('*', n1,n2 ))))
+					)
+	(* x^0 -> 1 *)
+  | Pow(x,Val(Num.Int(0)) )-> Val(Num.Int(1))
+
+	(* x^1 -> x *)
+  | Pow(x,Val(Num.Int(1)) )-> simpl x
   | Pow(x,n) -> Pow ((simpl x),(simpl n))
   | _ as o -> o 
 
@@ -551,6 +571,8 @@ and simpl_exp = function
 	(* exp(0) -> 1    | exp(1) -> e *)
   |Expo(Val(Num.Int(0))) -> Val(Num.Int(1))
   |Expo(Val(Num.Int(1))) -> Exp0
+
+	(* exp*)
   | _ as o -> o 
 
 (* Simplify the logarithm *)
@@ -565,7 +587,6 @@ and simpl_log = function
 	(* log ( expo(x) -> x *)
   | Log( Expo(x) ) -> x
   | _ as o -> o 
-
 
 and pisur2 = Frac ( Pi , Val(Num.Int(2)) )
 and pisur3 = Frac ( Pi , Val(Num.Int(3)) )
