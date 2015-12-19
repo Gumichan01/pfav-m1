@@ -394,8 +394,12 @@ and simpl_plus = function
   | Binop('+',x,Val(Num.Int(y))) when y < 0 -> Binop('-',simpl(x),
 						     Val(Num.Int(-y)))
 
+  (* x + (-y) = 0 if x = y *)
+  | Binop('+',x,Unop('-',y))
+  | Binop('+',Unop('-',y),x) when x = y -> Val(Num.Int(0))
+
   (* x + (-y) = x - y *)
-  | Binop('+',x,Unop('-',y)) -> Binop('-',simpl(x),simpl(y))
+  | Binop('+',x,Unop('-',y)) | Binop('+',Unop('-',y),x) -> Binop('-',simpl(x),simpl(y))
 
   (* ln(a) + ln(b) *)
   | Binop('+',Log(a),Log(b)) -> simpl_log (Log(simpl_mult(Binop('*',a,b))))
@@ -412,33 +416,36 @@ and simpl_plus = function
 
   (* x + x*y = x * (y + 1) *)
   | Binop('+',x,Binop('*',y,Val(Num.Int(z))))
-      when x = y -> simpl_binop(Binop('*',Val(Num.Int(z+1)),simpl(x)))
+      when x = y -> simpl_mult(Binop('*',Val(Num.Int(z+1)),simpl(x)))
 
   (* x + y*x = x * (y + 1) *)
   | Binop('+',x,Binop('*',Val(Num.Int(z)),y))
 
   (* x*y + x = x * (y + 1) *)
   | Binop('+',Binop('*',y,Val(Num.Int(z))),x) 
-      when x = y -> simpl_binop(Binop('*',Val(Num.Int(z+1)),simpl(x)))
+      when x = y -> simpl_mult(Binop('*',Val(Num.Int(z+1)),simpl(x)))
 
   (* y*x + x = x * (y + 1) *)
   | Binop('+',Binop('*',Val(Num.Int(z)),y),x) 
-      when x = y -> simpl_binop(Binop('*',Val(Num.Int(z+1)),simpl(x)))
+      when x = y -> simpl_mult(Binop('*',Val(Num.Int(z+1)),simpl(x)))
 
   (* x + x*y = x * (y+z), z is an expression *)
   | Binop('+',x,Binop('*',y,z))
-      when x = y -> simpl_binop(Binop('*',x,Binop('+',simpl(z),Val(Num.Int 1))))
+      when x = y -> simpl_mult(Binop('*',x,Binop('+',simpl(z),Val(Num.Int 1))))
 
   (* x + z*x = x * (y+z), z is an expression *)
   | Binop('+',x,Binop('*',z,y)) 
-      when x = y -> simpl_binop(Binop('*',x,Binop('+',simpl(z),Val(Num.Int 1))))
+      when x = y -> simpl_mult(Binop('*',x,Binop('+',simpl(z),Val(Num.Int 1))))
 
-  (* x + x = x * 2 *)
-  | Binop('+',x,y) when x = y -> simpl_binop(Binop('*',Val(Num.Int 2),simpl(x)))
+  (* x + x = 2x *)
+  | Binop('+',x,y) when x = y -> simpl_mult(Binop('*',Val(Num.Int 2),simpl(x)))
 
   (* ax + ay = a * (x + y) *)
   | Binop('+',Binop('*',a,x),Binop('*',b,y)) when a = b -> 
     Binop('*',simpl(a),simpl(Binop('+',x,y)))
+
+  (* x + y : x and y are constant values *)
+  | Binop('+',Val(Num.Int(_)),Val(Num.Int(_))) as b -> b
 
   (* Sum of x1 + x2 + ... + xn, x[1-n] are the same expression *)
   | Binop('+' as p,x,y) -> simpl_binop_aux p x y
@@ -509,6 +516,10 @@ and simpl_minus = function
   (* xy - x = -(y+1)x : y is an expression *)
   | Binop('-',Binop('*',x,z),y) when x = y -> 
     Binop('*',Binop('+',simpl(z),Val(Num.Int(1))),x)
+
+  (* x - y : x and y are constant values *)
+  | Binop('-',Val(Num.Int(_)),Val(Num.Int(_))) as b -> b
+
   (* Sub: -x1 - x2 - ... - x[n-1] = n*x with x[0...n-1] as same expression *)
   | Binop('-' as m,x,y) -> simpl_binop_aux m x y
   | _ as o -> o
