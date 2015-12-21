@@ -389,7 +389,7 @@ and simpl_binop = function
 and simpl_plus = function
   (* x + y : x and y are constant values *)
   | Binop('+',Val(Num.Int(x)),Val(Num.Int(y))) as b
-    when x <> 0 || y <> 0 -> b
+    when x <> 0 && y <> 0 -> b
   
   (* x + 0 = x *)
   | Binop('+',x,Val(Num.Int(0))) | Binop('+',Val(Num.Int(0)),x) -> simpl(x)
