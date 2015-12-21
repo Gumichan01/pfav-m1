@@ -614,7 +614,13 @@ and simpl_binop_aux op x y =
 		     let ex = (Binop(op,t,z)) in
 		     match op with   
 		       | '+' -> if z <> y then simpl_plus(ex) else ex
-		       | '-' -> if z <> y then simpl_minus(ex) else ex
+		       | '-' -> (*if z <> y then simpl_minus(ex) else ex*)
+			 (
+			   match t,z with (* We have Binop of '-' * t * z *)
+			     | ((Binop('*',Val(Num.Int(i)),a),b))
+				 when a = b -> Binop('*',Val(Num.Int(i-1)),a)
+			     | (_,_) -> ex
+			 )  
 		       | '*' -> if z <> y then simpl_mult(ex) else ex
 		       | _ -> failwith "Invalid Operation to simplify"
 
