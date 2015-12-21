@@ -6,7 +6,7 @@ open Mathexpr;;
 
 
 let something () =
-  let example = "(-(-y)) + (-(-y))*x" in
+  let example = "y-x-x-x" in
 (*  let e = Parsexpr.expr_of_string "5*sqrt(36+x^2)+4*(20-x)" in*)
   let e = Parsexpr.expr_of_string example in  
   let s = match e with
@@ -16,9 +16,9 @@ let something () =
   
   and r = cons_math_expr e in
   print_string ("We have parsed "^example^" and its tree starts with "^s^"\n");
-  print_string("math_expr: "^(print_tree_of_math r)^"\n");
+  print_string("\nmath_expr: "^(print_tree_of_math r)^"\n\n");
   let simpl_e = simpl r in 
-  print_string("Simplified math_expr: "^(print_tree_of_math simpl_e)^"\n");;
+  print_string("Simplified math_expr: "^(print_tree_of_math simpl_e)^"\n\n");;
 
 
 let main =
