@@ -387,6 +387,10 @@ and simpl_binop = function
 
 (* Simplify additions *)
 and simpl_plus = function
+  (* x + y : x and y are constant values *)
+  | Binop('+',Val(Num.Int(x)),Val(Num.Int(y))) as b
+    when x <> 0 || y <> 0 -> b
+  
   (* x + 0 = x *)
   | Binop('+',x,Val(Num.Int(0))) | Binop('+',Val(Num.Int(0)),x) -> simpl(x)
 
@@ -443,9 +447,6 @@ and simpl_plus = function
   (* ax + ay = a * (x + y) *)
   | Binop('+',Binop('*',a,x),Binop('*',b,y)) when a = b -> 
     Binop('*',simpl(a),simpl(Binop('+',x,y)))
-
-  (* x + y : x and y are constant values *)
-(*  | Binop('+',Val(Num.Int(_)),Val(Num.Int(_))) as b -> b*)
 
   (* Sum of x1 + x2 + ... + xn, x[1-n] are the same expression *)
   | Binop('+' as p,x,y) -> simpl_binop_aux p x y
