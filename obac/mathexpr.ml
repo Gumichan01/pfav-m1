@@ -613,8 +613,8 @@ and simpl_binop_aux op x y =
   let t = simpl x in let z = simpl y in 
 		     let ex = (Binop(op,t,z)) in
 		     match op with   
-		       | '+' -> if z <> y then simpl_binop(ex) else ex
-		       | '-' -> if z <> y then ex else simpl_binop (ex)
+		       | '+' -> if z <> y then simpl_plus(ex) else ex
+		       | '-' -> if z <> y then simpl_minus(ex) else ex
 		       | '*' -> if z <> y then simpl_mult(ex) else ex
 		       | _ -> failwith "Invalid Operation to simplify"
 
