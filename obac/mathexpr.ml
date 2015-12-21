@@ -520,8 +520,12 @@ and simpl_minus = function
   (* x - y : x and y are constant values *)
   | Binop('-',Val(Num.Int(_)),Val(Num.Int(_))) as b -> b
 
+  (* x - y | -x -y : x and y are variables *)
+  | Binop('-',Var(_),Var(_)) | Binop('+',Unop(_,_),Var(_)) 
+  | Binop('-',Var(_),Unop(_,_))  as b -> b
+
   (* Sub: -x1 - x2 - ... - x[n-1] = n*x with x[0...n-1] as same expression *)
-  | Binop('-' as m,x,y) -> simpl_binop_aux m x y
+  | Binop('-' as m,(Binop('-',_,_) as x),y) -> simpl_binop_aux m x y
   | _ as o -> o
 
 
