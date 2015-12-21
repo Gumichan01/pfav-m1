@@ -454,6 +454,10 @@ and simpl_plus = function
 
 (* Simplify substractions *)
 and simpl_minus = function
+  (* x - y : x and y are non-zero constant values *)
+  | (Binop('-',Val(Num.Int(x)),Val(Num.Int(y))) as b) 
+      when x <> 0 && y <> 0 -> b
+  
   (* x - 0 = x *)
   | Binop('-',x,Val(Num.Int(0))) -> simpl(x)
 
