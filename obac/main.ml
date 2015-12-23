@@ -1,6 +1,7 @@
 
 open Expr;;
 open Mathexpr;;
+open Simplify;;
 
 (* TODO  : to change later *)
 
