@@ -1,4 +1,7 @@
 
+
+(** Derivative and integration *)
+
 open Mathexpr;;
 
 
@@ -146,3 +149,12 @@ let  rec derive_n : math_expr -> int -> math_expr =
     | 0 -> x
 (*    | y when y<0 -> raise Invalid_derive_n_Argument ("argument de derivation_n inferieur a 0 ") *)
     | y -> derive_n  (derive x) (y-1)
+
+
+
+
+
+(* Integration of an expression *)
+let rec integ : math_expr -> string -> math_expr -> math_expr -> math_expr = 
+fun x s a b -> match x with
+  | _ -> failwith "TODO integ : math_expr -> string -> math_expr -> math_expr -> math_expr ";;
