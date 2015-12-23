@@ -390,8 +390,11 @@ and simpl_exp = function
   (* exp(0) -> 1    | exp(1) -> e *)
   |Expo(Val(Num.Int(0))) -> Val(Num.Int(1))
   |Expo(Val(Num.Int(1))) -> Exp0
-
-	(* exp*)
+  
+  (* exp(x*ln(a)) = a^x *)
+  | Expo(Binop('*',x,Log(Val(Num.Int(a))))) -> Pow(Val(Num.Int(a)),simpl(x))
+  
+  (* exp*)
   | _ as o -> o 
 
 (* Simplify the logarithm *)
