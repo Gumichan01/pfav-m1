@@ -331,6 +331,11 @@ and simpl_fract = function
 
   (* 1/log(a) = -log(a) *)
   | Frac(Val(Num.Int(1)),Log(a)) -> Unop('-', Log(simpl a))
+
+  (* (e^x)/y | y/(e^x) *)
+  | Frac((Expo(_) as e),y) -> Frac(simpl_exp(e),simpl(y))
+  | Frac(y,(Expo(_) as e)) -> Frac(simpl(y),simpl_exp(e))
+
   | _ as o -> o 
 
 
