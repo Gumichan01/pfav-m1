@@ -284,9 +284,17 @@ and simpl_binop_aux op x y =
 (* Simplify a fraction *)
 and simpl_fract = function
   (** TODO simplify the fraction *)
-  (* exp(a)/exp(b) -> exp(a-b) *)
-  | Frac(Expo(a) , Expo(b) ) -> Expo(Binop('-',(simpl a),(simpl b)))
-    
+
+  (* exp(a)/exp(b) -> exp(a-b) : a and b are constant values *)
+  | Frac(Expo(Val(Num.Int(a))),
+	 Expo(Val(Num.Int(b)))) when a <> b -> simpl_exp(Expo(Val(Num.Int(a-b))))
+
+  (* exp(a)/exp(b) -> exp(a-b) : a and b are expressions *)
+  | Frac(Expo(a),Expo(b)) when a <> b -> Expo(Binop('-',(simpl a),(simpl b)))
+
+  (* a/b = 1 when a = b  *)
+  | Frac(a,b) when a = b -> Val(Num.Int(1))
+
   (* 1/exp(b) -> exp(-a) *)
   | Frac(Val(Num.Int(1)),Expo(a) ) -> Expo(Unop('-', (simpl a)))
 
