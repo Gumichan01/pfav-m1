@@ -395,6 +395,13 @@ and simpl_pow = function
 
 (* Simplify a square root *)
 and simpl_sqrt = function
+
+  (* sqrt(x²) = x *)
+  | Sqrt(Pow(x,Val(Num.Int(2))))-> simpl(x)
+
+  (* General expression*)
+  | Sqrt(x) -> Sqrt(simpl(x))
+
   | _ as o -> o 
 
 (* Simplify a exponential function *)

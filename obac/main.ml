@@ -8,7 +8,7 @@ open Derivative;;
 
 
 let something () =
-  let example = "(exp(2*log(4))) / log(2^4)" in
+  let example = "sqrt(x^2)" in
 (*  let e = Parsexpr.expr_of_string "5*sqrt(36+x^2)+4*(20-x)" in*)
   let e = Parsexpr.expr_of_string example in  
   let s = match e with
