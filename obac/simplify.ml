@@ -1,6 +1,21 @@
 
 open Mathexpr;;
 
+(* Calculation of the Greatest common dividor *)
+let rec pgcd x y = 
+	if y = 0 then x else pgcd  y (x mod y)
+;;
+
+
+let rec extend_pgcd x y =
+	if y = 0 
+	then 
+	  (1, 0, x)
+	else 
+	let q = (x/y) in 
+	let (u,v,g) = extend_pgcd y (x - q*y) in
+	(v,u-q * v,g)
+;;
 
 (* Simplify an expression *)
 let rec simpl : math_expr -> math_expr = 

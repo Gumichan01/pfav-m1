@@ -93,16 +93,6 @@ let is_not_reserved_keyword = function
 let map_list f l = List.map f l;;
 
 
-let rec pgcd x y = 
-	if y==0 then x else pgcd  y (x mod y)
-
-let rec extend_pgcd x y =
-	if y= 0 then (1, 0, x)
-	else 
-	let q= x/y in let (u,v,g ) =extend_pgcd y ( x - q * y ) in
-	(v , u-q * v , g)
-
-
 let consVar: string -> math_expr = 
   fun s ->
     if is_not_reserved_keyword(s)
