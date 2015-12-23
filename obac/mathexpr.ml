@@ -37,6 +37,23 @@ exception Invalid_power of string;;
 exception Invalid_math_expr of string;;
 exception Invalid_derive_n_Argument of string;;
 
+
+
+let pi_div_two = Frac(Pi,Val(Num.Int(2)))
+let pi_div_three = Frac(Pi,Val(Num.Int(3)))
+let pi_div_four = Frac(Pi,Val(Num.Int(4)))
+let pi_div_six = Frac(Pi,Val(Num.Int(6)))
+
+let two_pi_div_three = Frac(Binop('*',Val(Num.Int(2)),Pi),Val(Num.Int(3))) 
+let three_pi_div_three = Frac(Binop('*',Val(Num.Int(3)),Pi),Val(Num.Int(4)))
+let five_pi_div_six = Frac(Binop('*',Val(Num.Int(5)),Pi),Val(Num.Int(6)))
+
+let one_half = Frac(Val(Num.Int(1)),Val(Num.Int(2)))
+let sqrt_three_div_2 = Frac(Sqrt(Val(Num.Int(3))),Val(Num.Int(2)))
+let sqrt_two_div_two = Frac(Sqrt(Val(Num.Int(2))),Val(Num.Int(2)))
+
+
+
 (* A function that print the tree of the given expression *)
 let rec print_tree_of_math : math_expr -> string = fun m ->
   match m with
@@ -210,19 +227,16 @@ let rec derive : math_expr -> math_expr =
     | Sqrt(_) as s -> derive_sqrt s
     | Expo(_) as e -> derive_exp e
     | Log(_) as l -> derive_log l
-
     | Cos(_) as l -> derive_cos l
     | Sin(_) as l -> derive_sin l
     | Tan(_) as l -> derive_tan l
     | Acos(_) as l -> derive_acos l
     | Asin(_) as l -> derive_asin l
     | Atan(_) as l -> derive_atan l
-
     | Pi -> derive_val
     | Exp0 -> derive_val
     | Val(_) -> derive_val
    (* | _ -> derive_val *)
-    
 
 and derive_val =  Val(Num.Int(0))
 
@@ -237,7 +251,7 @@ and derive_unop = function
 
 and derive_binop = function
    |Binop ('+',a,b) -> Binop ('+', (derive a) , (derive b))
-   |Binop ('-',a,b) -> Binop ('+', (derive a) , (derive (Unop('-',b) )) )
+   |Binop ('-',a,b) -> Binop ('-', (derive a) , (derive b))
    |Binop ('*',a,b) -> Binop (
 				'+',Binop('*', (derive a) ,b )  , Binop ('*',(derive b) , a)
 				)
@@ -361,7 +375,7 @@ let rec simpl : math_expr -> math_expr =
     | Expo(_) as e -> simpl_exp e
     | Log(_) as l -> simpl_log l
     (* In this case, the operation is a trigonometric function *)
-    | _ as s -> simpl_trigo s
+    | _ as o -> simpl_trigo o
 
 (* Simplify a unary operation *)
 and simpl_unop = function
@@ -657,6 +671,8 @@ and simpl_fract = function
 (* Simplify a power *)
 (** TODO simplify the power *)
 and simpl_pow = function
+  (* x^1 = x*)
+  | Pow(x,Val(Num.Int(1)))-> simpl(x)
   (* x^(-1) = 1/x *)
   | Pow(x,Val(Num.Int(n))) when n < 0 -> Frac(Val(Num.Int(-n)),(simpl x))
 
@@ -692,21 +708,27 @@ and simpl_exp = function
   (* exp(0) -> 1    | exp(1) -> e *)
   |Expo(Val(Num.Int(0))) -> Val(Num.Int(1))
   |Expo(Val(Num.Int(1))) -> Exp0
+
+	(* exp*)
   | _ as o -> o 
 
 (* Simplify the logarithm *)
 and simpl_log = function
 (** TODO simplify the normal logarithm *)
-  (* log(1) -> 0 *)
-  | Log( Val(Num.Int(x)) ) when x=1 -> Val(Num.Int(0))
+  (* ln(1) = 0 *)
+  | Log(Val(Num.Int(1))) -> Val(Num.Int(0))
 
-	(* log (e) -> 1 *)
-  | Log( Exp0 ) -> Val(Num.Int(1))
-  | _ as o -> o 
+  (* ln(e) = 1 *)
+  | Log(Exp0) -> Val(Num.Int(1))
+
+  (* ln(exp(x)) *)
+  | Log(Expo(x)) -> simpl(x)
+  | _ as o -> o
 
 (* Simplify a trigonometric function *)
 and simpl_trigo = function
   | _ as o -> o 
+
 ;;
 
 
