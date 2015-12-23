@@ -2,6 +2,7 @@
 open Expr;;
 open Mathexpr;;
 open Simplify;;
+open Derivative;;
 
 (* TODO  : to change later *)
 
