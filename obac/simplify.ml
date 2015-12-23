@@ -112,6 +112,7 @@ and simpl_plus = function
   | Binop('+',Binop('*',a,x),Binop('*',b,y)) when a = b -> 
     Binop('*',simpl(a),simpl(Binop('+',x,y)))
 
+  (* e^x + y | y + e^x *)
   | Binop('+',(Expo(_) as e),y) 
   | Binop('+',y,(Expo(_) as e)) -> Binop('+',simpl_exp(e),simpl(y)) 
 
@@ -195,6 +196,10 @@ and simpl_minus = function
   (* x - y | -x -y : x and y are variables *)
   | Binop('-',Var(_),Var(_)) | Binop('+',Unop(_,_),Var(_)) 
   | Binop('-',Var(_),Unop(_,_))  as b -> b
+
+  (* e^x - y | y - e^x *)
+  | Binop('-',(Expo(_) as e),y) -> Binop('-',simpl_exp(e),simpl(y)) 
+  | Binop('-',y,(Expo(_) as e)) -> Binop('-',simpl(y),simpl_exp(e)) 
 
   (* Sub: -x1 - x2 - ... - x[n-1] = n*x with x[0...n-1] as same expression *)
   | Binop('-' as m,(Binop('-',_,_) as x),y) -> simpl_binop_aux m x y
