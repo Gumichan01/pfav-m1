@@ -306,7 +306,7 @@ and simpl_fract = function
   | _ as o -> o 
 
 (* Simplify a power *)
-(** TODO simplify the power *)
+(** TODO simplify the power : a^(1/n) = sqrt nième de a *)
 and simpl_pow = function
   (* x^1 = x*)
   | Pow(x,Val(Num.Int(1)))-> simpl(x)
@@ -329,6 +329,9 @@ and simpl_pow = function
 
   (* 1^n = 1 *)
   | Pow(Val(Num.Int(1)),n) -> Val(Num.Int(1))
+
+  (* x^(1/2) = sqrt(x) *)
+  | Pow(x,Frac(Val(Num.Int(1)),Val(Num.Int(2)))) -> Sqrt((simpl x))
 
   (* x^n *)
   | Pow(x,n) -> 
