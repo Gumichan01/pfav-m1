@@ -392,7 +392,7 @@ and simpl_exp = function
   |Expo(Val(Num.Int(1))) -> Exp0
   
   (* exp(x*ln(a)) = a^x *)
-  | Expo(Binop('*',x,Log(Val(Num.Int(a))))) -> Pow(Val(Num.Int(a)),simpl(x))
+  | Expo(Binop('*',x,Log(Val(Num.Int(a))))) when a > 0 -> Pow(Val(Num.Int(a)),simpl(x))
   
   (* General expression *)
   | Expo(x) -> Expo(simpl(x))
@@ -400,7 +400,7 @@ and simpl_exp = function
 
 (* Simplify the logarithm *)
 and simpl_log = function
-(** TODO simplify the normal logarithm *)
+(** TODO simplify the natural logarithm *)
   (* ln(1) = 0 *)
   | Log(Val(Num.Int(1))) -> Val(Num.Int(0))
 
@@ -409,6 +409,9 @@ and simpl_log = function
 
   (* ln(exp(x)) *)
   | Log(Expo(x)) -> simpl(x)
+
+  (* ln(x^y) *)
+  | Log(Pow(Val(Num.Int(x)),y)) when x > 0 -> Binop('*',simpl(y),Log(Val(Num.Int(x))))
 
   (* General expression *)
   | Log(x) -> Log(simpl(x))
