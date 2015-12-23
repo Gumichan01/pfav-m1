@@ -197,7 +197,6 @@ and simpl_identity op id a aa b bb p =
 
 (* Simplify multiply *)
 and simpl_mult = function
-(** TODO simplify the multiplication *)
   (* x * 1 = x *)
   | Binop('*',x,Val(Num.Int(1))) | Binop('*',Val(Num.Int(1)),x) -> simpl(x)
 
@@ -311,20 +310,25 @@ and simpl_fract = function
 and simpl_pow = function
   (* x^1 = x*)
   | Pow(x,Val(Num.Int(1)))-> simpl(x)
-  (* x^(-1) = 1/x *)
-  | Pow(x,Val(Num.Int(n))) when n < 0 -> Frac(Val(Num.Int(-n)),(simpl x))
 
-  (* 0^0 = 0 *)
+  (* x^(-1) = 1/x *)
+  | Pow(x,Val(Num.Int(-1))) 
+  | Pow(x,Unop('-',Val(Num.Int(1))) ) -> Frac(Val(Num.Int(1)),(simpl x))
+
+  (* x^(-n) = 1/x *)
+  | Pow(x,Unop('-',y)) -> Frac(Val(Num.Int(1)),Pow((simpl x),y))
+
+  (* 0^0 = 0 by convention *)
   | Pow(Val(Num.Int(0)),Val(Num.Int(0))) -> Val(Num.Int(1))
 
   (* x^0 = 1 *)
   | Pow(x,Val(Num.Int(0))) -> Val(Num.Int(1))
 
   (* 0^n = 0 *)
-  | Pow(Val(Num.Int(0)) as x,n) -> simpl(x)
+  | Pow(Val(Num.Int(0)),n) -> Val(Num.Int(0))
 
   (* 1^n = 1 *)
-  | Pow((Val(Num.Int(1)) as x),n) -> simpl(x)
+  | Pow(Val(Num.Int(1)),n) -> Val(Num.Int(1))
 
   (* x^n *)
   | Pow(x,n) -> 
