@@ -112,6 +112,9 @@ and simpl_plus = function
   | Binop('+',Binop('*',a,x),Binop('*',b,y)) when a = b -> 
     Binop('*',simpl(a),simpl(Binop('+',x,y)))
 
+  | Binop('+',(Expo(_) as e),y) 
+  | Binop('+',y,(Expo(_) as e)) -> Binop('+',simpl_exp(e),simpl(y)) 
+
   (* Sum of x1 + x2 + ... + xn, x[1-n] are the same expression *)
   | Binop('+' as p,x,y) -> simpl_binop_aux p x y
 
