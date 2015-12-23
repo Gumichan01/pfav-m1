@@ -367,6 +367,9 @@ and simpl_pow = function
   (* x^(1/2) = sqrt(x) *)
   | Pow(x,Frac(Val(Num.Int(1)),Val(Num.Int(2)))) -> Sqrt((simpl x))
 
+  (* x^(a*b) = (x^a)^b *)
+  | Pow(x,Binop('*',a,b)) -> Pow(Pow(simpl(x),simpl(a)),simpl(b))
+
   (* x^n *)
   | Pow(x,n) -> 
     (
