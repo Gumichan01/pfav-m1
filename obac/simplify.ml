@@ -304,6 +304,14 @@ and simpl_fract = function
   (* exp(a)/exp(b) -> exp(a-b) : a and b are expressions *)
   | Frac(Expo(a),Expo(b)) when a <> b -> Expo(Binop('-',(simpl a),(simpl b)))
 
+  (* x^y / x^z : = x^(y-z) y and z are constant values *)
+  | Frac(Pow(x,Val(Num.Int(a))),Pow(y,Val(Num.Int(b)))) 
+      when (x = y && a <> b) -> Pow(x,Val(Num.Int(a-b)))
+
+  (* (x^y)/(x^z) : = x^(y-z) y and z are expression *)
+  | Frac(Pow(x,a),Pow(y,b)) 
+      when (x = y && a <> b) -> Pow(x,simpl_minus(Binop('-',simpl(a),simpl(b))))
+
   (* a/b = 1 when a = b  *)
   | Frac(a,b) when a = b -> Val(Num.Int(1))
 
