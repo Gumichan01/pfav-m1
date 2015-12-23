@@ -2,18 +2,15 @@
 open Mathexpr;;
 
 (* Calculation of the Greatest common dividor *)
-let rec pgcd x y = 
-	if y = 0 then x else pgcd  y (x mod y)
-;;
+let rec gcd x y = if y = 0 then x else gcd  y (x mod y) ;;
 
-
-let rec extend_pgcd x y =
+let rec extend_gcd x y =
 	if y = 0 
 	then 
 	  (1, 0, x)
 	else 
 	let q = (x/y) in 
-	let (u,v,g) = extend_pgcd y (x - q*y) in
+	let (u,v,g) = extend_gcd y (x - q*y) in
 	(v,u-q * v,g)
 ;;
 
@@ -310,23 +307,29 @@ and simpl_fract = function
   (* a/b = 1 when a = b  *)
   | Frac(a,b) when a = b -> Val(Num.Int(1))
 
-  (* 1/exp(b) -> exp(-a) *)
-  | Frac(Val(Num.Int(1)),Expo(a) ) -> Expo(Unop('-', (simpl a)))
+  (* 1/exp(b) = exp(-a) *)
+  | Frac(Val(Num.Int(1)),Expo(a)) -> Expo(Unop('-', (simpl a)))
 
-  (*  simplification de base 5/25 -> 1/5   |  25/5  -> 5  |  74/12 -> 37/6 *)
-  | Frac(Val(Num.Int(a as a2) ),Val(Num.Int(b as b2) ) ) as fract-> 
-    begin match a2,b2 with
-      | (a,b) when a mod b=0 -> Val(Num.Int(a/b))
-      | (a,b) when b mod a=0 -> Frac(Val(Num.Int(1)),Val(Num.Int(b/a)) )
-      | (a,b) -> let coeff=(pgcd a b) in if coeff=0 then fract
-	else Frac(
-	  Val(Num.Int(a/coeff)) ,	Val(Num.Int(b/coeff))
-	)
-    end
+  (* Reduce the fraction 3/9 = 1/3 *)
+  | Frac(Val(Num.Int(x)),Val(Num.Int(y))) as f-> reduce_fraction f x y 
 
-  (* 1/log(a) -> -log(a) *)
+  (* 1/log(a) = -log(a) *)
   | Frac(Val(Num.Int(1)),Log(a)) -> Unop('-', Log(simpl a))
   | _ as o -> o 
+
+
+
+and reduce_fraction frac x y =
+  match (x mod y) with
+    | 0 -> Val(Num.Int(x/y))
+    | _ -> let gcd_ = (gcd x y) in 
+	   if gcd_ = 0 
+	   then 
+	     frac
+	   else 
+	     Frac(Val(Num.Int(x/gcd_)),Val(Num.Int(y/gcd_)))
+
+
 
 (* Simplify a power *)
 (** TODO simplify the power : a^(1/n) = sqrt nième de a *)
