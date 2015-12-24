@@ -243,6 +243,9 @@ and simpl_mult = function
   | Binop('*',Val(Num.Int(x)),Val(Num.Int(y))) 
       when (x < 0 && y < 0) -> Binop('*',Val(Num.Int(-x)),Val(Num.Int(-y)))
 
+  (* x * y =  y * x : x is an expression and y is a value *)
+  | Binop('*',x,Val(Num.Int(y))) -> Binop('*',Val(Num.Int(y)),x)
+
   (* e(a) * e(b) = e⁽a+b⁾ *)
   | Binop('*',Expo(a),Expo(b))-> simpl_exp(Expo(simpl_plus(Binop('+',
 								 simpl_exp(a),
@@ -329,6 +332,11 @@ and simpl_fract = function
 
   (* a/b = 1 when a = b  *)
   | Frac(a,b) when a = b -> Val(Num.Int(1))
+
+  (* (z*x)/(z*y) = x/y *)
+  | Frac(Binop('*',z,x),Binop('*',a,y)) 
+      when z = a || (simpl(z)) = (simpl(a)) 
+	     -> simpl_fract(Frac(simpl(x),simpl(y)))
 
   (* 1/exp(b) = exp(-a) *)
   | Frac(Val(Num.Int(1)),Expo(a)) -> Expo(Unop('-', (simpl a)))
