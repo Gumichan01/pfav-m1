@@ -34,6 +34,7 @@ exception Parsing_error of string;;
 exception Invalid_binop of string;;
 exception Invalid_fraction of string;;
 exception Invalid_power of string;;
+exception Invalid_sqrt of string;;
 exception Invalid_math_expr of string;;
 exception Invalid_derive_n_Argument of string;;
 
@@ -163,10 +164,11 @@ and parse_op = function
 
 
 (* Mathematical functions to parse *)
+(* TODO : interdire log(-1) et a(cos/sin/tan) de x pour x > 1 ou x < -1 *)
 and parse_math_function = function
   | ("^",l) when (List.length l = 2) -> 
     let ll = map_list (cons_math_expr) l in cons_pow ll
-  | ("sqrt",[x]) -> Sqrt(cons_math_expr x)
+  | ("sqrt",[x]) -> parse_sqrt (cons_math_expr x)
   | ("exp",[x]) -> Expo(cons_math_expr x)
   | ("log",[x]) -> Log(cons_math_expr x)
   | ("cos",[x]) -> Cos(cons_math_expr x)
@@ -188,6 +190,20 @@ and parse_basic_op = function
   | ("*",l) when (List.length l > 1) -> parse_binop_aux "*" l (cons_math_expr)
   | ("/",l) when (List.length l = 2) -> parse_binop_aux "/" l (cons_math_expr)
   | _ -> raise (Parsing_error "Unrecognized basic operator to parse")
+
+
+(* Check if the argument of sqrt is valid *)
+and parse_sqrt = function
+  (* If the argument is a positive value -> OK; otherwise -> KO *)
+  | Val(Num.Int(x)) as v when x >= 0 -> Sqrt(v)
+  | Val(Num.Int(x)) -> raise (Invalid_sqrt ("Invalid square root of "
+					    ^(string_of_int x)^""))
+  (* If the argument is -y -> KO*)
+  | (Unop('-',Var(y))) -> raise (Invalid_sqrt ("Invalid square root of -"^y^""))
+
+  (* Warning : some expressions can be invalid,
+     so it will be necessary to check them during evaluation *)
+  | _ as r -> Sqrt(r)
 ;;
 
 
