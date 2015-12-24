@@ -320,6 +320,13 @@ and simpl_fract = function
   | Frac(Pow(x,a),Pow(y,b)) 
       when (x = y && a <> b) -> Pow(x,simpl_minus(Binop('-',simpl(a),simpl(b))))
 
+  (* sqrt(a)/sqrt(b) = sqrt(1) when a = b : a and b are constant values *)
+  | Frac( Sqrt(Val(Num.Int(a))), Sqrt(Val(Num.Int(b)))) 
+      when a = b -> Sqrt(Val(Num.Int(1)))
+
+  (* sqrt(x)/sqrt(y) = sqrt(x/y) : x and y are expressions *)
+  | Frac(Sqrt(x), Sqrt(y)) -> Sqrt(simpl_fract(Frac(simpl(x),simpl(y))))
+
   (* a/b = 1 when a = b  *)
   | Frac(a,b) when a = b -> Val(Num.Int(1))
 
@@ -406,7 +413,6 @@ and simpl_sqrt = function
 
 (* Simplify a exponential function *)
 and simpl_exp = function
-  (** TODO simplify the exponential *)
   (* exp(0) -> 1 | exp(1) -> e *)
   |Expo(Val(Num.Int(0))) -> Val(Num.Int(1))
   |Expo(Val(Num.Int(1))) -> Exp0
@@ -420,7 +426,6 @@ and simpl_exp = function
 
 (* Simplify the logarithm *)
 and simpl_log = function
-(** TODO simplify the natural logarithm *)
   (* ln(1) = 0 *)
   | Log(Val(Num.Int(1))) -> Val(Num.Int(0))
 
