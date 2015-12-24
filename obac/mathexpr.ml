@@ -35,6 +35,7 @@ exception Invalid_binop of string;;
 exception Invalid_fraction of string;;
 exception Invalid_power of string;;
 exception Invalid_sqrt of string;;
+exception Invalid_log of string;;
 exception Invalid_math_expr of string;;
 exception Invalid_derive_n_Argument of string;;
 
@@ -170,7 +171,7 @@ and parse_math_function = function
     let ll = map_list (cons_math_expr) l in cons_pow ll
   | ("sqrt",[x]) -> parse_sqrt (cons_math_expr x)
   | ("exp",[x]) -> Expo(cons_math_expr x)
-  | ("log",[x]) -> Log(cons_math_expr x)
+  | ("log",[x]) -> parse_log (cons_math_expr x)
   | ("cos",[x]) -> Cos(cons_math_expr x)
   | ("sin",[x]) -> Sin(cons_math_expr x)
   | ("tan",[x]) -> Tan(cons_math_expr x)
@@ -194,7 +195,7 @@ and parse_basic_op = function
 
 (* Check if the argument of sqrt is valid *)
 and parse_sqrt = function
-  (* If the argument is a positive value -> OK; otherwise -> KO *)
+  (* If the argument is a positive or null value -> OK; otherwise -> KO *)
   | Val(Num.Int(x)) as v when x >= 0 -> Sqrt(v)
   | Val(Num.Int(x)) -> raise (Invalid_sqrt ("Invalid square root of "
 					    ^(string_of_int x)^""))
@@ -204,6 +205,18 @@ and parse_sqrt = function
   (* Warning : some expressions can be invalid,
      so it will be necessary to check them during evaluation *)
   | _ as r -> Sqrt(r)
+
+(* Check if the argument of log is valid *)
+and parse_log = function
+  (* If the argument is a non-zero but positive value -> OK; otherwise -> KO *)
+  | Val(Num.Int(x)) as v when x > 0 -> Log(v)
+  | Val(Num.Int(x)) -> raise (Invalid_log ("Invalid logarithm of "
+					    ^(string_of_int x)^""))
+
+  (* If the argument is -y -> KO*)
+  | (Unop('-',Var(y))) -> raise (Invalid_sqrt ("Invalid logarithm of -"^y^""))
+
+  | _ as r -> Log(r)
 ;;
 
 
