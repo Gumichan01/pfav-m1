@@ -36,6 +36,7 @@ exception Invalid_fraction of string;;
 exception Invalid_power of string;;
 exception Invalid_sqrt of string;;
 exception Invalid_log of string;;
+exception Invalid_trigo of string;;
 exception Invalid_math_expr of string;;
 exception Invalid_derive_n_Argument of string;;
 
@@ -165,7 +166,6 @@ and parse_op = function
 
 
 (* Mathematical functions to parse *)
-(* TODO : interdire log(-1) et a(cos/sin/tan) de x pour x > 1 ou x < -1 *)
 and parse_math_function = function
   | ("^",l) when (List.length l = 2) -> 
     let ll = map_list (cons_math_expr) l in cons_pow ll
@@ -175,9 +175,9 @@ and parse_math_function = function
   | ("cos",[x]) -> Cos(cons_math_expr x)
   | ("sin",[x]) -> Sin(cons_math_expr x)
   | ("tan",[x]) -> Tan(cons_math_expr x)
-  | ("acos",[x]) -> Acos(cons_math_expr x)
-  | ("asin",[x]) -> Asin(cons_math_expr x)
-  | ("atan",[x]) -> Atan(cons_math_expr x)
+  | ("acos",[x]) -> Acos(parse_trigo (cons_math_expr x))
+  | ("asin",[x]) -> Asin(parse_trigo (cons_math_expr x))
+  | ("atan",[x]) -> Atan(parse_trigo (cons_math_expr x))
   | _ -> raise (Parsing_error "Unrecognized mathematic operator to parse")
 
 (* Parse any kind of basic operation: '+', '-', '*', '/' *)
@@ -217,6 +217,15 @@ and parse_log = function
   | (Unop('-',Var(y))) -> raise (Invalid_sqrt ("Invalid logarithm of -"^y^""))
 
   | _ as r -> Log(r)
+
+
+and parse_trigo = function
+  (* If -1 <= x =< 1 -> OK; otherwise -> KO *)
+  | Val(Num.Int(x)) as v when x <= 1 && x >= -1 -> v
+  | Val(Num.Int(x)) -> raise (Invalid_trigo ("Invalid trigonometric function"
+					     ^" applied on "
+					     ^(string_of_int x)^""))
+  | _ as r -> r
 ;;
 
 
