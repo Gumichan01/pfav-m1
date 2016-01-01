@@ -39,6 +39,7 @@ exception Invalid_log of string;;
 exception Invalid_trigo of string;;
 exception Invalid_math_expr of string;;
 exception Invalid_derive_n_Argument of string;;
+exception Internal_mathexpr_error of string;;
 
 
 

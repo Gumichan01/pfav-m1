@@ -37,6 +37,7 @@ let rec derive : math_expr -> math_expr =
 
 
 and derive_unop = function
+   | Unop(_,Val(_)) | Unop(_,Exp0) | Unop(_,Pi) -> Val(Num.Int(0))
    | Unop(op,x) -> Unop (op, (derive x))
    | _ as o -> o
 
@@ -44,102 +45,100 @@ and derive_unop = function
 and derive_binop = function
    |Binop ('+',a,b) -> Binop ('+', (derive a) , (derive b))
    |Binop ('-',a,b) -> Binop ('-', (derive a) , (derive b))
-   |Binop ('*',a,b) -> Binop (
-				'+',Binop('*', (derive a) ,b )  , Binop ('*',(derive b) , a)
-				)
+   |Binop ('*',a,b) -> Binop ('+',
+			      Binop('*',(derive a),b),
+			      Binop('*',(derive b),a))
    | _ as o -> o
 
 
 and derive_fract = function
-	(*  u/v -> u'*v  - v'*u  / v^2  *)
-   | Frac(a,b) -> Frac ( 
-			Binop ('-' , Binop('*',(derive a),b) , Binop ('*',( derive b ) , a ) )
-			, Pow(b,Val(Num.Int(2))) 
-			)
+   (*  u/v -> u'*v  - v'*u  / v^2  *)
+   | Frac(a,b) -> Frac (Binop('-' ,Binop('*',(derive a),b),
+			      Binop('*',( derive b ),a)),
+			Pow(b,Val(Num.Int(2))) )
    | _ as o -> o
 
 
 and derive_pow = function 
-	(* u^a ->  au' * u^(a-1)  *)
-    |Pow(u,a) -> Binop ('*' , 
-			Binop ('*' , a , (derive u) )
-			,Pow ( u , Binop ('-' , a , Val(Num.Int(1))) )
+    (* u^a ->  au' * u^(a-1)  *)
+    |Pow(u,a) -> Binop ('*',Binop('*',a,(derive u)),
+			Pow(u,Binop('-',a,Val(Num.Int(1))))
 		)
-(*   | Pow (x,n) -> Pow ( Binop('*',n,x) , Binop('-',n,1) )*)
+   (*   | Pow (x,n) -> Pow ( Binop('*',n,x) , Binop('-',n,1) )*)
    | _ as o -> o
 
 
 and derive_sqrt = function
-	(* Sqrt(a) -> u' / 2*Sqrt(u)  *)
-   | Sqrt(a) -> Frac ( 
-			(derive a ), 
-			Binop ( '*' , Val(Num.Int(2)) , Sqrt(a) )
-			)
-   | _ as o -> o
-
+   (* Sqrt(a) -> u' / 2*Sqrt(u)  *)
+  | Sqrt(a) -> Frac ( 
+    (derive a ), 
+    Binop ( '*' , Val(Num.Int(2)) , Sqrt(a) )
+  )
+  | _ as o -> o
+    
 and derive_exp = function
-   | _ as o -> o
-
+  | _ as o -> o
+    
 and derive_log = function
-	(* log(val) -> 1/a  *)
-   | Log(Val(_)) | Log(Var(_)) as x -> Frac (  Val(Num.Int(1)) , x )
-
-	(* log(x) -> x'/x *)
-   | Log(x) -> Frac (derive x, x )
-   | _ as o -> o
-
+   (* log(val) -> 1/a  *)
+  | Log(Val(_)) | Log(Var(_)) as x -> Frac (  Val(Num.Int(1)) , x )
+    
+   (* log(x) -> x'/x *)
+  | Log(x) -> Frac (derive x, x )
+  | _ as o -> o
+    
 and derive_cos =function
 
-    | Cos(x) -> Unop('-' , Sin(x) )
-    | _ as o -> o
-
+  | Cos(x) -> Unop('-' , Sin(x) )
+  | _ as o -> o
+    
 and derive_sin =function
-    | Sin(x) -> Unop('+' , Cos(x) )
-    | _ as o -> o
-
+  | Sin(x) -> Unop('+' , Cos(x) )
+  | _ as o -> o
+    
 and derive_tan =function
-    | Tan(x) -> Binop('+' , 
-			Val(Num.Int(1)) 
-			, Pow ( Tan(x) , Val(Num.Int(2)) )
-			)
-    | _ as o -> o
-
+  | Tan(x) -> Binop('+' , 
+		    Val(Num.Int(1)) 
+		      , Pow ( Tan(x) , Val(Num.Int(2)) )
+  )
+  | _ as o -> o
+    
 and derive_acos =function
-    | Acos(x) -> Unop('-' , 
-			Frac (
-				Val(Num.Int(1))
-				, Sqrt ( 
-					Binop ('-' , 
-						Val(Num.Int(1)) 
-						,Pow(x,Val(Num.Int(2)) ) )
-					)
-				)
+  | Acos(x) -> Unop('-' , 
+		    Frac (
+		      Val(Num.Int(1))
+			, Sqrt ( 
+			  Binop ('-' , 
+				 Val(Num.Int(1)) 
+				   ,Pow(x,Val(Num.Int(2)) ) )
 			)
-    | _ as o -> o
-
+		    )
+  )
+  | _ as o -> o
+    
 and derive_asin =function
-    | Acos(x) -> Unop('+' , 
-			Frac (
-				Val(Num.Int(1))
-				, Sqrt ( 
-					Binop ('-' , 
-						Val(Num.Int(1)) 
-						,Pow(x,Val(Num.Int(2)) ) )
-					)
-				)
+  | Acos(x) -> Unop('+' , 
+		    Frac (
+		      Val(Num.Int(1))
+			, Sqrt ( 
+			  Binop ('-' , 
+				 Val(Num.Int(1)) 
+				   ,Pow(x,Val(Num.Int(2)) ) )
 			)
-    | _ as o -> o
-
+		    )
+  )
+  | _ as o -> o
+    
 and derive_atan =function
-    | Atan(x) -> Frac (
-			Val(Num.Int(1)) 
-			,Pow(
-				Binop ('+' , Val(Num.Int(1)) , x )
-				,Val(Num.Int(2))
-			)
-		)
-    | _ as o -> o
-
+  | Atan(x) -> Frac (
+    Val(Num.Int(1)) 
+      ,Pow(
+	Binop ('+' , Val(Num.Int(1)) , x )
+	  ,Val(Num.Int(2))
+      )
+  )
+  | _ as o -> o
+    
 ;;
 
 
@@ -147,14 +146,12 @@ and derive_atan =function
 let  rec derive_n : math_expr -> int -> math_expr = 
   fun x y -> match y with
     | 0 -> x
-(*    | y when y<0 -> raise Invalid_derive_n_Argument ("argument de derivation_n inferieur a 0 ") *)
+    (*    | y when y<0 -> raise Invalid_derive_n_Argument ("argument de derivation_n inferieur a 0 ") *)
     | y -> derive_n  (derive x) (y-1)
+      
 
-
-
-
-
+      
 (* Integration of an expression *)
 let rec integ : math_expr -> string -> math_expr -> math_expr -> math_expr = 
-fun x s a b -> match x with
+  fun x s a b -> match x with
   | _ -> failwith "TODO integ : math_expr -> string -> math_expr -> math_expr -> math_expr ";;
