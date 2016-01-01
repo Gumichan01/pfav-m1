@@ -240,7 +240,21 @@ let rec solve : math_expr -> string -> math_expr =
 (* Subtitution *)
 let rec subst : math_expr -> string -> math_expr -> math_expr = 
   fun x s m -> match x with
-    | _ -> failwith "TODO subst : math_expr -> string -> math_expr -> math_expr ";;
+    | Var str when str=s -> m
+    | Unop(op,e) -> Unop(op , subst e s m )
+    | Binop(op,e1,e2) -> Binop (op , subst e1 s m ,subst e2 s m)
+    | Frac(e1,e2) ->  Frac ( subst e1 s m , subst e2 s m)
+    | Pow(e1,e2) -> Pow (subst e1 s m, subst e2 s m)
+    | Sqrt(n) -> Sqrt ( subst n s m)
+    | Expo(n) ->Expo ( subst n s m)
+    | Log(n) -> Log (subst n s m)
+    | Cos(n) ->Cos (subst n s m)
+    | Sin(n) -> Sin (subst n s m)
+    | Tan(n) ->Tan (subst n s m)
+    | Acos(n) -> Acos (subst n s m)
+    | Asin(n) -> Asin (subst n s m)
+    | Atan(n) -> Atan (subst n s m)
+    | _ as r-> r 
 
 
 (* Evaluate an expression to get a floating point value *)
