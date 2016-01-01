@@ -345,9 +345,15 @@ and simpl_fract = function
 
 
   (* (z*x)/(z*y) = x/y *)
-  | Frac(Binop('*',z,x),Binop('*',a,y)) 
-      when z = a || (simpl(z)) = (simpl(a)) 
+  | Frac(Binop('*',z,x),Binop('*',a,y)) when z = a || (simpl(z)) = (simpl(a))
 	     -> simpl_fract(Frac(simpl(x),simpl(y)))
+  | Frac(Binop('*',x,z),Binop('*',a,y)) when z = a || (simpl(z)) = (simpl(a))
+	     -> simpl_fract(Frac(simpl(x),simpl(y)))
+  | Frac(Binop('*',z,x),Binop('*',y,a)) when z = a || (simpl(z)) = (simpl(a))
+	     -> simpl_fract(Frac(simpl(x),simpl(y)))
+  | Frac(Binop('*',x,z),Binop('*',y,a)) when z = a || (simpl(z)) = (simpl(a))
+	     -> simpl_fract(Frac(simpl(x),simpl(y)))
+
 
   (* 1/exp(b) = exp(-a) *)
   | Frac(Val(Num.Int(1)),Expo(a)) -> Expo(Unop('-', (simpl a)))
