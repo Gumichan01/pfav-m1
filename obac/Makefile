@@ -4,7 +4,7 @@
 # and indicate these extra libraries in the file _tags
 
 all:
-	ocamlbuild main.native
+	ocamlbuild -use-ocamlfind main.native
 
 byte:
 	ocamlbuild -tag debug main.byte
