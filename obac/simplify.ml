@@ -469,7 +469,7 @@ and simpl_log = function
 and simpl_trigo = function
   | Cos(Binop('+',a,b)) | Cos(Binop('-',a,b)) as c -> simpl_cos c
   | Sin(Binop('+',a,b)) | Sin(Binop('-',a,b)) as s -> simpl_sin s
-  | Tan(Binop('+',a,b)) | Tan(Binop('-',a,b)) -> failwith "TODO"
+  | Tan(Binop('+',a,b)) | Tan(Binop('-',a,b)) as t -> simpl_tan t
   | _ as o -> o 
 
 and simpl_cos = function
@@ -482,10 +482,10 @@ and simpl_sin = function
   | Sin(Binop('-',a,b)) -> simpl_sin_aux '-' (simpl(a)) (simpl(b))
   | _ as o -> o 
 
-(*and simpl_tan = function
+and simpl_tan = function
   | Tan(Binop('+',a,b)) -> simpl_tan_aux '+' (simpl(a)) (simpl(b))
   | Tan(Binop('-',a,b)) -> simpl_tan_aux '-' (simpl(a)) (simpl(b))
-  | _ as o -> o *)
+  | _ as o -> o
 
 and simpl_cos_aux op a b = match op with 
   | '+' -> Binop('-',Binop('*',Cos(a),Cos(b)),Binop('*',Sin(a),Sin(b)))
@@ -496,7 +496,15 @@ and simpl_cos_aux op a b = match op with
 and simpl_sin_aux op a b = match op with  
   | '+' as p -> Binop(p,Binop('*',Sin(a),Cos(b)),Binop('*',Cos(a),Sin(b)))
   | '-' as m -> Binop(m,Binop('*',Sin(a),Cos(b)),Binop('*',Cos(a),Sin(b)))
-  | _ as o -> raise (Internal_mathexpr_error("Cosine - invalid operator : "^
+  | _ as o -> raise (Internal_mathexpr_error("Sine - invalid operator : "^
+						Char.escaped(o)))
+
+and simpl_tan_aux op a b = match op with 
+  | '+' as p-> Frac(Binop(p,Tan(a),Tan(b)),
+		    Binop('-',Val(Num.Int(1)),Binop('*',Tan(a),Tan(b))))
+  | '-' as m-> Frac(Binop(m,Tan(a),Tan(b)),
+		    Binop('+',Val(Num.Int(1)),Binop('*',Tan(a),Tan(b))))
+  | _ as o -> raise (Internal_mathexpr_error("Tagent - invalid operator : "^
 						Char.escaped(o)))
 
 ;;
