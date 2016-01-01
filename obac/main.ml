@@ -8,7 +8,7 @@ open Derivative;;
 
 
 let something () =
-  let example = "x/1" in
+  let example = "cos(a+b)" in
 (*  let e = Parsexpr.expr_of_string "5*sqrt(36+x^2)+4*(20-x)" in*)
   let e = Parsexpr.expr_of_string example in  
   let s = match e with

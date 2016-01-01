@@ -395,7 +395,7 @@ and simpl_pow = function
   (* x^(-n) = 1/x *)
   | Pow(x,Unop('-',y)) -> Frac(Val(Num.Int(1)),Pow((simpl x),y))
 
-  (* 0^0 = 0 by convention *)
+  (* 0^0 = 1 by convention *)
   | Pow(Val(Num.Int(0)),Val(Num.Int(0))) -> Val(Num.Int(1))
 
   (* x^0 = 1 *)
@@ -467,6 +467,30 @@ and simpl_log = function
 
 (* Simplify a trigonometric function *)
 and simpl_trigo = function
+  | Cos(Binop('+',a,b)) | Cos(Binop('-',a,b)) as c -> simpl_cos c
+  | Sin(Binop('+',a,b)) | Sin(Binop('-',a,b)) -> failwith "TODO"
+  | Tan(Binop('+',a,b)) | Tan(Binop('-',a,b)) -> failwith "TODO"
   | _ as o -> o 
+
+and simpl_cos = function
+  | Cos(Binop('+',a,b)) -> simpl_cos_aux '+' (simpl(a)) (simpl(b))
+  | Cos(Binop('-',a,b)) -> simpl_cos_aux '-' (simpl(a)) (simpl(b))
+  | _ as o -> o 
+
+(*and simpl_sin = function
+  | Sin(Binop('+',a,b)) -> simpl_sin_aux '+' (simpl(a)) (simpl(b))
+  | Sin(Binop('-',a,b)) -> simpl_sin_aux '-' (simpl(a)) (simpl(b))
+  | _ as o -> o 
+
+and simpl_tan = function
+  | Tan(Binop('+',a,b)) -> simpl_tan_aux '+' (simpl(a)) (simpl(b))
+  | Tan(Binop('-',a,b)) -> simpl_tan_aux '-' (simpl(a)) (simpl(b))
+  | _ as o -> o *)
+
+and simpl_cos_aux op a b = match op with 
+  | '+' -> Binop('-',Binop('*',Cos(a),Cos(b)),Binop('*',Sin(a),Sin(b)))
+  | '-' -> Binop('+',Binop('*',Cos(a),Cos(b)),Binop('*',Sin(a),Sin(b)))
+  | _ as o -> raise (Internal_mathexpr_error("Cosine - invalid operator : "^
+						Char.escaped(o)))
 
 ;;
