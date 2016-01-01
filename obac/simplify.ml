@@ -308,6 +308,12 @@ and simpl_binop_aux op x y =
 and simpl_fract = function
   (** TODO simplify the fraction *)
 
+  (* x/(x*z) = z *)
+  | Frac(y,Binop('*',z,x)) 
+      when simpl(x) = simpl(y) -> Frac(Val(Num.Int(1)),simpl(z))
+  | Frac(y,Binop('*',x,z)) 
+      when simpl(x) = simpl(y) -> Frac(Val(Num.Int(1)),simpl(z))
+
   (* (z*x)/x = z *)
   | Frac(Binop('*',z,x),y) when simpl(x) = simpl(y) -> simpl(z)
   | Frac(Binop('*',x,z),y) when simpl(x) = simpl(y) -> simpl(z)
