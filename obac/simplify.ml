@@ -468,7 +468,7 @@ and simpl_log = function
 (* Simplify a trigonometric function *)
 and simpl_trigo = function
   | Cos(Binop('+',a,b)) | Cos(Binop('-',a,b)) as c -> simpl_cos c
-  | Sin(Binop('+',a,b)) | Sin(Binop('-',a,b)) -> failwith "TODO"
+  | Sin(Binop('+',a,b)) | Sin(Binop('-',a,b)) as s -> simpl_sin s
   | Tan(Binop('+',a,b)) | Tan(Binop('-',a,b)) -> failwith "TODO"
   | _ as o -> o 
 
@@ -477,12 +477,12 @@ and simpl_cos = function
   | Cos(Binop('-',a,b)) -> simpl_cos_aux '-' (simpl(a)) (simpl(b))
   | _ as o -> o 
 
-(*and simpl_sin = function
+and simpl_sin = function
   | Sin(Binop('+',a,b)) -> simpl_sin_aux '+' (simpl(a)) (simpl(b))
   | Sin(Binop('-',a,b)) -> simpl_sin_aux '-' (simpl(a)) (simpl(b))
   | _ as o -> o 
 
-and simpl_tan = function
+(*and simpl_tan = function
   | Tan(Binop('+',a,b)) -> simpl_tan_aux '+' (simpl(a)) (simpl(b))
   | Tan(Binop('-',a,b)) -> simpl_tan_aux '-' (simpl(a)) (simpl(b))
   | _ as o -> o *)
@@ -490,6 +490,12 @@ and simpl_tan = function
 and simpl_cos_aux op a b = match op with 
   | '+' -> Binop('-',Binop('*',Cos(a),Cos(b)),Binop('*',Sin(a),Sin(b)))
   | '-' -> Binop('+',Binop('*',Cos(a),Cos(b)),Binop('*',Sin(a),Sin(b)))
+  | _ as o -> raise (Internal_mathexpr_error("Cosine - invalid operator : "^
+						Char.escaped(o)))
+
+and simpl_sin_aux op a b = match op with  
+  | '+' as p -> Binop(p,Binop('*',Sin(a),Cos(b)),Binop('*',Cos(a),Sin(b)))
+  | '-' as m -> Binop(m,Binop('*',Sin(a),Cos(b)),Binop('*',Cos(a),Sin(b)))
   | _ as o -> raise (Internal_mathexpr_error("Cosine - invalid operator : "^
 						Char.escaped(o)))
 
