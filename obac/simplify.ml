@@ -308,6 +308,10 @@ and simpl_binop_aux op x y =
 and simpl_fract = function
   (** TODO simplify the fraction *)
 
+  (* (z*x)/x = z *)
+  | Frac(Binop('*',z,x),y) when simpl(x) = simpl(y) -> simpl(z)
+  | Frac(Binop('*',x,z),y) when simpl(x) = simpl(y) -> simpl(z)
+
   (* exp(a)/exp(b) -> exp(a-b) : a and b are constant values *)
   | Frac(Expo(Val(Num.Int(a))),
 	 Expo(Val(Num.Int(b)))) when a <> b -> simpl_exp(Expo(Val(Num.Int(a-b))))
@@ -333,6 +337,7 @@ and simpl_fract = function
   (* a/b = 1 when a = b  *)
   | Frac(a,b) when a = b -> Val(Num.Int(1))
 
+
   (* (z*x)/(z*y) = x/y *)
   | Frac(Binop('*',z,x),Binop('*',a,y)) 
       when z = a || (simpl(z)) = (simpl(a)) 
@@ -354,7 +359,7 @@ and simpl_fract = function
   | _ as o -> o 
 
 
-
+(* Reduce the fraction *)
 and reduce_fraction frac x y =
   match (x mod y) with
     | 0 -> Val(Num.Int(x/y))
@@ -364,7 +369,6 @@ and reduce_fraction frac x y =
 	     frac
 	   else 
 	     Frac(Val(Num.Int(x/gcd_)),Val(Num.Int(y/gcd_)))
-
 
 
 (* Simplify a power *)
