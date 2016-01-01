@@ -20,7 +20,7 @@ let something () =
   print_string("\nmath_expr: "^(print_tree_of_math r)^"\n\n");
   let simpl_e = simpl r in 
   print_string("Simplified math_expr: "^(print_tree_of_math simpl_e)^"\n\n");
-Plot.display();;
+Plot.plot e 5;;
 
 open Plot;;
 let main =
