@@ -258,10 +258,33 @@ let rec subst : math_expr -> string -> math_expr -> math_expr =
     | _ as r-> r 
 
 
+(* Test if there at maximum 1 VAR s  , this is for PLOT*)
+let rec plotTest : math_expr -> string -> bool = 
+  fun x s -> match x with
+    | Var str when str<>s -> false
+    | Unop(op,e) ->  plotTest e s 
+    | Binop(op,e1,e2) -> (plotTest e1 s ) && (plotTest e2 s )
+    | Frac(e1,e2) ->  (plotTest e1 s ) && (plotTest e2 s )
+    | Pow(e1,e2) -> (plotTest e1 s ) && (plotTest e2 s)
+    | Sqrt(n) -> plotTest n s 
+    | Expo(n) ->plotTest n s 
+    | Log(n) ->plotTest n s 
+    | Cos(n) ->plotTest n s 
+    | Sin(n) -> plotTest n s 
+    | Tan(n) ->plotTest n s 
+    | Acos(n) -> plotTest n s 
+    | Asin(n) -> plotTest n s 
+    | Atan(n) -> plotTest n s 
+    | _ -> true
+
+
+
 (* Evaluate an expression to get a floating point value *)
 let rec eval : math_expr -> float = 
   fun m -> match m with
-    | _ -> failwith "TODO eval : math_expr -> float ";;
+	| _ -> 120. (* for test in plot *)
+(*	| _ -> failwith "TODO eval : math_expr -> float ";; *)
+
 
 
 
