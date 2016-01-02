@@ -3,7 +3,7 @@ open Expr;;
 open Mathexpr;;
 open Simplify;;
 open Derivative;;
-
+open Plot;;
 
 (* TODO  : to change later *)
 let something () =
@@ -30,13 +30,9 @@ let something () =
   let sub_e = Mathexpr.subst r "x" m3 in
   print_string("SUB math_expr: "^(print_tree_of_math sub_e)^"\n\n");
 
-
 Plot.plot sub_e "x";;
 
-open Plot;;
 let main =
-	let coco="toto" in
-	if(coco<>"tot")then   print_string "different\n";
 
   print_string "Welcome to Obac 0.01\n";
   if not !Sys.interactive then something ()
