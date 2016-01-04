@@ -18,7 +18,7 @@ let plotExt:math_expr -> string -> int -> int -> int -> int-> unit =fun exp x a 
 	print_string "\nWelcome to Plot\n";	
 	
 	(* Dimension WINDOWS *)
-	let a1 =200 in let b1 =150 in let c1 =300 in let d1 =120 in
+	let a1 =(-100) in let b1 =100 in let c1 =(-200) in let d1 =100 in
 
 	let dim = fourIntToStringDimension a1 b1 c1 d1 in
 
@@ -28,6 +28,7 @@ let plotExt:math_expr -> string -> int -> int -> int -> int-> unit =fun exp x a 
 	let  evalPoint =
 		let x1 = n in
 		let x1String =string_of_int x1 in
+		print_string "\n eval\n";
 		let expSub = subst exp x1String (Val(Num.Int(x1))) in 
 		let y1Float = eval expSub in
 		let y1 =int_of_float y1Float in
@@ -42,12 +43,14 @@ let plotExt:math_expr -> string -> int -> int -> int -> int-> unit =fun exp x a 
 	open_graph dim;
 	(* Axe vertical et Horizontal *)
 	set_line_width 1;
-	moveto 0 (( abs(c1)+abs(d1))/2);
+	let haut =abs c1 in
+	let centre =abs a1 in
+	moveto 0 haut;
 	set_color red;
-	lineto (abs(c1)+abs(d1)) (( abs(c1)+abs(d1))/2);
-	moveto (( abs(a1)+abs(b1))/2) 0;
+	lineto ( abs(a1)+abs(b1) ) haut;
+	moveto centre 0;
 	set_color blue;
-	lineto (( abs(a1)+abs(b1))/2) (( abs(c1)+abs(d1)));
+	lineto centre (( abs(c1)+abs(d1)));
 	set_line_width 2;
 
 	(* Ligne reliant les Points resultat de evalPoint et stocke dans Array *)

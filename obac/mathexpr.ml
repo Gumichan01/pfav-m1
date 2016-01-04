@@ -4,7 +4,7 @@ open Expr;;
 (* Generic mathematic expression *)
 type ('n,'op) gen_math_expr =
   | Pi                                                      (* Pi : 3.14...   *)
-  | Exp0                                                    (* e : exp(0)     *)
+  | Exp0                                                    (* e : exp(1)    //TODO *)
   | Val of 'n                                               (* Constant value *)
   | Var of string                                           (* Variable       *)
   | Unop of 'op * ('n,'op) gen_math_expr                    (* '+','-' unaire *)
@@ -282,10 +282,26 @@ let rec plotTest : math_expr -> string -> bool =
 (* Evaluate an expression to get a floating point value *)
 let rec eval : math_expr -> float = 
   fun m -> match m with
-	| _ -> 120. (* for test in plot *)
-(*	| _ -> failwith "TODO eval : math_expr -> float ";; *)
-
-
+	| Var str -> failwith "NO VAR IN EVAL !!"
+	| Pi -> 3.14 (* temporaire *)
+	| Exp0 -> 1.
+	| Unop('-',x) -> 0. -. (eval x)
+	| Binop('+',e1,e2) -> (eval e1) +. (eval e2)
+	| Binop('-',e1,e2) -> (eval e1) -. (eval e2)
+	| Binop('*',e1,e2) -> (eval e1) *. (eval e2)	
+	| Val(Num.Int(x)) -> float_of_int x
+	| Frac(e1,e2) -> (eval e1)/. (eval e2)
+	(* | Pow(e1,e2) -> (eval e1) (eval e2) *)
+	| Sqrt(n) -> sqrt (eval n)
+	| Expo(n) -> exp (eval n)
+	| Log(n) -> log (eval n)
+	| Cos(n) -> cos (eval n)
+	| Sin(n) -> sin (eval n) 
+	| Tan(n) -> tan (eval n) 
+	| Acos(n) -> acos (eval n) 
+	| Asin(n) -> asin (eval n) 
+	| Atan(n) -> atan (eval n)
+	| _ ->  failwith "Invalid mathematic expression "
 
 
 (* Test *)
