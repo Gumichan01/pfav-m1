@@ -69,12 +69,11 @@ and simpl_plus = function
   | Binop('+',Pow(Sin(b),Val(Num.Int(2))),Pow(Cos(a),Val(Num.Int(2)))) 
       when a = b -> Val(Num.Int(1))
 
-  (* x + (-y) = 0 if x = y *)
+  (* x + (-y) = 0 if x = y, x -y otherwise *)
   | Binop('+',x,Unop('-',y))
   | Binop('+',Unop('-',y),x) when x = y -> Val(Num.Int(0))
-
-  (* x + (-y) = x - y *)
-  | Binop('+',x,Unop('-',y)) | Binop('+',Unop('-',y),x) -> Binop('-',simpl(x),simpl(y))
+  | Binop('+',x,Unop('-',y)) 
+  | Binop('+',Unop('-',y),x) -> Binop('-',simpl(x),simpl(y))
 
   (* ln(a) + ln(b) *)
   | Binop('+',Log(a),Log(b)) -> simpl_log (Log(simpl_mult(Binop('*',a,b))))
@@ -93,10 +92,8 @@ and simpl_plus = function
   | Binop('+',x,Binop('*',y,Val(Num.Int(z))))
       when x = y -> simpl_mult(Binop('*',Val(Num.Int(z+1)),simpl(x)))
 
-  (* x + y*x = x * (y + 1) *)
+  (* x + y*x = x * (y + 1) Or  x*y + x = x * (y + 1) *)
   | Binop('+',x,Binop('*',Val(Num.Int(z)),y))
-
-  (* x*y + x = x * (y + 1) *)
   | Binop('+',Binop('*',y,Val(Num.Int(z))),x) 
       when x = y -> simpl_mult(Binop('*',Val(Num.Int(z+1)),simpl(x)))
 
@@ -104,11 +101,9 @@ and simpl_plus = function
   | Binop('+',Binop('*',Val(Num.Int(z)),y),x) 
       when x = y -> simpl_mult(Binop('*',Val(Num.Int(z+1)),simpl(x)))
 
-  (* x + x*y = x * (y+z), z is an expression *)
+  (* x + x*z = x * (z+1) OR x + z*x = x * (z+1), z is an expression *)
   | Binop('+',x,Binop('*',y,z))
       when x = y -> simpl_mult(Binop('*',x,Binop('+',simpl(z),Val(Num.Int 1))))
-
-  (* x + z*x = x * (y+z), z is an expression *)
   | Binop('+',x,Binop('*',z,y)) 
       when x = y -> simpl_mult(Binop('*',x,Binop('+',simpl(z),Val(Num.Int 1))))
 
@@ -144,7 +139,7 @@ and simpl_minus = function
   | Binop('-',Val(Num.Int(0)),x) -> simpl_unop(Unop('-',simpl(x)))
 
   (* ln(a) - ln(b) *)
-  | Binop('-',Log(a),Log(b)) -> simpl_log (Log(simpl_fract(Frac(a,b))))
+  | Binop('-',Log(a),Log(b)) -> simpl_log(Log(simpl_fract(Frac(a,b))))
 
   (* a² - b² *)
   | Binop('-',Pow(x,p1),Pow(y,p2))
@@ -159,20 +154,16 @@ and simpl_minus = function
   (* x - (-y) = x + y *)
   | Binop('-',x,Unop('-',y)) -> simpl_binop(Binop('+',simpl(x),simpl(y)))
 
-  (* x - z*x : z is a value *)
+  (* x - z*x OR x - x*z : z is a value *)
   | Binop('-',x,Binop('*',y,Val(Num.Int(z)))) 
-      when x = y -> simpl_binop(Unop('-',Binop('*',Val(Num.Int(z-1)),simpl(x))))
-
-  (* x - x*z : z is a value *)
   | Binop('-',x,Binop('*',Val(Num.Int(z)),y))
       when x = y -> simpl_binop(Unop('-',Binop('*',Val(Num.Int(z-1)),simpl(x))))
 
-  (* x - x*y = (y+1)*y, y is an expression *)
+  (* x - x*y OR x - y*x = (y+1)*y, y is an expression *)
   | Binop('-',x,Binop('*',y,z))
       when x = y -> simpl_binop(Unop('-',
 				     Binop('*',x,Binop('-',simpl(z),
 						       Val(Num.Int 1)))))
-  (* x - y*x = (y+1)*y, y is an expression *)
   | Binop('-',x,Binop('*',z,y))
       when x = y -> simpl_binop(Unop('-',
 				     Binop('*',x,Binop('-',simpl(z),
@@ -181,19 +172,14 @@ and simpl_minus = function
   | Binop('-',Unop('-',x),y) 
       when (x = y) -> Binop('*',Val(Num.Int (-2)),simpl(x))
 
-  (* yx - x = -(y+1)x : y is a value *)
-  | Binop('-',Binop('*',Val(Num.Int(z)),x),y) when x = y -> 
-    simpl_binop(Binop('*',Val(Num.Int(z-1)),x))
-
-  (* xy - x = -(y+1)x : y is a value *)
+  (* yx - x OR xy - x = -(y+1)x : y is a value *)
+  | Binop('-',Binop('*',Val(Num.Int(z)),x),y)
   | Binop('-',Binop('*',x,Val(Num.Int(z))),y) when x = y -> 
     simpl_binop(Binop('*',Val(Num.Int(z-1)),x))
 
-  (* yx - x = -(y+1)x : y is an expression *)
+  (* yx - x OR xy - x = -(y+1)x : y is an expression *)
   | Binop('-',Binop('*',z,x),y) when x = y -> 
     Binop('*',Binop('+',simpl(z),Val(Num.Int(1))),x)
-
-  (* xy - x = -(y+1)x : y is an expression *)
   | Binop('-',Binop('*',x,z),y) when x = y -> 
     Binop('*',Binop('+',simpl(z),Val(Num.Int(1))),x)
 
@@ -228,7 +214,8 @@ and simpl_mult = function
   | Binop('*',x,Val(Num.Int(1))) | Binop('*',Val(Num.Int(1)),x) -> simpl(x)
 
   (* x * 0 = x *)
-  | Binop('*',x,Val(Num.Int(0))) | Binop('*',Val(Num.Int(0)),x) -> Val(Num.Int(0))
+  | Binop('*',x,Val(Num.Int(0))) 
+  | Binop('*',Val(Num.Int(0)),x) -> Val(Num.Int(0))
 
   (* x * (-1) = -x : x is a value *)
   | Binop('*',Val(Num.Int(x)),Val(Num.Int(-1))) 
@@ -238,11 +225,10 @@ and simpl_mult = function
   | Binop('*',x,Val(Num.Int(-1))) 
   | Binop('*',Val(Num.Int(-1)),x) -> simpl_unop(Unop('-',simpl(x)))
 
-  (* x * y  = -(x*y) if and only if (x > 0, y < 0) *)
+  (* x * y  = -(x*y) if and only if x and y have not the same sign *)
   |Binop('*',Val(Num.Int(x)),Val(Num.Int(y)))
       when (x > 0 && y < 0) -> simpl_unop(Unop('-',Binop('*',Val(Num.Int(x)),
 							 Val(Num.Int(-y)))))
-  (* x * y  = -(x*y) if and only if (x < 0, y > 0) *)
   |Binop('*',Val(Num.Int(x)),Val(Num.Int(y)))
       when (x < 0 && y > 0) -> simpl_unop(Unop('-',Binop('*',Val(Num.Int(-x)),
 							 Val(Num.Int(y)))))
@@ -255,12 +241,12 @@ and simpl_mult = function
 
   (* e(a) * e(b) = e⁽a+b⁾ *)
   | Binop('*',Expo(a),Expo(b))-> simpl_exp(Expo(simpl_plus(Binop('+',
-								 simpl_exp(a),
-								 simpl_exp(b)))))
+								 simpl(a),
+								 simpl(b)))))
 
   (* ln(a)⁽¹/²⁾ = ln(sqrt(a)) *)
-  | Binop('*',Log(a),Frac(Val(Num.Int(1)),Val(Num.Int(2)))) 
-  | Binop('*',Frac(Val(Num.Int(1)),Val(Num.Int(2))),Log(a)) 
+  | Binop('*',Log(a),Frac(Val(Num.Int(1)),Val(Num.Int(2))))
+  | Binop('*',Frac(Val(Num.Int(1)),Val(Num.Int(2))),Log(a))
     -> Log(simpl_sqrt(Sqrt(a)))
 
   (* n * ln(x) *)
@@ -277,7 +263,7 @@ and simpl_mult = function
   | Binop('*',x,Pow(z,y)) | Binop('*',Pow(z,y),x) 
       when x = z -> simpl_pow(Pow(simpl(x),Binop('+',simpl(y),Val(Num.Int(1)))))
 
-  (* x^a * x^b = x⁽a+b⁾ : a  and b are values *)
+  (* x^a * x^b = x⁽a+b⁾ : a and b are values *)
   | Binop('*',Pow(x,Val(Num.Int(a))),Pow(y,Val(Num.Int(b)))) 
       when x = y -> simpl_pow(Pow(simpl(x),Val(Num.Int(a+b))))
 
@@ -404,17 +390,11 @@ and simpl_pow = function
   (* x^(-n) = 1/x *)
   | Pow(x,Unop('-',y)) -> Frac(Val(Num.Int(1)),Pow((simpl x),y))
 
-  (* 0^0 = 1 by convention *)
-  | Pow(Val(Num.Int(0)),Val(Num.Int(0))) -> Val(Num.Int(1))
-
-  (* x^0 = 1 *)
-  | Pow(x,Val(Num.Int(0))) -> Val(Num.Int(1))
+  (* x^0 = 1 and 1^n = 1 *)
+  | Pow(_,Val(Num.Int(0))) | Pow(Val(Num.Int(1)),_) -> Val(Num.Int(1))
 
   (* 0^n = 0 *)
   | Pow(Val(Num.Int(0)),n) -> Val(Num.Int(0))
-
-  (* 1^n = 1 *)
-  | Pow(Val(Num.Int(1)),n) -> Val(Num.Int(1))
 
   (* x^(1/2) = sqrt(x) *)
   | Pow(x,Frac(Val(Num.Int(1)),Val(Num.Int(2)))) -> Sqrt((simpl x))
