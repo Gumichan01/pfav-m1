@@ -41,7 +41,7 @@ exception Invalid_math_expr of string;;
 exception Invalid_derive_n_Argument of string;;
 exception Internal_mathexpr_error of string;;
 exception Invalid_evaluation of string;;
-
+exception Division_by_zero;;
 
 
 let pi_div_two = Frac(Pi,Val(Num.Int(2)))
@@ -280,20 +280,26 @@ let rec plotTest : math_expr -> string -> bool =
 
 
 
+let eval_frac (num: float) (denom: float) = 
+  if(denom = 0.) then raise Division_by_zero
+  else (num /. denom)
+;;
+
+
 (* Evaluate an expression to get a floating point value *)
 let rec eval : math_expr -> float = 
   fun m -> match m with
 	| Var str -> raise (Invalid_evaluation("An expression cannot"^
 			      " have a variable"))
 	| Pi -> 3.14 (* temporaire *)
-	| Exp1 -> 1.
+	| Exp1 -> exp(1.)
 	| Unop('-',x) -> 0. -. (eval x)
 	| Binop('+',e1,e2) -> (eval e1) +. (eval e2)
 	| Binop('-',e1,e2) -> (eval e1) -. (eval e2)
 	| Binop('*',e1,e2) -> (eval e1) *. (eval e2)	
 	| Val(Num.Int(x)) -> float_of_int x
-	| Frac(e1,e2) -> (eval e1)/. (eval e2)
-        | Pow(e1,e2) -> (eval e1) ** (eval e2)
+	| Frac(e1,e2) -> eval_frac (eval e1) (eval e2)
+	| Pow(e1,e2) -> (eval e1) ** (eval e2)
 	| Sqrt(n) -> sqrt (eval n)
 	| Expo(n) -> exp (eval n)
 	| Log(n) -> log (eval n)
@@ -304,6 +310,7 @@ let rec eval : math_expr -> float =
 	| Asin(n) -> asin (eval n) 
 	| Atan(n) -> atan (eval n)
 	| _ -> raise (Invalid_math_expr "Unrecognized mathematic expression")
+;;
 
 
 (* Test *)
