@@ -465,11 +465,19 @@ and simpl_cos = function
   | Cos(Binop('+',a,b)) -> simpl_cos_aux '+' (simpl(a)) (simpl(b))
   | Cos(Binop('-',a,b)) -> simpl_cos_aux '-' (simpl(a)) (simpl(b))
   | Cos(Unop('-',x)) -> Cos((simpl(x)))
+  | Cos(Frac(Pi,Val(Num.Int(2)))) -> Val(Num.Int(0))
+  | Cos(Frac(Pi,Val(Num.Int(3)))) -> one_half
+  | Cos(Frac(Pi,Val(Num.Int(4)))) -> sqrt_two_div_two
+  | Cos(Frac(Pi,Val(Num.Int(6)))) -> sqrt_three_div_two
   | _ as o -> o 
 
 and simpl_sin = function
   | Sin(Binop('+',a,b)) -> simpl_sin_aux '+' (simpl(a)) (simpl(b))
   | Sin(Binop('-',a,b)) -> simpl_sin_aux '-' (simpl(a)) (simpl(b))
+  | Sin(Frac(Pi,Val(Num.Int(2)))) -> Val(Num.Int(1))
+  | Sin(Frac(Pi,Val(Num.Int(3)))) -> sqrt_three_div_two
+  | Sin(Frac(Pi,Val(Num.Int(4)))) -> sqrt_two_div_two
+  | Sin(Frac(Pi,Val(Num.Int(6)))) -> one_half
   | _ as o -> o 
 
 and simpl_tan = function

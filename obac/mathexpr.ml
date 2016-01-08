@@ -44,17 +44,12 @@ exception Invalid_evaluation of string;;
 exception Division_by_zero;;
 
 
-let pi_div_two = Frac(Pi,Val(Num.Int(2)))
-let pi_div_three = Frac(Pi,Val(Num.Int(3)))
-let pi_div_four = Frac(Pi,Val(Num.Int(4)))
-let pi_div_six = Frac(Pi,Val(Num.Int(6)))
-
 let two_pi_div_three = Frac(Binop('*',Val(Num.Int(2)),Pi),Val(Num.Int(3))) 
 let three_pi_div_three = Frac(Binop('*',Val(Num.Int(3)),Pi),Val(Num.Int(4)))
 let five_pi_div_six = Frac(Binop('*',Val(Num.Int(5)),Pi),Val(Num.Int(6)))
 
 let one_half = Frac(Val(Num.Int(1)),Val(Num.Int(2)))
-let sqrt_three_div_2 = Frac(Sqrt(Val(Num.Int(3))),Val(Num.Int(2)))
+let sqrt_three_div_two = Frac(Sqrt(Val(Num.Int(3))),Val(Num.Int(2)))
 let sqrt_two_div_two = Frac(Sqrt(Val(Num.Int(2))),Val(Num.Int(2)))
 
 
