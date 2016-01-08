@@ -18,7 +18,7 @@ let rec derive : math_expr -> math_expr =
   fun x -> match x with
 
     (* The derived form of constant values is 0 *)
-    | Pi | Exp0 | Val(_) -> Val(Num.Int(0))
+    | Pi | Exp1 | Val(_) -> Val(Num.Int(0))
     (* The derived form of a variable is 1 *)
     | Var(_) -> Val(Num.Int(1))
     | Unop(_,_) as u -> derive_unop u
@@ -37,7 +37,7 @@ let rec derive : math_expr -> math_expr =
 
 
 and derive_unop = function
-   | Unop(_,Val(_)) | Unop(_,Exp0) | Unop(_,Pi) -> Val(Num.Int(0))
+   | Unop(_,Val(_)) | Unop(_,Exp1) | Unop(_,Pi) -> Val(Num.Int(0))
    | Unop(op,x) -> Unop (op, (derive x))
    | _ as o -> o
 

@@ -4,7 +4,7 @@ open Expr;;
 (* Generic mathematic expression *)
 type ('n,'op) gen_math_expr =
   | Pi                                                      (* Pi : 3.14...   *)
-  | Exp0                                                    (* e : exp(1)    //TODO *)
+  | Exp1                                                    (* e : exp(1)     *)
   | Val of 'n                                               (* Constant value *)
   | Var of string                                           (* Variable       *)
   | Unop of 'op * ('n,'op) gen_math_expr                    (* '+','-' unaire *)
@@ -63,7 +63,7 @@ let sqrt_two_div_two = Frac(Sqrt(Val(Num.Int(2))),Val(Num.Int(2)))
 let rec print_tree_of_math : math_expr -> string = fun m ->
   match m with
     | Pi -> "Pi"
-    | Exp0 -> "e"
+    | Exp1 -> "e"
     | Val(Num.Int(x)) -> "Val(Num.Int("^(string_of_int x)^"))"
     | Var s -> "Var("^s^")"
     | Unop(op,e) -> "Unop("^(Char.escaped op)^","^(print_tree_of_math e)^")"
@@ -157,7 +157,7 @@ match b with
 (* Parse any kind of operation *)
 and parse_op = function
   | ("pi",[]) -> Pi
-  | ("e",[]) -> Exp0
+  | ("e",[]) -> Exp1
   (* Basic operations *)
   | ("+",_) as p -> parse_basic_op p
   | ("-",_) as m -> parse_basic_op m
@@ -286,7 +286,7 @@ let rec eval : math_expr -> float =
 	| Var str -> raise (Invalid_evaluation("An expression cannot"^
 			      " have a variable"))
 	| Pi -> 3.14 (* temporaire *)
-	| Exp0 -> 1.
+	| Exp1 -> 1.
 	| Unop('-',x) -> 0. -. (eval x)
 	| Binop('+',e1,e2) -> (eval e1) +. (eval e2)
 	| Binop('-',e1,e2) -> (eval e1) -. (eval e2)

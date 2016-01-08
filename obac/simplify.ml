@@ -427,7 +427,7 @@ and simpl_sqrt = function
 and simpl_exp = function
   (* exp(0) -> 1 | exp(1) -> e *)
   |Expo(Val(Num.Int(0))) -> Val(Num.Int(1))
-  |Expo(Val(Num.Int(1))) -> Exp0
+  |Expo(Val(Num.Int(1))) -> Exp1
   
   (* exp(x*ln(a)) = a^x *)
   | Expo(Binop('*',x,Log(Val(Num.Int(a))))) when a > 0 -> Pow(Val(Num.Int(a)),simpl(x))
@@ -442,7 +442,7 @@ and simpl_log = function
   | Log(Val(Num.Int(1))) -> Val(Num.Int(0))
 
   (* ln(e) = 1 *)
-  | Log(Exp0) -> Val(Num.Int(1))
+  | Log(Exp1) -> Val(Num.Int(1))
 
   (* ln(exp(x)) *)
   | Log(Expo(x)) -> simpl(x)
