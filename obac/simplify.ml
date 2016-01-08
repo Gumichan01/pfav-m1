@@ -319,6 +319,9 @@ and simpl_fract = function
   | Frac(Binop('*',z,x),y) when simpl(x) = simpl(y) -> simpl(z)
   | Frac(Binop('*',x,z),y) when simpl(x) = simpl(y) -> simpl(z)
 
+  (* sin(a) / cos(a) = tan(a) *)
+  | Frac(Sin(a),Cos(b)) when a = b -> Tan(simpl(a))
+
   (* exp(a)/exp(b) -> exp(a-b) : a and b are constant values *)
   | Frac(Expo(Val(Num.Int(a))),
 	 Expo(Val(Num.Int(b)))) when a <> b -> simpl_exp(Expo(Val(Num.Int(a-b))))
