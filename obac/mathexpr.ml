@@ -277,6 +277,35 @@ let rec plotTest : math_expr -> string -> bool =
     | Asin(n) -> plotTest n s 
     | Atan(n) -> plotTest n s 
     | _ -> true
+;;
+
+
+
+(*let rec sum_leibniz = function
+  | 0. -> 1.
+  | k -> (((-1.) ** k)/.(2. *. k +. 1.)) +. sum_leibniz (k -. 1.)
+;;*)
+
+
+(* Leibniz formula *)
+let rec sum_leibniz (n: float) : float =
+  let rec sum_aux v acc =
+    match v with
+      | 0. -> 1. +. acc
+      | k -> sum_aux (k -. 1.) ((((-1.) ** k)/.(2. *. k +. 1.)) +. acc)
+  in
+  sum_aux n 0.
+;;
+
+(* Optimized Leibniz formula *)
+let rec sum_leibniz_opt i j = match i with
+  | 0. -> sum_leibniz j
+  | _ -> ((sum_leibniz_opt (i -. 1.) j) +. 
+	     (sum_leibniz_opt (i -. 1.) (j +. 1.))) /. 2.
+;;
+
+(* Evaluate Pi *)
+let eval_pi = 4. *. (sum_leibniz_opt 16. 16.);;
 
 
 
@@ -291,7 +320,7 @@ let rec eval : math_expr -> float =
   fun m -> match m with
 	| Var str -> raise (Invalid_evaluation("An expression cannot"^
 			      " have a variable"))
-	| Pi -> 3.14 (* temporaire *)
+	| Pi -> eval_pi
 	| Exp1 -> exp(1.)
 	| Unop('-',x) -> 0. -. (eval x)
 	| Binop('+',e1,e2) -> (eval e1) +. (eval e2)
