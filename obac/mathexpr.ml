@@ -303,7 +303,7 @@ let rec eval : math_expr -> float =
 	| Acos(n) -> acos (eval n) 
 	| Asin(n) -> asin (eval n) 
 	| Atan(n) -> atan (eval n)
-	| _ ->  failwith "Invalid mathematic expression "
+	| _ -> raise (Invalid_math_expr "Unrecognized mathematic expression")
 
 
 (* Test *)
