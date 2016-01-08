@@ -61,6 +61,13 @@ and simpl_plus = function
   (* x + (-y) = x - y : y is a value *)
   | Binop('+',x,Val(Num.Int(y))) when y < 0 -> Binop('-',simpl(x),
 						     Val(Num.Int(-y)))
+  (* cos²(a) + sin²(a) = 1 *)
+  | Binop('+',Cos(Cos(a)),Sin(Sin(b))) when a = b -> Val(Num.Int(1))
+  | Binop('+',Sin(Sin(b)),Cos(Cos(a))) when a = b -> Val(Num.Int(1))
+  | Binop('+',Pow(Cos(a),Val(Num.Int(2))),Pow(Sin(b),Val(Num.Int(2)))) 
+      when a = b -> Val(Num.Int(1))
+  | Binop('+',Pow(Sin(b),Val(Num.Int(2))),Pow(Cos(a),Val(Num.Int(2)))) 
+      when a = b -> Val(Num.Int(1))
 
   (* x + (-y) = 0 if x = y *)
   | Binop('+',x,Unop('-',y))
