@@ -258,7 +258,7 @@ let rec subst : math_expr -> string -> math_expr -> math_expr =
     | _ as r-> r 
 
 
-(* Test if there at maximum 1 VAR s  , this is for PLOT*)
+(* Test if there at maximum 1 VAR s, this is for PLOT*)
 let rec plotTest : math_expr -> string -> bool = 
   fun x s -> match x with
     | Var str when str<>s -> false
@@ -291,7 +291,7 @@ let rec eval : math_expr -> float =
 	| Binop('*',e1,e2) -> (eval e1) *. (eval e2)	
 	| Val(Num.Int(x)) -> float_of_int x
 	| Frac(e1,e2) -> (eval e1)/. (eval e2)
-	(* | Pow(e1,e2) -> (eval e1) (eval e2) *)
+        | Pow(e1,e2) -> (eval e1) ** (eval e2)
 	| Sqrt(n) -> sqrt (eval n)
 	| Expo(n) -> exp (eval n)
 	| Log(n) -> log (eval n)
