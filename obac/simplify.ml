@@ -293,7 +293,7 @@ and simpl_binop_aux op x y =
 		     let ex = (Binop(op,t,z)) in
 		     match op with   
 		       | '+' -> if z <> y then simpl_plus(ex) else ex
-		       | '-' -> (*if z <> y then simpl_minus(ex) else ex*)
+		       | '-' ->
 			 (
 			   match t,z with (* We have Binop of '-' * t * z *)
 			     | ((Binop('*',Val(Num.Int(i)),a),b))
@@ -383,7 +383,6 @@ and reduce_fraction frac x y =
 
 
 (* Simplify a power *)
-(** TODO simplify the power : a^(1/n) = sqrt nième de a *)
 and simpl_pow = function
   (* x^1 = x*)
   | Pow(x,Val(Num.Int(1)))-> simpl(x)
@@ -467,14 +466,15 @@ and simpl_log = function
 
 (* Simplify a trigonometric function *)
 and simpl_trigo = function
-  | Cos(Binop('+',a,b)) | Cos(Binop('-',a,b)) as c -> simpl_cos c
-  | Sin(Binop('+',a,b)) | Sin(Binop('-',a,b)) as s -> simpl_sin s
-  | Tan(Binop('+',a,b)) | Tan(Binop('-',a,b)) as t -> simpl_tan t
+  | Cos(_) as c -> simpl_cos c
+  | Sin(_) as s -> simpl_sin s
+  | Tan(_) as t -> simpl_tan t
   | _ as o -> o 
 
 and simpl_cos = function
   | Cos(Binop('+',a,b)) -> simpl_cos_aux '+' (simpl(a)) (simpl(b))
   | Cos(Binop('-',a,b)) -> simpl_cos_aux '-' (simpl(a)) (simpl(b))
+  | Cos(Unop('-',x)) -> Cos((simpl(x)))
   | _ as o -> o 
 
 and simpl_sin = function
