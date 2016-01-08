@@ -40,6 +40,7 @@ exception Invalid_trigo of string;;
 exception Invalid_math_expr of string;;
 exception Invalid_derive_n_Argument of string;;
 exception Internal_mathexpr_error of string;;
+exception Invalid_evaluation of string;;
 
 
 
@@ -282,7 +283,8 @@ let rec plotTest : math_expr -> string -> bool =
 (* Evaluate an expression to get a floating point value *)
 let rec eval : math_expr -> float = 
   fun m -> match m with
-	| Var str -> failwith "NO VAR IN EVAL !!"
+	| Var str -> raise (Invalid_evaluation("An expression cannot"^
+			      " have a variable"))
 	| Pi -> 3.14 (* temporaire *)
 	| Exp0 -> 1.
 	| Unop('-',x) -> 0. -. (eval x)
