@@ -8,6 +8,7 @@ open Simplify;;
 
 (* Derive an expression *)
 let rec derive : math_expr -> string -> math_expr = 
+(* TODO : improve the function, this version is too naive *)
   fun x s -> match x with
     | Pi | Exp1 | Val(_) -> Val(Num.Int(0))
     | Var(v) when v = s -> Val(Num.Int(1))
@@ -48,6 +49,7 @@ let rec derive : math_expr -> string -> math_expr =
     (* cos(u)' = u'*(-sin(u)) *)
     | Cos(u) -> simpl(Binop('*',(derive u s),Unop('-',Sin(u))))
     | Sin(u) -> simpl(Binop('*',(derive u s),Cos(u)))
+    | Tan(u) -> simpl(derive (Frac(Sin(u),Cos(u))) s)
 
     | _ -> raise(Invalid_derivative("Unsupported derivation of "^
 					(print_tree_of_math x)^""))
