@@ -3,6 +3,7 @@
 (** Derivative and integration *)
 
 open Mathexpr;;
+open Simplify;;
 
 
 (* Derive an expression *)
@@ -14,11 +15,15 @@ let rec derive : math_expr -> string -> math_expr =
 
     (* (u + v)' = u' + v' et (u - v)' = u' - v' *)
     | Binop(op,u,v) 
-	when op = '+' || op = '-' -> Binop(op,(derive u s),(derive v s))
+	when op = '+' || op = '-' -> simpl(Binop(op,(derive u s),(derive v s)))
 
     (* (u*v)' = u'v + uv' *)
-    | Binop(op,u,v) -> Binop('+',Binop(op,(derive u s),v),
-			     Binop(op,u,(derive v s)))
+    | Binop(op,u,v) -> simpl(Binop('+',Binop(op,(derive u s),v),
+			     Binop(op,u,(derive v s))))
+    (* (u/v)' = (u'v + uv')/v² *)
+    | Frac(u,v) -> Frac((Binop('-',Binop('*',(derive u s),v),
+			       Binop('*',u,(derive v s)))),
+			Pow(v,Val(Num.Int(2))))
     | _ -> failwith "TODO derive : math_expr -> string -> math_expr "
 ;;
 
