@@ -13,6 +13,10 @@ let rec derive : math_expr -> string -> math_expr =
     | Var(v) when v = s -> Val(Num.Int(1))
     | Var(_) as var -> var
 
+    (* (+/- u)' = +/- u' *)
+    | Unop('+',u) -> simpl((derive u s))
+    | Unop('-',u) -> simpl(Unop('-',(derive u s)))
+
     (* (u + v)' = u' + v' et (u - v)' = u' - v' *)
     | Binop(op,u,v) 
 	when op = '+' || op = '-' -> simpl(Binop(op,(derive u s),(derive v s)))
