@@ -5,16 +5,17 @@
 open Mathexpr;;
 
 
-(* Derive an expression
+(* Derive an expression *)
 let rec derive : math_expr -> string -> math_expr = 
-fun x s -> match x with
-  | _ -> failwith "TODO derive : math_expr -> string -> math_expr ";;
- *)
+  fun x s -> match x with
+    | Pi | Exp1 | Val(_) -> Val(Num.Int(0))
+    | _ -> failwith "TODO derive : math_expr -> string -> math_expr "
+;;
 
 
 
 (* TODO revoir derivation, signature non conforme vis-à-vis de l'énoncé *)
-let rec derive : math_expr -> math_expr = 
+(*let rec derive : math_expr -> math_expr = 
   fun x -> match x with
 
     (* The derived form of constant values is 0 *)
@@ -139,16 +140,16 @@ and derive_atan =function
   )
   | _ as o -> o
     
-;;
+;;*)
 
 
 (* OPTIONAL :  give the n derivation of an math_expr *)
-let  rec derive_n : math_expr -> int -> math_expr = 
+(*let  rec derive_n : math_expr -> int -> math_expr = 
   fun x y -> match y with
     | 0 -> x
     (*    | y when y<0 -> raise Invalid_derive_n_Argument ("argument de derivation_n inferieur a 0 ") *)
     | y -> derive_n  (derive x) (y-1)
-      
+;;  *)
 
       
 (* Integration of an expression *)
