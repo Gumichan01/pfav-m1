@@ -45,6 +45,9 @@ let rec derive : math_expr -> string -> math_expr =
     (* e^y = u'*e^u *)
     | Expo(u) as e -> simpl(Binop('*',(derive u s),e))
 
+    (* cos(u)' = u'*(-sin(u)) *)
+    | Cos(u) -> simpl(Binop('*',(derive u s),Unop('-',Sin(u))))
+
     | _ -> raise(Invalid_derivative("Unsupported derivation of "^
 					(print_tree_of_math x)^""))
 ;;
