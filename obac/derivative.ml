@@ -20,6 +20,10 @@ let rec derive : math_expr -> string -> math_expr =
     (* (u*v)' = u'v + uv' *)
     | Binop(op,u,v) -> simpl(Binop('+',Binop(op,(derive u s),v),
 			     Binop(op,u,(derive v s))))
+    (* (1/u)' = -(u'/u²)*)
+    | Frac(Val(Num.Int(1)),u) -> Unop('-',Frac((derive u s),
+					       Pow(u,Val(Num.Int(2)))))
+
     (* (u/v)' = (u'v + uv')/v² *)
     | Frac(u,v) -> Frac((Binop('-',Binop('*',(derive u s),v),
 			       Binop('*',u,(derive v s)))),
