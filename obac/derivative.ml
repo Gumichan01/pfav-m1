@@ -38,7 +38,10 @@ let rec derive : math_expr -> string -> math_expr =
     (* (Log(u))' = u'/u *)
     | Log(u) -> simpl(Frac((derive u s),u))
 
-    | _ -> failwith "TODO derive : math_expr -> string -> math_expr "
+    (* e^y = u'*e^u *)
+    | Expo(u) as e -> simpl(Binop('*',(derive u s),e))
+
+    | _ -> failwith "Unsupported derivation"
 ;;
 
 
