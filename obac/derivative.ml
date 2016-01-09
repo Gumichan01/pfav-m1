@@ -23,11 +23,14 @@ let rec derive : math_expr -> string -> math_expr =
     (* (1/u)' = -(u'/u²)*)
     | Frac(Val(Num.Int(1)),u) -> Unop('-',Frac((derive u s),
 					       Pow(u,Val(Num.Int(2)))))
-
     (* (u/v)' = (u'v + uv')/v² *)
-    | Frac(u,v) -> Frac((Binop('-',Binop('*',(derive u s),v),
+    | Frac(u,v) -> simpl(Frac((Binop('-',Binop('*',(derive u s),v),
 			       Binop('*',u,(derive v s)))),
-			Pow(v,Val(Num.Int(2))))
+			Pow(v,Val(Num.Int(2)))))
+    
+    (* (u^n)' = nu'*u^(n-1) *)
+    | Pow(u,(Val(Num.Int(n)) as nn)) -> simpl(Binop('*',Binop('*',nn,(derive u s)),
+				      Pow(u,Val(Num.Int(n-1)))))
     | _ -> failwith "TODO derive : math_expr -> string -> math_expr "
 ;;
 
