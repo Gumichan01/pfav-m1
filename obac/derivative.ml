@@ -9,10 +9,16 @@ open Mathexpr;;
 let rec derive : math_expr -> string -> math_expr = 
   fun x s -> match x with
     | Pi | Exp1 | Val(_) -> Val(Num.Int(0))
-    | Var(v) when v = s -> Val(Num.Int(0))
+    | Var(v) when v = s -> Val(Num.Int(1))
     | Var(_) as var -> var
-    | Binop(op,e1,e2) 
-	when op = '+' || op = '-' -> Binop(op,(derive e1 s),(derive e2 s))
+
+    (* (u + v)' = u' + v' et (u - v)' = u' - v' *)
+    | Binop(op,u,v) 
+	when op = '+' || op = '-' -> Binop(op,(derive u s),(derive v s))
+
+    (* (u*v)' = u'v + uv' *)
+    | Binop(op,u,v) -> Binop('+',Binop(op,(derive u s),v),
+			     Binop(op,u,(derive v s)))
     | _ -> failwith "TODO derive : math_expr -> string -> math_expr "
 ;;
 
