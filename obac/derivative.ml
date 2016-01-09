@@ -41,7 +41,8 @@ let rec derive : math_expr -> string -> math_expr =
     (* e^y = u'*e^u *)
     | Expo(u) as e -> simpl(Binop('*',(derive u s),e))
 
-    | _ -> failwith "Unsupported derivation"
+    | _ -> raise(Invalid_derivative("Unsupported derivation of "^
+					(print_tree_of_math x)^""))
 ;;
 
 
