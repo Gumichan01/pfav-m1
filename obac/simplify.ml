@@ -402,6 +402,9 @@ and simpl_pow = function
   (* x^(a*b) = (x^a)^b *)
   | Pow(x,Binop('*',a,b)) -> Pow(Pow(simpl(x),simpl(a)),simpl(b))
 
+  (* (sqrt(x))² = x *)
+  | Pow(Sqrt(x),Val(Num.Int(2))) -> simpl(x)
+
   (* x^n *)
   | Pow(x,n) -> 
     (

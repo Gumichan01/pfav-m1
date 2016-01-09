@@ -31,6 +31,10 @@ let rec derive : math_expr -> string -> math_expr =
     (* (u^n)' = nu'*u^(n-1) *)
     | Pow(u,(Val(Num.Int(n)) as nn)) -> simpl(Binop('*',Binop('*',nn,(derive u s)),
 				      Pow(u,Val(Num.Int(n-1)))))
+
+    (* (sqrt(u))' = u'/(2*sqrt(v)) *)
+    | Sqrt(u) as sq -> simpl(Frac((derive u s),(Binop('*',Val(Num.Int(2)),sq))))
+
     | _ -> failwith "TODO derive : math_expr -> string -> math_expr "
 ;;
 
