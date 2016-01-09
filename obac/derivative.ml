@@ -35,6 +35,9 @@ let rec derive : math_expr -> string -> math_expr =
     (* (sqrt(u))' = u'/(2*sqrt(v)) *)
     | Sqrt(u) as sq -> simpl(Frac((derive u s),(Binop('*',Val(Num.Int(2)),sq))))
 
+    (* (Log(u))' = u'/u *)
+    | Log(u) -> simpl(Frac((derive u s),u))
+
     | _ -> failwith "TODO derive : math_expr -> string -> math_expr "
 ;;
 
