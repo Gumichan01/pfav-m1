@@ -60,7 +60,7 @@ let main_simpl expr =
   try
     begin
       let simplified_expr = (formula_of_math_expr expr) in
-      print_string("Simplified formula: "^simplified_expr^"\n");
+      print_string("\nSimplified formula: "^simplified_expr^"\n");
     end
   with _ -> print_string("Cannot simplify the formula")
 ;;
@@ -70,7 +70,7 @@ let main_derive expr =
   try
     begin
       let derived_expr = formula_of_math_expr(derive expr "x") in
-      print_string("Derived formula: "^derived_expr^"\n");
+      print_string("\nDerived formula: "^derived_expr^"\n");
     end
   with 
     | Invalid_derivative(s) -> print_string(s)
@@ -85,34 +85,34 @@ let main_integral expr =
 					    (Val(Num.Int(42))) 
 					    (Val(Num.Int(1)))) 
       in
-      print_string("Integral formula: "^integ_expr^"\n");
+      print_string("\nIntegral formula: "^integ_expr^"\n");
     end
   with 
-    | Invalid_integration(s) -> print_string(s)
-    | _ -> print_string("integ : Unknown exception\n\n")
+    | Invalid_integration(s) -> print_string("integration: "^s)
+    | _ -> print_string("integ : Unknown exception\n")
 ;;
 
 
 let main_solve expr =
   try
     begin
-      print_string("Solution(s) of the equation: \n");
+      print_string("\nSolution(s) of the equation: \n");
       print_solve(solve expr "x");
       print_string("\n");
     end
   with 
-    | Invalid_integration(s) -> print_string(s)
-    | _ -> print_string("solve : Unknown exception\n\n")
+    | Invalid_solve(s) -> print_string(s)
+    | _ -> print_string("solve : Unknown exception\n")
 ;;
 
 
 let main_eval expr =
   try
     let eval_expr = string_of_float(eval expr) in
-      print_string("The result of the evaluation is: "^eval_expr^"\n")
+      print_string("\nThe result of the evaluation is: "^eval_expr^"\n")
   with
-    | Invalid_evaluation(s) -> print_string(s)
-    | _ -> print_string("eval : Unknown exception\n\n")
+    | Invalid_evaluation(s) -> print_string("eval: "^s)
+    | _ -> print_string("eval : Unknown exception\n")
 ;;
 
 
@@ -134,7 +134,7 @@ let loop () =
       let parsed = main_parse read_str in
       match parsed with
 	| Some(expr)->
-	  print_string("Syntaxic representation: \n");
+	  print_string("\nSyntaxic representation: \n\n");
 	  print_string((string_of_tree_of_math expr)^"\n");
 	  main_simpl expr;
 	  main_derive expr;
