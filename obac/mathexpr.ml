@@ -307,7 +307,7 @@ and parse_log = function
 					    ^(string_of_int x)^""))
 
   (* If the argument is -y -> KO*)
-  | (Unop('-',Var(y))) -> raise (Invalid_sqrt ("Invalid logarithm of -"^y^""))
+  | (Unop('-',Var(y))) -> raise (Invalid_log ("Invalid logarithm of -"^y^""))
 
   | _ as r -> Log(r)
 
