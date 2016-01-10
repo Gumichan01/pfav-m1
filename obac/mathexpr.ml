@@ -233,7 +233,19 @@ and parse_trigo = function
 let rec solve : math_expr -> string -> math_expr = 
   fun x s -> match x with
     | Unop(_,Var(v)) | Var(v) when v = s -> Val(Num.Int(0))
-    | _ -> failwith "TODO solve : math_expr -> string -> math_expr ";;
+    | Binop(op,(Val(_) as n),Var(v)) | Binop(op,Var(v),(Val(_) as n))
+	when v = s -> solve_binop (op,n)
+    | _ -> failwith "TODO solve : math_expr -> string -> math_expr "
+
+
+and solve_binop : (char * math_expr) -> math_expr =
+fun binop -> let (op,n) = binop in
+	       match op with 
+		 | '+' -> Unop('-',n)
+		 | '-' -> n
+		 | '*' -> Frac(Val(Num.Int(1)),n)
+		 | _ -> raise (Invalid_binop "Unrecognized operation")
+;;
 
 
 (* Subtitution *)
