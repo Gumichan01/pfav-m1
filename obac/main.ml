@@ -118,7 +118,26 @@ let main_eval expr =
 
 let main_plot expr =
   try
-    Plot.plotExt expr "x" (-50) 50 (-50) 50
+  (*
+    print_string("\nVoulez vous personaliser les bornes d'affichage ? 1 -> OUI | 0 -> NON: \n");
+    in
+    let read_mode = read_int() in
+    let do()=
+      if(mode=1){
+        print_string("\n 1:\n");
+        let x1 = read_int() in
+        print_string("\n 2 ( superieur a 1):\n");
+        let x2 = read_int() in
+        print_string("\n 3:\n");
+        let x3 = read_int() in
+        print_string("\n 4( superieur a 3):\n");
+        let x4 = read_int() in
+        Plot.plotExt expr "x" x1 x2 x3 x4
+      }
+    else{
+  *)
+      Plot.plotExt expr "x" (-50) 50 (-50) 50
+      
   with
     | Invalid_evaluation(s) -> print_string(s)
     | _ -> print_string("main_plot : Unknown exception\n\n")
