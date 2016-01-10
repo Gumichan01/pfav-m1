@@ -112,5 +112,7 @@ let rec integ : math_expr -> string -> math_expr -> math_expr -> math_expr =
     | Frac(Val(Num.Int(1)),(Binop('*',Val(Num.Int(2)),Sqrt(Var(v)))))
 	when v = s -> Binop('-',Sqrt(b),Sqrt(a))
 
+    | Frac(Val(Num.Int(1)),Var(v)) 
+	when v = s -> Binop('-', Log(b),Log(a))
 
     | _ -> failwith "TODO integ : math_expr -> string -> math_expr -> math_expr -> math_expr ";;
