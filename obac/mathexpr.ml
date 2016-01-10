@@ -84,52 +84,80 @@ let rec print_tree_of_math : math_expr -> string = fun m ->
 
 (* Print the formula of mathematic expression *)
 let rec print_formula : math_expr -> string = 
-fun e -> let print_aux m acc =
-	   match e with
-	     | Pi -> acc^"pi"
-	     | Exp1 -> acc^"e"
-	     | Var(x) -> acc^x
-	     | Val(Num.Int(v)) -> acc^(string_of_int v)
-	     | Unop(op,e) -> print_unop_formula op e
-	     | Binop(op,e1,e2) -> print_binop_formula op e1 e2
-	     | _ -> failwith "TODO print_formula"
-	 in
-	 print_aux e ("")
+  fun e -> let print_aux m acc =
+	     match e with
+	       | Pi -> acc^"pi"
+	       | Exp1 -> acc^"e"
+	       | Var(x) -> acc^x
+	       | Val(Num.Int(v)) -> acc^(string_of_int v)
+	       | Unop(op,e) -> print_unop_formula op e
+	       | Binop(op,e1,e2) -> print_binop_formula op e1 e2
+	       | Frac(e1,e2) -> print_frac_formula e1 e2
+	       | _ -> failwith "TODO print_formula"
+	   in
+	   print_aux e ("")
 
 
 and print_unop_formula : char -> math_expr -> string = 
-fun op e -> match op with
-  | '-' -> 
-    (match e with
-      | Binop(_,_,_) -> "-("^(print_formula e)^")"
-      | _ -> "-"^(print_formula e)
-    )
-  | '+' -> print_formula e
-  | _ -> raise (Invalid_binop "print_unnop_formula: Internal error")
+  fun op e -> match op with
+    | '-' -> 
+      (match e with
+	| Binop(_,_,_) -> "-("^(print_formula e)^")"
+	| _ -> "-"^(print_formula e)
+      )
+    | '+' -> print_formula e
+    | _ -> raise (Invalid_binop "print_unnop_formula: Internal error")
+      
 
-
-
-
+(* Print a binop formula *)
 and print_binop_formula : char -> math_expr -> math_expr -> string =
-fun op e1 e2 -> match op with
-  | '+' | '-' -> let f1 = print_formula e1 in
-		 f1^" "^(Char.escaped op)^" "^(print_formula e2)
-  | '*' -> let f1 = print_formula e1 in
-	   let f2 = print_formula e2 in
-	   print_binop_aux op e1 e2 f1 f2
-  | _ -> raise (Invalid_binop "print_binop_formula: Internal error")
-
-
+  fun op e1 e2 -> match op with
+    | '+' | '-' -> let f1 = print_formula e1 in
+		   f1^" "^(Char.escaped op)^" "^(print_formula e2)
+    | '*' -> let f1 = print_formula e1 in
+	     let f2 = print_formula e2 in
+	     print_binop_aux op e1 e2 f1 f2
+    | _ -> raise (Invalid_binop "print_binop_formula: Internal error")
+      
+      
 and print_binop_aux op e1 e2 f1 f2 =
   let normal_string = (f1^(Char.escaped op)^f2) in
   let formatted_string = ("("^f1^")"^(Char.escaped op)^"("^f2^")") in
+  let left_formatted_string = ("("^f1^")"^(Char.escaped op)^f2) in
+  let right_formatted_string = (f1^(Char.escaped op)^"("^f2^")") in
   match e1,e2 with
     | Binop(o1,_,_),Binop(o2,_,_) 
       when (o1 = '+' || o1 = '-') 
 	&& (o2 = '+' || o2 = '-') -> formatted_string
+    
     | Frac(_,_), Frac(_,_) -> formatted_string
     | Pow(_,_), Pow(_,_) -> formatted_string
+      
+    | Binop(op,_,_),_ when (op = '+' || op = '-') -> left_formatted_string
+    | Frac(_,_),_ | Pow(_,_),_ -> left_formatted_string
+    
+    | _,Binop(op,_,_) when (op = '+' || op = '-') -> right_formatted_string
+    | _,Frac(_,_) | _,Pow(_,_) -> right_formatted_string
+    
     | _ -> normal_string
+
+
+and print_frac_formula : math_expr -> math_expr -> string =
+  fun e1 e2 -> 
+    let f1 = print_formula e1 in
+    let f2 = print_formula e2 in
+    let normal_string = (f1^"/"^f2) in
+    let formatted_string = ("("^f1^")"^"/"^"("^f2^")") in
+    let left_formatted_string = ("("^f1^")"^"/"^f2) in
+    let right_formatted_string = (f1^"/"^"("^f2^")") in
+    match e1,e2 with
+      | Binop(_,_,_),Binop(_,_,_) | Frac(_,_), Frac(_,_) 
+      | Pow(_,_), Pow(_,_) -> formatted_string
+      | Binop(_,_,_),_ | Frac(_,_),_ | Pow(_,_),_ -> left_formatted_string
+      | _,Binop(_,_,_) | _,Frac(_,_) | _,Pow(_,_) -> right_formatted_string
+      | _ -> normal_string
+
+
 ;;
 
 
