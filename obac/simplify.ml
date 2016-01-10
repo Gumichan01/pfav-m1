@@ -225,6 +225,10 @@ and simpl_mult = function
   | Binop('*',x,Val(Num.Int(-1))) 
   | Binop('*',Val(Num.Int(-1)),x) -> simpl_unop(Unop('-',simpl(x)))
 
+  (* a(bx) = (ab)x , a and b are values *)
+  | Binop('*',Val(Num.Int(a)),Binop('*',Val(Num.Int(b)),(Var(_) as x)))
+      -> Binop('*',Val(Num.Int(a*b)),x)
+
   (* x * y  = -(x*y) if and only if x and y have not the same sign *)
   |Binop('*',Val(Num.Int(x)),Val(Num.Int(y)))
       when (x > 0 && y < 0) -> simpl_unop(Unop('-',Binop('*',Val(Num.Int(x)),
