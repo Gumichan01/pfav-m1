@@ -90,10 +90,24 @@ fun e -> let print_aux m acc =
 	     | Exp1 -> acc^"e"
 	     | Var(x) -> acc^x
 	     | Val(Num.Int(v)) -> acc^(string_of_int v)
+	     | Unop(op,e) -> print_unop_formula op e
 	     | Binop(op,e1,e2) -> print_binop_formula op e1 e2
 	     | _ -> failwith "TODO print_formula"
 	 in
 	 print_aux e ("")
+
+
+and print_unop_formula : char -> math_expr -> string = 
+fun op e -> match op with
+  | '-' -> 
+    (match e with
+      | Binop(_,_,_) -> "-("^(print_formula e)^")"
+      | _ -> "-"^(print_formula e)
+    )
+  | '+' -> print_formula e
+  | _ -> raise (Invalid_binop "print_unnop_formula: Internal error")
+
+
 
 
 and print_binop_formula : char -> math_expr -> math_expr -> string =
