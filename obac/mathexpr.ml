@@ -95,6 +95,14 @@ let rec print_formula : math_expr -> string =
       | Frac(e1,e2) -> print_frac_formula e1 e2
       | Pow(x,e) -> print_pow_formula x e
       | Sqrt(x) -> "sqrt("^(print_formula x)^")"
+      | Expo(x) -> "exp("^(print_formula x)^")"
+      | Log(x) -> "ln("^(print_formula x)^")"
+      | Cos(x) -> "cos("^(print_formula x)^")"
+      | Sin(x) -> "sin("^(print_formula x)^")"
+      | Tan(x) -> "tan("^(print_formula x)^")"
+      | Acos(x) -> "acos("^(print_formula x)^")"
+      | Asin(x) -> "asin("^(print_formula x)^")"
+      | Atan(x) -> "atan("^(print_formula x)^")"
       | _ -> failwith "TODO print_formula"
 
 
