@@ -42,7 +42,7 @@ let plotExt:math_expr -> string -> int -> int -> int -> int-> unit =fun exp x a 
 	(* init array*)
 	for i=a to b do
 		data.(!my_ref) <- evalPoint i;
-		print_string "\n";
+(*	  print_string "\n";*)
 		augmenter();
 	done;
 (*	let data = Array.init n (fun i -> evalPoint ) in *)
@@ -72,10 +72,10 @@ let plotExt:math_expr -> string -> int -> int -> int -> int-> unit =fun exp x a 
 	in moveto ( (x0*coeff) + milieuHori) ( (y0*coeff) + milieuVerti);
 	for i=1 to n do 
 		let (x,y,color) = data.(i) in
-		print_int (x*coeff);
+(*		print_int (x*coeff);
 		print_string " : ";
 		print_int (y*coeff);
-		print_string "\n";
+		print_string "\n";*)
 
 		set_color color;
 		lineto ( (x*coeff) +milieuHori  )  ( (y*coeff) + milieuVerti	 )   
