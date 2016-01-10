@@ -1,7 +1,0 @@
-
-= Feuille de route =
-
-  * Faire les exceptions
-  * Brancher la fonction de construction d'expressions mathématiques 
-au parser pour tester la viabilité et le robustesse de notr système de type.
-  * Les fonctions demandés

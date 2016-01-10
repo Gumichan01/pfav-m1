@@ -1,4 +1,18 @@
 
-doc: document divers, en particulier le sujet du projet
-obac: les sources du projet
-mathview-demo: une petite demo d'un afficheur de formules MathML
+Auteurs :
+
+Raphael AUVERT
+Luxon JEAN-PIERRE
+
+
+Utilisation
+
+Commande pour compiler:
+$make
+
+Lancer le programme 
+
+$ ./main.native
+
+
+
