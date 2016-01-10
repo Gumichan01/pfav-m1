@@ -227,18 +227,8 @@ and parse_trigo = function
 ;;
 
 
-
-(* Solve an equation finding a value that 
-   puts the expression to zero *)
-let rec solve : math_expr -> string -> math_expr = 
-  fun x s -> match x with
-    | Unop(_,Var(v)) | Var(v) when v = s -> Val(Num.Int(0))
-    | Binop(op,(Val(_) as n),Var(v)) | Binop(op,Var(v),(Val(_) as n))
-	when v = s -> solve_binop (op,n)
-    | _ -> failwith "TODO solve : math_expr -> string -> math_expr "
-
-
-and solve_binop : (char * math_expr) -> math_expr =
+(* Solve a first degree equation *)
+let solve_binop : (char * math_expr) -> math_expr =
 fun binop -> let (op,n) = binop in
 	       match op with 
 		 | '+' -> Unop('-',n)
@@ -246,6 +236,60 @@ fun binop -> let (op,n) = binop in
 		 | '*' -> Frac(Val(Num.Int(1)),n)
 		 | _ -> raise (Invalid_binop "Unrecognized operation")
 ;;
+
+
+let solve_2nd_aux :  int -> int -> int -> math_expr list = 
+  fun a b delta -> 
+    let aa = Val(Num.Int(a)) in
+    let bb = Val(Num.Int(-b)) in
+    let sqrt_d = (Sqrt(Val(Num.Int(delta)))) in
+    [Frac(Binop('+',bb,sqrt_d),Binop('*',Val(Num.Int(2)),aa));
+     Frac(Binop('+',bb,sqrt_d),Binop('*',Val(Num.Int(2)),aa))]
+;;
+
+(* Solve a first degree equation *)
+let solve_2nd_degree_equation : int -> int -> int -> math_expr list =
+fun a b c -> let delta = (b*b) - 4*a*c in
+	     match delta with
+	       | 0 -> [Unop('-',Frac(Val(Num.Int(b)),
+				     Binop('*',Val(Num.Int(2)),
+					   Val(Num.Int(a)))))]
+	       | _ -> 
+		 (
+		   if delta > 0 
+		   then solve_2nd_aux a b delta
+		   else []
+		 )
+;;
+
+
+(* Solve an equation finding a value that 
+   puts the expression to zero *)
+let rec solve : math_expr -> string -> math_expr list = 
+  fun x s -> match x with
+    (* x = 0, -x = 0 *)
+    | Unop(_,Var(v)) | Var(v) when v = s -> [Val(Num.Int(0))]
+
+    (* ax² + bx + c = 0*)
+    | Binop('+',
+	    Binop('*',Val(Num.Int(a)),Pow(Var(x),Val(Num.Int(2)))),
+	    Binop('+',Binop('*',Val(Num.Int(b)),Var(y)),Val(Num.Int(c))))
+	when x = y -> (solve_2nd_degree_equation a b c)
+  
+    (* x + n = 0, n + x = 0, x - n = 0, n - x = 0, n is a value *)
+    | Binop(op,(Val(_) as n),Var(v)) | Binop(op,Var(v),(Val(_) as n))
+	when v = s -> [solve_binop (op,n)]
+    | _ -> failwith "TODO solve : math_expr -> string -> math_expr "
+;;
+
+
+let rec print_solve : math_expr list -> unit = 
+fun l -> match l with
+  | [] -> print_string("No solution found\n")
+  | [s] -> print_string(print_tree_of_math(s)^"\n"); ()
+  | h::q -> print_string(print_tree_of_math(h)^"\n"); print_solve q;
+;;
+
 
 
 (* Subtitution *)
@@ -287,13 +331,6 @@ let rec plotTest : math_expr -> string -> bool =
     | Atan(n) -> plotTest n s 
     | _ -> true
 ;;
-
-
-
-(*let rec sum_leibniz = function
-  | 0. -> 1.
-  | k -> (((-1.) ** k)/.(2. *. k +. 1.)) +. sum_leibniz (k -. 1.)
-;;*)
 
 
 (* Leibniz formula *)
