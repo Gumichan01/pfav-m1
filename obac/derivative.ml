@@ -6,6 +6,15 @@ open Mathexpr;;
 open Simplify;;
 
 
+(*let rec is_derivable : math_expr -> string -> bool = 
+fun m s -> match m with
+  | Pi | Exp1 | Val(_) -> true
+  | Var(v) when v = s -> true
+  | Var(_) as var -> false
+  | Unop(_,x) -> is_derivable x
+  | Binop(_,x,y) -> (if (is_derivable x) then)*)
+
+
 (* Derive an expression *)
 let rec derive : math_expr -> string -> math_expr = 
 (* TODO : improve the function, this version is too naive *)
@@ -23,7 +32,8 @@ let rec derive : math_expr -> string -> math_expr =
 	when op = '+' || op = '-' -> simpl(Binop(op,(derive u s),(derive v s)))
 
     (* (nx)' = n, n is a value *)
-    | Binop(op,(Val(Num.Int(_)) as n),Var(v)) when v = s -> n
+    | Binop(op,(Val(Num.Int(_)) as n),Var(v))
+    | Binop(op,(Var(_) as n),Var(v)) when v = s -> n
 
     (* (u*v)' = u'v + uv' *)
     | Binop(op,u,v) -> simpl(Binop('+',Binop(op,(derive u s),v),
