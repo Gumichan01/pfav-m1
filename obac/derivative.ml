@@ -38,6 +38,12 @@ let rec derive : math_expr -> string -> math_expr =
     (* (u*v)' = u'v + uv' *)
     | Binop(op,u,v) -> simpl(Binop('+',Binop(op,(derive u s),v),
 			     Binop(op,u,(derive v s))))
+
+    (* (y/u)' = -y*(u'/u²) y is a variable*)
+    | Frac((Var(_) as y),u) -> Unop('-',
+				    Binop('*',y,Frac((derive u s),
+						     Pow(u,Val(Num.Int(2))))))
+
     (* (1/u)' = -(u'/u²)*)
     | Frac(Val(Num.Int(1)),u) -> Unop('-',Frac((derive u s),
 					       Pow(u,Val(Num.Int(2)))))
