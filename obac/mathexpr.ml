@@ -365,6 +365,10 @@ let rec solve : math_expr -> string -> math_expr list =
     (* x = 0, -x = 0 *)
     | Unop(_,Var(v)) | Var(v) when v = s -> [Val(Num.Int(0))]
 
+    (*ax + b*)
+    | Binop('+',Binop('*',Val(Num.Int(a)),Var(v)),Val(Num.Int(b)))
+	when v = s -> [Frac(Val(Num.Int(-b)),Val(Num.Int(a)))]
+
     (* ax² + bx + c = 0*)
     | Binop('+',
 	    Binop('*',Val(Num.Int(a)),Pow(Var(x),Val(Num.Int(2)))),
@@ -374,7 +378,7 @@ let rec solve : math_expr -> string -> math_expr list =
     (* x + n = 0, n + x = 0, x - n = 0, n - x = 0, n is a value *)
     | Binop(op,(Val(_) as n),Var(v)) | Binop(op,Var(v),(Val(_) as n))
 	when v = s -> [solve_binop (op,n)]
-    | _ -> raise (Invalid_solve("Cannot solve the equation"))
+    | _ -> raise (Invalid_solve("Cannot solve the equation\n"))
 ;;
 
 
@@ -452,7 +456,7 @@ let eval_frac (num: float) (denom: float) =
 let rec eval : math_expr -> float = 
   fun m -> match m with
 	| Var str -> raise (Invalid_evaluation("An expression cannot"^
-			      " have a variable"))
+			      " have a variable\n"))
 	| Pi -> eval_pi
 	| Exp1 -> exp(1.)
 	| Unop('-',x) -> 0. -. (eval x)
