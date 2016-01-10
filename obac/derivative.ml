@@ -49,7 +49,7 @@ let rec derive : math_expr -> string -> math_expr =
     (* cos(u)' = u'*(-sin(u)) *)
     | Cos(u) -> simpl(Binop('*',(derive u s),Unop('-',Sin(u))))
     | Sin(u) -> simpl(Binop('*',(derive u s),Cos(u)))
-    | Tan(u) -> simpl(derive (Frac(Sin(u),Cos(u))) s)
+    | Tan(u) -> simpl(Frac(Val(Num.Int(1)),Pow(Cos(u),Val(Num.Int(2)))))
 
     | _ -> raise(Invalid_derivative("Unsupported derivation of "^
 					(print_tree_of_math x)^""))
