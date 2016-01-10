@@ -42,6 +42,7 @@ exception Invalid_derivative of string;;
 exception Invalid_derive_n_Argument of string;;
 exception Internal_mathexpr_error of string;;
 exception Invalid_evaluation of string;;
+exception Invalid_formula of string;;
 exception Division_by_zero;;
 
 
@@ -103,7 +104,7 @@ let rec formula_of_math_expr : math_expr -> string =
       | Acos(x) -> "acos("^(formula_of_math_expr x)^")"
       | Asin(x) -> "asin("^(formula_of_math_expr x)^")"
       | Atan(x) -> "atan("^(formula_of_math_expr x)^")"
-      | _ -> failwith "TODO formula_of_math_expr"
+      | _ -> raise (Invalid_formula("Cannot get the formula"))
 
 
 and unop_formula_of_math_expr : char -> math_expr -> string = 

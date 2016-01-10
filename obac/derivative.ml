@@ -17,7 +17,6 @@ fun m s -> match m with
 
 (* Derive an expression *)
 let rec derive : math_expr -> string -> math_expr = 
-(* TODO : improve the function, this version is too naive *)
   fun ex s -> match ex with
     | Pi | Exp1 | Val(_) -> Val(Num.Int(0))
     | Var(v) when v = s -> Val(Num.Int(1))
