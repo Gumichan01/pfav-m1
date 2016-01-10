@@ -143,12 +143,13 @@ and formula_of_binop_aux op e1 e2 f1 f2 =
     
     | Frac(_,_), Frac(_,_) -> formatted_string
     | Pow(_,_), Pow(_,_) -> formatted_string
+    | Unop('-',_), Unop('-',_) -> formatted_string
       
     | Binop(op,_,_),_ when (op = '+' || op = '-') -> left_formatted_string
-    | Frac(_,_),_ | Pow(_,_),_ -> left_formatted_string
+    | Frac(_,_),_ | Pow(_,_),_ | Unop('-',_),_ -> left_formatted_string
     
     | _,Binop(op,_,_) when (op = '+' || op = '-') -> right_formatted_string
-    | _,Frac(_,_) | _,Pow(_,_) -> right_formatted_string
+    | _,Frac(_,_) | _,Pow(_,_) | _,Unop('-',_) -> right_formatted_string
     
     | _ -> normal_string
 
