@@ -101,8 +101,21 @@ fun op e1 e2 -> match op with
   | '+' | '-' -> let f1 = print_formula e1 in
 		 f1^" "^(Char.escaped op)^" "^(print_formula e2)
   | '*' -> let f1 = print_formula e1 in
-	   f1^(Char.escaped op)^(print_formula e2)
+	   let f2 = print_formula e2 in
+	   print_binop_aux op e1 e2 f1 f2
   | _ -> raise (Invalid_binop "print_binop_formula: Internal error")
+
+
+and print_binop_aux op e1 e2 f1 f2 =
+  let normal_string = (f1^(Char.escaped op)^f2) in
+  let formatted_string = ("("^f1^")"^(Char.escaped op)^"("^f2^")") in
+  match e1,e2 with
+    | Binop(o1,_,_),Binop(o2,_,_) 
+      when (o1 = '+' || o1 = '-') 
+	&& (o2 = '+' || o2 = '-') -> formatted_string
+    | Frac(_,_), Frac(_,_) -> formatted_string
+    | Pow(_,_), Pow(_,_) -> formatted_string
+    | _ -> normal_string
 ;;
 
 
