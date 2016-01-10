@@ -375,14 +375,6 @@ let rec solve : math_expr -> string -> math_expr list =
 ;;
 
 
-let rec print_solve : math_expr list -> unit = 
-fun l -> match l with
-  | [] -> print_string("No solution found\n")
-  | [s] -> print_string(print_formula(s)^"\n"); ()
-  | h::q -> print_string(print_formula(h)^"\n"); print_solve q;
-;;
-
-
 
 (* Subtitution *)
 let rec subst : math_expr -> string -> math_expr -> math_expr = 
@@ -477,6 +469,14 @@ let rec eval : math_expr -> float =
 	| Asin(n) -> asin (eval n) 
 	| Atan(n) -> atan (eval n)
 	| _ -> raise (Invalid_math_expr "Unrecognized mathematic expression")
+;;
+
+(* Display the results of solve() as formulas *)
+let rec print_solve : math_expr list -> unit = 
+fun l -> match l with
+  | [] -> print_string("No solution found\n")
+  | [s] -> print_string(print_formula(s)^"\n"); ()
+  | h::q -> print_string(print_formula(h)^"\n"); print_solve q;
 ;;
 
 
