@@ -116,6 +116,12 @@ let rec integ : math_expr -> string -> math_expr -> math_expr -> math_expr =
     | Frac(Val(Num.Int(1)),Var(v)) 
 	when v = s -> Binop('-', Log(b),Log(a))
 
-    |Expo(Var(v)) when v = s -> Binop('-', Expo(b),Expo(a))
+    | Expo(Var(v)) when v = s -> Binop('-', Expo(b),Expo(a))
+
+    (*Cosine, Sine and Tangent*)
+    | Cos(Var(v)) when v = s -> Binop('-', Sin(b),Sin(a))
+    | Unop('-',Sin(Var(v))) when v = s -> Binop('-', Cos(b),Cos(a))
+    | Frac(Val(Num.Int(1)),Pow(Cos(Var(v)),Val(Num.Int(2))))
+	when v = s -> Binop('-', Tan(b),Tan(a))
 
     | _ -> failwith "TODO integ : math_expr -> string -> math_expr -> math_expr -> math_expr ";;
