@@ -232,6 +232,7 @@ and parse_trigo = function
    puts the expression to zero *)
 let rec solve : math_expr -> string -> math_expr = 
   fun x s -> match x with
+    | Unop(_,Var(v)) | Var(v) when v = s -> Val(Num.Int(0))
     | _ -> failwith "TODO solve : math_expr -> string -> math_expr ";;
 
 
