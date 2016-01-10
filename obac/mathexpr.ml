@@ -378,8 +378,8 @@ let rec solve : math_expr -> string -> math_expr list =
 let rec print_solve : math_expr list -> unit = 
 fun l -> match l with
   | [] -> print_string("No solution found\n")
-  | [s] -> print_string(print_tree_of_math(s)^"\n"); ()
-  | h::q -> print_string(print_tree_of_math(h)^"\n"); print_solve q;
+  | [s] -> print_string(print_formula(s)^"\n"); ()
+  | h::q -> print_string(print_formula(h)^"\n"); print_solve q;
 ;;
 
 
