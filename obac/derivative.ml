@@ -47,6 +47,7 @@ let rec derive : math_expr -> string -> math_expr =
     (* (1/u)' = -(u'/u²)*)
     | Frac(Val(Num.Int(1)),u) -> Unop('-',Frac((derive u s),
 					       Pow(u,Val(Num.Int(2)))))
+
     (* (u/v)' = (u'v + uv')/v² *)
     | Frac(u,v) -> simpl(Frac((Binop('-',Binop('*',(derive u s),v),
 			       Binop('*',u,(derive v s)))),
@@ -87,4 +88,19 @@ let rec derive : math_expr -> string -> math_expr =
 (* Integration of an expression *)
 let rec integ : math_expr -> string -> math_expr -> math_expr -> math_expr = 
   fun x s a b -> match x with
-  | _ -> failwith "TODO integ : math_expr -> string -> math_expr -> math_expr -> math_expr ";;
+    | Val(Num.Int(0)) -> Val(Num.Int(1))
+    | Val(Num.Int(1)) -> Binop('-',b,a)
+    | Val(Num.Int(x)) as c -> Binop('-',Binop('*',c,b),Binop('*',c,a))
+    | Pi -> Binop('-',Binop('*',Pi,b),Binop('*',Pi,a))
+    | Exp1 -> Binop('-',Binop('*',Exp1,b),Binop('*',Exp1,a))
+
+    (* nu'*u^(n-1) ->  (u^n)' *)
+    | Binop('*',Binop('*',n,u), Pow(v,Val(_)))
+	when u = v -> Binop('-',Pow(b,n),Pow(a,n))
+    | Binop('*',n,u) -> Binop('-',Pow(b,n),Pow(a,n))
+
+    | Frac(Val(Num.Int(-1)),
+		    Pow(Var(v),Val(Num.Int(2))))
+	when v = s -> Frac(Val(Num.Int(1)),Var(v))
+
+    | _ -> failwith "TODO integ : math_expr -> string -> math_expr -> math_expr -> math_expr ";;
