@@ -16,7 +16,7 @@ let my_ref = ref 0;;
 let augmenter () = my_ref:=(!my_ref)+1;;
 
 let plotExt:math_expr -> string -> int -> int -> int -> int-> unit =fun exp x a b c d->
-	if not(plotTest exp x) then raise (Invalid_evaluation("PLOT : The Expr have more than only 1 VAR\n")) else
+	if not(plotTest exp x) then raise (Invalid_evaluation("PLOT : The Expr have more than only 1 VAR or VAR is not X \n")) else
 	
 	(* Dimension WINDOWS *)
 	let coeff = 5 in
