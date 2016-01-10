@@ -82,6 +82,20 @@ let rec print_tree_of_math : math_expr -> string = fun m ->
 ;;
 
 
+(* Print the formula of mathematic expression *)
+let rec print_formula : math_expr -> string = 
+fun e -> let print_aux m acc =
+	   match e with
+	     | Pi -> acc^"pi"
+	     | Exp1 -> acc^"e"
+	     | Var(x) -> acc^x
+	     | Val(Num.Int(v)) -> acc^(string_of_int v)
+	     | _ -> failwith "TODO print_formula"
+	 in
+	 print_aux e ("")
+;;
+
+
 (* Check if the string is a reserved keyword *)
 let is_not_reserved_keyword = function
   | "pow" | "sqrt" | "exp" | "log" -> false 
