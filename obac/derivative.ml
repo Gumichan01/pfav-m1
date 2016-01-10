@@ -9,7 +9,7 @@ open Simplify;;
 (* Derive an expression *)
 let rec derive : math_expr -> string -> math_expr = 
 (* TODO : improve the function, this version is too naive *)
-  fun x s -> match x with
+  fun ex s -> match ex with
     | Pi | Exp1 | Val(_) -> Val(Num.Int(0))
     | Var(v) when v = s -> Val(Num.Int(1))
     | Var(_) as var -> var
@@ -21,6 +21,9 @@ let rec derive : math_expr -> string -> math_expr =
     (* (u + v)' = u' + v' et (u - v)' = u' - v' *)
     | Binop(op,u,v) 
 	when op = '+' || op = '-' -> simpl(Binop(op,(derive u s),(derive v s)))
+
+    (* (nx)' = n, n is a value *)
+    | Binop(op,(Val(Num.Int(_)) as n),Var(v)) when v = s -> n
 
     (* (u*v)' = u'v + uv' *)
     | Binop(op,u,v) -> simpl(Binop('+',Binop(op,(derive u s),v),
@@ -52,7 +55,7 @@ let rec derive : math_expr -> string -> math_expr =
     | Tan(u) -> simpl(Frac(Val(Num.Int(1)),Pow(Cos(u),Val(Num.Int(2)))))
 
     | _ -> raise(Invalid_derivative("Unsupported derivation of "^
-					(print_tree_of_math x)^""))
+					(print_tree_of_math ex)^""))
 ;;
 
 
