@@ -55,7 +55,7 @@ let rec derive : math_expr -> string -> math_expr =
     | Tan(u) -> simpl(Frac(Val(Num.Int(1)),Pow(Cos(u),Val(Num.Int(2)))))
 
     | _ -> raise(Invalid_derivative("Unsupported derivation of "^
-					(print_tree_of_math ex)^""))
+					(string_of_tree_of_math ex)^""))
 ;;
 
 

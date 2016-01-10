@@ -56,79 +56,79 @@ let sqrt_two_div_two = Frac(Sqrt(Val(Num.Int(2))),Val(Num.Int(2)))
 
 
 (* A function that print the tree of the given expression *)
-let rec print_tree_of_math : math_expr -> string = fun m ->
+let rec string_of_tree_of_math : math_expr -> string = fun m ->
   match m with
     | Pi -> "Pi"
     | Exp1 -> "e"
     | Val(Num.Int(x)) -> "Val(Num.Int("^(string_of_int x)^"))"
     | Var s -> "Var("^s^")"
-    | Unop(op,e) -> "Unop("^(Char.escaped op)^","^(print_tree_of_math e)^")"
-    | Binop(op,e1,e2) -> "Binop("^(Char.escaped op)^","^(print_tree_of_math e1)^
-      ","^(print_tree_of_math e2)^")"
-    | Frac(e1,e2) -> "Frac("^(print_tree_of_math e1)^","^
-      (print_tree_of_math e2)^")"
-    | Pow(e1,e2) -> "Pow("^(print_tree_of_math e1)^","^
-      (print_tree_of_math e2)^")"
-    | Sqrt(n) -> "Sqrt("^(print_tree_of_math n)^")"
-    | Expo(n) -> "Expo("^(print_tree_of_math n)^")"
-    | Log(n) -> "Log("^(print_tree_of_math n)^")"
-    | Cos(n) -> "Cos("^(print_tree_of_math n)^")"
-    | Sin(n) -> "Sin("^(print_tree_of_math n)^")"
-    | Tan(n) -> "Tan("^(print_tree_of_math n)^")"
-    | Acos(n) -> "Acos("^(print_tree_of_math n)^")"
-    | Asin(n) -> "Asin("^(print_tree_of_math n)^")"
-    | Atan(n) -> "Atan("^(print_tree_of_math n)^")"
+    | Unop(op,e) -> "Unop("^(Char.escaped op)^","^(string_of_tree_of_math e)^")"
+    | Binop(op,e1,e2) -> "Binop("^(Char.escaped op)^","^(string_of_tree_of_math e1)^
+      ","^(string_of_tree_of_math e2)^")"
+    | Frac(e1,e2) -> "Frac("^(string_of_tree_of_math e1)^","^
+      (string_of_tree_of_math e2)^")"
+    | Pow(e1,e2) -> "Pow("^(string_of_tree_of_math e1)^","^
+      (string_of_tree_of_math e2)^")"
+    | Sqrt(n) -> "Sqrt("^(string_of_tree_of_math n)^")"
+    | Expo(n) -> "Expo("^(string_of_tree_of_math n)^")"
+    | Log(n) -> "Log("^(string_of_tree_of_math n)^")"
+    | Cos(n) -> "Cos("^(string_of_tree_of_math n)^")"
+    | Sin(n) -> "Sin("^(string_of_tree_of_math n)^")"
+    | Tan(n) -> "Tan("^(string_of_tree_of_math n)^")"
+    | Acos(n) -> "Acos("^(string_of_tree_of_math n)^")"
+    | Asin(n) -> "Asin("^(string_of_tree_of_math n)^")"
+    | Atan(n) -> "Atan("^(string_of_tree_of_math n)^")"
     | _ -> raise (Invalid_math_expr "Invalid mathematic expression to print")
 ;;
 
 
 (* Print the formula of mathematic expression *)
-let rec print_formula : math_expr -> string = 
+let rec formula_of_math_expr : math_expr -> string = 
   fun e -> 
     match e with
       | Pi -> "pi"
       | Exp1 -> "e"
       | Var(x) -> x
       | Val(Num.Int(v)) -> (string_of_int v)
-      | Unop(op,e) -> print_unop_formula op e
-      | Binop(op,e1,e2) -> print_binop_formula op e1 e2
-      | Frac(e1,e2) -> print_frac_formula e1 e2
-      | Pow(x,e) -> print_pow_formula x e
-      | Sqrt(x) -> "sqrt("^(print_formula x)^")"
-      | Expo(x) -> "exp("^(print_formula x)^")"
-      | Log(x) -> "ln("^(print_formula x)^")"
-      | Cos(x) -> "cos("^(print_formula x)^")"
-      | Sin(x) -> "sin("^(print_formula x)^")"
-      | Tan(x) -> "tan("^(print_formula x)^")"
-      | Acos(x) -> "acos("^(print_formula x)^")"
-      | Asin(x) -> "asin("^(print_formula x)^")"
-      | Atan(x) -> "atan("^(print_formula x)^")"
-      | _ -> failwith "TODO print_formula"
+      | Unop(op,e) -> unop_formula_of_math_expr op e
+      | Binop(op,e1,e2) -> binop_formula_of_math_expr op e1 e2
+      | Frac(e1,e2) -> frac_formula_of_math_expr e1 e2
+      | Pow(x,e) -> pow_formula_of_math_expr x e
+      | Sqrt(x) -> "sqrt("^(formula_of_math_expr x)^")"
+      | Expo(x) -> "exp("^(formula_of_math_expr x)^")"
+      | Log(x) -> "ln("^(formula_of_math_expr x)^")"
+      | Cos(x) -> "cos("^(formula_of_math_expr x)^")"
+      | Sin(x) -> "sin("^(formula_of_math_expr x)^")"
+      | Tan(x) -> "tan("^(formula_of_math_expr x)^")"
+      | Acos(x) -> "acos("^(formula_of_math_expr x)^")"
+      | Asin(x) -> "asin("^(formula_of_math_expr x)^")"
+      | Atan(x) -> "atan("^(formula_of_math_expr x)^")"
+      | _ -> failwith "TODO formula_of_math_expr"
 
 
-and print_unop_formula : char -> math_expr -> string = 
+and unop_formula_of_math_expr : char -> math_expr -> string = 
   fun op e -> match op with
     | '-' -> 
       (match e with
-	| Binop(_,_,_) -> "-("^(print_formula e)^")"
-	| _ -> "-"^(print_formula e)
+	| Binop(_,_,_) -> "-("^(formula_of_math_expr e)^")"
+	| _ -> "-"^(formula_of_math_expr e)
       )
-    | '+' -> print_formula e
-    | _ -> raise (Invalid_binop "print_unnop_formula: Internal error")
+    | '+' -> formula_of_math_expr e
+    | _ -> raise (Invalid_binop "formula_of_unnop_formula: Internal error")
       
 
 (* Print a binop formula *)
-and print_binop_formula : char -> math_expr -> math_expr -> string =
+and binop_formula_of_math_expr : char -> math_expr -> math_expr -> string =
   fun op e1 e2 -> match op with
-    | '+' | '-' -> let f1 = print_formula e1 in
-		   f1^" "^(Char.escaped op)^" "^(print_formula e2)
-    | '*' -> let f1 = print_formula e1 in
-	     let f2 = print_formula e2 in
-	     print_binop_aux op e1 e2 f1 f2
-    | _ -> raise (Invalid_binop "print_binop_formula: Internal error")
+    | '+' | '-' -> let f1 = formula_of_math_expr e1 in
+		   f1^" "^(Char.escaped op)^" "^(formula_of_math_expr e2)
+    | '*' -> let f1 = formula_of_math_expr e1 in
+	     let f2 = formula_of_math_expr e2 in
+	     formula_of_binop_aux op e1 e2 f1 f2
+    | _ -> raise (Invalid_binop "binop_formula_of_math_expr: Internal error")
       
       
-and print_binop_aux op e1 e2 f1 f2 =
+and formula_of_binop_aux op e1 e2 f1 f2 =
   let normal_string = (f1^(Char.escaped op)^f2) in
   let formatted_string = ("("^f1^")"^(Char.escaped op)^"("^f2^")") in
   let left_formatted_string = ("("^f1^")"^(Char.escaped op)^f2) in
@@ -150,10 +150,10 @@ and print_binop_aux op e1 e2 f1 f2 =
     | _ -> normal_string
 
 
-and print_frac_formula : math_expr -> math_expr -> string =
+and frac_formula_of_math_expr : math_expr -> math_expr -> string =
   fun e1 e2 -> 
-    let f1 = print_formula e1 in
-    let f2 = print_formula e2 in
+    let f1 = formula_of_math_expr e1 in
+    let f2 = formula_of_math_expr e2 in
     let normal_string = (f1^"/"^f2) in
     let formatted_string = ("("^f1^")"^"/"^"("^f2^")") in
     let left_formatted_string = ("("^f1^")"^"/"^f2) in
@@ -166,9 +166,9 @@ and print_frac_formula : math_expr -> math_expr -> string =
       | _ -> normal_string
 
 
-and print_pow_formula : math_expr -> math_expr -> string = 
-  fun x e -> let x_formula = print_formula x in
-	     let exponent_formula = print_formula e in
+and pow_formula_of_math_expr : math_expr -> math_expr -> string = 
+  fun x e -> let x_formula = formula_of_math_expr x in
+	     let exponent_formula = formula_of_math_expr e in
 	     (x_formula^"^("^exponent_formula^")")
 
 ;;
@@ -475,6 +475,6 @@ let rec eval : math_expr -> float =
 let rec print_solve : math_expr list -> unit = 
 fun l -> match l with
   | [] -> print_string("No solution found\n")
-  | [s] -> print_string(print_formula(s)^"\n"); ()
-  | h::q -> print_string(print_formula(h)^"\n"); print_solve q;
+  | [s] -> print_string(formula_of_math_expr(s)^"\n"); ()
+  | h::q -> print_string(formula_of_math_expr(h)^"\n"); print_solve q;
 ;;
