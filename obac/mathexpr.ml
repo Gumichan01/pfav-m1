@@ -93,6 +93,7 @@ let rec print_formula : math_expr -> string =
 	       | Unop(op,e) -> print_unop_formula op e
 	       | Binop(op,e1,e2) -> print_binop_formula op e1 e2
 	       | Frac(e1,e2) -> print_frac_formula e1 e2
+	       | Pow(x,e) -> print_pow_formula x e
 	       | _ -> failwith "TODO print_formula"
 	   in
 	   print_aux e ("")
@@ -157,6 +158,11 @@ and print_frac_formula : math_expr -> math_expr -> string =
       | _,Binop(_,_,_) | _,Frac(_,_) | _,Pow(_,_) -> right_formatted_string
       | _ -> normal_string
 
+
+and print_pow_formula : math_expr -> math_expr -> string = 
+  fun x e -> let x_formula = print_formula x in
+	     let exponent_formula = print_formula e in
+	     (x_formula^"^("^exponent_formula^")")
 
 ;;
 
