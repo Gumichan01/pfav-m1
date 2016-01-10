@@ -90,9 +90,19 @@ fun e -> let print_aux m acc =
 	     | Exp1 -> acc^"e"
 	     | Var(x) -> acc^x
 	     | Val(Num.Int(v)) -> acc^(string_of_int v)
+	     | Binop(op,e1,e2) -> print_binop_formula op e1 e2
 	     | _ -> failwith "TODO print_formula"
 	 in
 	 print_aux e ("")
+
+
+and print_binop_formula : char -> math_expr -> math_expr -> string =
+fun op e1 e2 -> match op with
+  | '+' | '-' -> let f1 = print_formula e1 in
+		 f1^" "^(Char.escaped op)^" "^(print_formula e2)
+  | '*' -> let f1 = print_formula e1 in
+	   f1^(Char.escaped op)^(print_formula e2)
+  | _ -> raise (Invalid_binop "print_binop_formula: Internal error")
 ;;
 
 
