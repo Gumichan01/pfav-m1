@@ -99,8 +99,18 @@ let rec integ : math_expr -> string -> math_expr -> math_expr -> math_expr =
 	when u = v -> Binop('-',Pow(b,n),Pow(a,n))
     | Binop('*',n,u) -> Binop('-',Pow(b,n),Pow(a,n))
 
+    (* u'/u^n *)
     | Frac(Val(Num.Int(-1)),
 		    Pow(Var(v),Val(Num.Int(2))))
-	when v = s -> Frac(Val(Num.Int(1)),Var(v))
+	when v = s -> Binop('-',Frac(Val(Num.Int(1)),b),Frac(Val(Num.Int(1)),a))
+
+    | Frac(Val(Num.Int(n)),
+		    Pow(Var(v),Val(Num.Int(m))))
+	when v = s && m = (n+1) 
+	       -> Binop('-',Frac(Val(Num.Int(n)),b),Frac(Val(Num.Int(n)),a))
+
+    | Frac(Val(Num.Int(1)),(Binop('*',Val(Num.Int(2)),Sqrt(Var(v)))))
+	when v = s -> Binop('-',Sqrt(b),Sqrt(a))
+
 
     | _ -> failwith "TODO integ : math_expr -> string -> math_expr -> math_expr -> math_expr ";;
