@@ -36,8 +36,10 @@ let plotExt:math_expr -> string -> int -> int -> int -> int-> unit =fun exp x a 
 (*		print_string("math_expr: "^(print_tree_of_math expSub)^"\n");	*)
 		let y1Float = eval expSub in
 		let y1 =int_of_float y1Float in
-		print_string ":";
-		print_int y1;
+		(** J'ai commenté parce que c'est 
+		    dégeulasse sur mon terminal  *)
+		(*print_string ":";
+		  print_int y1;*) 
 		(x1,y1) in
 
 
@@ -46,10 +48,11 @@ let plotExt:math_expr -> string -> int -> int -> int -> int-> unit =fun exp x a 
 
 	(* init array*)
 	for i=a to b do
-		print_int i;
+		(** J'ai aussi commenté pour les même raison *)
+		(*print_int i;*)
 
 		data.(!my_ref) <- evalPoint i;
-		print_string "\n";
+		(*print_string "\n";*)
 		augmenter();
 	done;
 (*	let data = Array.init n (fun i -> evalPoint ) in *)
