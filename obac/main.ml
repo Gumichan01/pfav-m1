@@ -7,7 +7,7 @@ open Plot;;
 
 (* TODO  : to change later *)
 let something () =
-  let example = "x +1" in
+  let example = "x" in
   (*  let e = Parsexpr.expr_of_string "5*sqrt(36+x^2)+4*(20-x)" in*)
   let e = Parsexpr.expr_of_string example in  
   let s = match e with
@@ -33,14 +33,14 @@ let something () =
 (*  print_string("The result of the evaluation is: "^string_of_float(eval simpl_e)^
 		  "\n");*)
   
-  
+  (*
   let m="7" in
   let m2 = Parsexpr.expr_of_string m in
   let m3 = cons_math_expr m2 in
   let sub_e = Mathexpr.subst r "x" m3 in
-  print_string("SUB math_expr: "^(print_tree_of_math sub_e)^"\n\n");
-  
-  Plot.plot sub_e "x";;
+  print_string("SUB x by 7 math_expr: "^(print_tree_of_math sub_e)^"\n\n");
+  *)
+  Plot.plotExt r "x" (-50) 50 (-50) 50;;
 
 let main =
   
