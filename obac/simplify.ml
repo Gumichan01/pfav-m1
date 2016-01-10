@@ -101,6 +101,9 @@ and simpl_plus = function
   | Binop('+',Binop('*',Val(Num.Int(z)),y),x) 
       when x = y -> simpl_mult(Binop('*',Val(Num.Int(z+1)),simpl(x)))
 
+  (* x + y*z, x y and z are distinct *)
+  | Binop('+',x,Binop('*',y,Val(Num.Int(z)))) as b -> b
+
   (* x + x*z = x * (z+1) OR x + z*x = x * (z+1), z is an expression *)
   | Binop('+',x,Binop('*',y,z))
       when x = y -> simpl_mult(Binop('*',x,Binop('+',simpl(z),Val(Num.Int 1))))
@@ -275,6 +278,10 @@ and simpl_mult = function
   | Binop('*',Pow(x,a),Pow(y,b)) 
       when x = y -> simpl_pow(Pow(simpl(x),
 				  simpl_plus(Binop('+',simpl(a),simpl(b)))))
+
+  (* x * y * z, x y and z are distinct *)
+  | Binop('*',x,Binop('*',y,_)) as b
+    when x <> y -> b
 
   (* Product of x1 * x2 * ... * xn, x[1-n] are the same expression *)
   | Binop('*' as m,x,y) -> simpl_binop_aux m x y
