@@ -5,9 +5,9 @@ open Simplify;;
 open Derivative;;
 open Plot;;
 
-(* TODO  : to change later *)
+(* Only for debug *)
 let something () =
-  let example = "x" in
+  let example = "1/(cos(x)^2)" in
   (*  let e = Parsexpr.expr_of_string "5*sqrt(36+x^2)+4*(20-x)" in*)
   let e = Parsexpr.expr_of_string example in  
   let s = match e with
@@ -22,12 +22,11 @@ let something () =
   print_string("\nFormula: "^(formula_of_math_expr r)^"\n\n");
   
   let simpl_e = simpl r in
-  let deriv_e = (derive r "x") in
-  let solved_e = (solve r "x") in
 (*  print_string("Simplifed math_expr: "^(string_of_tree_of_math simpl_e)^"\n");*)
   print_string("Simplified formula: "^(formula_of_math_expr simpl_e)^"\n");
-(*  print_string("Derived math_expr: "^(string_of_tree_of_math deriv_e)^"\n");*)
-  print_string("Derived formula: "^(formula_of_math_expr deriv_e)^"\n");
+(*  print_string("Derived math_expr: "^(string_of_tree_of_math (derive r "x"))^"\n");*)
+  print_string("Derived formula: "^(formula_of_math_expr (derive r "x"))^"\n");
+  print_string("Integral formula: "^(formula_of_math_expr (integ r "x" (Val(Num.Int(1))) (Val(Num.Int(10)))))^"\n");
 (*  print_string("Solved math_expr: \n");(string_of_tree_of_math solved_e);*)
 (*  print_string("Solved formula: \n");(print_solve (solved_e));*)
 (*  print_string("The result of the evaluation is: "^string_of_float(eval simpl_e)^
@@ -40,9 +39,115 @@ let something () =
   let sub_e = Mathexpr.subst r "x" m3 in
   print_string("SUB x by 7 math_expr: "^(string_of_tree_of_math sub_e)^"\n\n");
   *)
-  Plot.plotExt r "x" (-50) 50 (-50) 50;;
+(*  Plot.plotExt r "x" (-50) 50 (-50) 50*);;
+
+
+type 'a option = None | Some of 'a
+
+let main_parse str =
+  try
+    Some(cons_math_expr(Parsexpr.expr_of_string str))
+  with
+    | Parsing_error(s) -> print_string("Parsing: "^s^"\n\n"); None
+    | Invalid_sqrt(s) -> print_string("Square root: "^s^"\n\n"); None
+    | Invalid_log(s) -> print_string("Logarithm: "^s^"\n\n"); None
+    | Invalid_trigo(s) -> print_string("trigo: "^s^"\n\n"); None
+    | _ -> print_string("Unkown exception\n\n"); None
+;;
+
+
+let main_simpl expr =
+  try
+    begin
+      let simplified_expr = (formula_of_math_expr expr) in
+      print_string("Simplified formula: "^simplified_expr^"\n");
+    end
+  with _ -> print_string("Cannot simplify the formula")
+;;
+
+
+let main_derive expr =
+  try
+    begin
+      let derived_expr = formula_of_math_expr(derive expr "x") in
+      print_string("Derived formula: "^derived_expr^"\n");
+    end
+  with 
+    | Invalid_derivative(s) -> print_string(s)
+    | _ -> print_string("derive : Unknown exception\n\n")
+;;
+
+
+let main_integral expr = 
+  try
+    begin
+      let integ_expr = formula_of_math_expr(integ expr "x" 
+					    (Val(Num.Int(42))) 
+					    (Val(Num.Int(1)))) 
+      in
+      print_string("Integral formula: "^integ_expr^"\n");
+    end
+  with 
+    | Invalid_integration(s) -> print_string(s)
+    | _ -> print_string("integ : Unknown exception\n\n")
+;;
+
+
+let main_solve expr =
+  try
+    begin
+      print_string("Solution(s) of the equation: \n");
+      print_solve(solve expr "x");
+      print_string("\n");
+    end
+  with 
+    | Invalid_integration(s) -> print_string(s)
+    | _ -> print_string("solve : Unknown exception\n\n")
+;;
+
+
+let main_eval expr =
+  try
+    let eval_expr = string_of_float(eval expr) in
+      print_string("The result of the evaluation is: "^eval_expr^"\n")
+  with
+    | Invalid_evaluation(s) -> print_string(s)
+    | _ -> print_string("eval : Unknown exception\n\n")
+;;
+
+
+let main_plot expr =
+  try
+    Plot.plotExt expr "x" (-50) 50 (-50) 50
+  with
+    | Invalid_evaluation(s) -> print_string(s)
+    | _ -> print_string("main_plot : Unknown exception\n\n")
+;;
+
+
+(* Interactive mode *)
+let loop () =
+  while(true) do
+    begin
+      print_string("\nPlease write the formula: \n");
+      let read_str = read_line() in
+      let parsed = main_parse read_str in
+      match parsed with
+	| Some(expr)->
+	  print_string("Syntaxic representation: \n");
+	  print_string((string_of_tree_of_math expr)^"\n");
+	  main_simpl expr;
+	  main_derive expr;
+	  main_solve expr;
+	  main_eval expr;
+	(* Uncomment this, and be sure this function 
+	   will not make the progra crash *)
+	(*main_plot expr;*) 
+	| None -> print_string("There is nothing to do\n")
+    end
+  done
+;;
 
 let main =
-  
-  print_string "Welcome to Obac 0.01\n";
-  if not !Sys.interactive then something ()
+  print_string "Welcome to Obac 1.0\n";
+  if not !Sys.interactive then loop ()
