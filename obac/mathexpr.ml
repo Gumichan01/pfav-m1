@@ -84,19 +84,18 @@ let rec print_tree_of_math : math_expr -> string = fun m ->
 
 (* Print the formula of mathematic expression *)
 let rec print_formula : math_expr -> string = 
-  fun e -> let print_aux m acc =
-	     match e with
-	       | Pi -> acc^"pi"
-	       | Exp1 -> acc^"e"
-	       | Var(x) -> acc^x
-	       | Val(Num.Int(v)) -> acc^(string_of_int v)
-	       | Unop(op,e) -> print_unop_formula op e
-	       | Binop(op,e1,e2) -> print_binop_formula op e1 e2
-	       | Frac(e1,e2) -> print_frac_formula e1 e2
-	       | Pow(x,e) -> print_pow_formula x e
-	       | _ -> failwith "TODO print_formula"
-	   in
-	   print_aux e ("")
+  fun e -> 
+    match e with
+      | Pi -> "pi"
+      | Exp1 -> "e"
+      | Var(x) -> x
+      | Val(Num.Int(v)) -> (string_of_int v)
+      | Unop(op,e) -> print_unop_formula op e
+      | Binop(op,e1,e2) -> print_binop_formula op e1 e2
+      | Frac(e1,e2) -> print_frac_formula e1 e2
+      | Pow(x,e) -> print_pow_formula x e
+      | Sqrt(x) -> "sqrt("^(print_formula x)^")"
+      | _ -> failwith "TODO print_formula"
 
 
 and print_unop_formula : char -> math_expr -> string = 
