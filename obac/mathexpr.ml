@@ -39,10 +39,12 @@ exception Invalid_log of string;;
 exception Invalid_trigo of string;;
 exception Invalid_math_expr of string;;
 exception Invalid_derivative of string;;
+exception Invalid_integration of string;;
 exception Invalid_derive_n_Argument of string;;
 exception Internal_mathexpr_error of string;;
 exception Invalid_evaluation of string;;
 exception Invalid_formula of string;;
+exception Invalid_solve of string;;
 exception Division_by_zero;;
 
 
@@ -372,7 +374,7 @@ let rec solve : math_expr -> string -> math_expr list =
     (* x + n = 0, n + x = 0, x - n = 0, n - x = 0, n is a value *)
     | Binop(op,(Val(_) as n),Var(v)) | Binop(op,Var(v),(Val(_) as n))
 	when v = s -> [solve_binop (op,n)]
-    | _ -> failwith "TODO solve : math_expr -> string -> math_expr "
+    | _ -> raise (Invalid_solve("Cannot solve the equation"))
 ;;
 
 

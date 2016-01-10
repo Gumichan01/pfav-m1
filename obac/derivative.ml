@@ -123,4 +123,5 @@ let rec integ : math_expr -> string -> math_expr -> math_expr -> math_expr =
     | Frac(Val(Num.Int(1)),Pow(Cos(Var(v)),Val(Num.Int(2))))
 	when v = s -> Binop('-', Tan(b),Tan(a))
 
-    | _ -> failwith "TODO integ : math_expr -> string -> math_expr -> math_expr -> math_expr ";;
+    | _  -> raise (Invalid_integration("Cannot integrate the expression"))
+;;
