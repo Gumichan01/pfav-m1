@@ -173,7 +173,7 @@ and frac_formula_of_math_expr : math_expr -> math_expr -> string =
 and pow_formula_of_math_expr : math_expr -> math_expr -> string = 
   fun x e -> let x_formula = formula_of_math_expr x in
 	     let exponent_formula = formula_of_math_expr e in
-	     (x_formula^"^("^exponent_formula^")")
+	     "("^(x_formula^")^("^exponent_formula^")")
 
 ;;
 
