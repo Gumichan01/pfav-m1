@@ -59,7 +59,7 @@ let main_parse str =
 let main_simpl expr =
   try
     begin
-      let simplified_expr = (formula_of_math_expr expr) in
+      let simplified_expr = (formula_of_math_expr (simpl expr)) in
       print_string("\nSimplified formula: "^simplified_expr^"\n");
     end
   with _ -> print_string("Cannot simplify the formula")
