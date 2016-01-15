@@ -159,10 +159,7 @@ let loop () =
 	  main_derive expr;
 	  main_solve expr;
 	  main_eval expr;
-    main_plot expr;
-	(* Uncomment this, and be sure this function 
-	   will not make the progra crash *)
-	   
+	  main_plot expr;
 	| None -> print_string("There is nothing to do\n")
     end
   done
