@@ -374,11 +374,15 @@ let rec solve : math_expr -> string -> math_expr list =
     | Binop('+',
 	    Binop('*',Val(Num.Int(a)),Pow(Var(x),Val(Num.Int(2)))),
 	    Binop('+',Binop('*',Val(Num.Int(b)),Var(y)),Val(Num.Int(c))))
-	when x = y -> (solve_2nd_degree_equation a b c)
+	 when x = y -> (solve_2nd_degree_equation a b c)
   
     (* x + n = 0, n + x = 0, x - n = 0, n - x = 0, n is a value *)
     | Binop(op,(Val(_) as n),Var(v)) | Binop(op,Var(v),(Val(_) as n))
-	when v = s -> [solve_binop (op,n)]
+	 when v = s -> [solve_binop (op,n)]
+
+    | Expo(Var(v)) | Cos(Var(v)) | Sin(Var(v)) when v = s -> []
+    | Log(Var(v)) when v = s -> [Val(Num.Int(0))]
+    | Sqrt(Var(v)) when v = s -> [Val(Num.Int(1))]
     | _ -> raise (Invalid_solve("Cannot solve the equation\n"))
 ;;
 
