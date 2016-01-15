@@ -38,10 +38,16 @@ let rec derive : math_expr -> string -> math_expr =
     | Binop(op,u,v) -> simpl(Binop('+',Binop(op,(derive u s),v),
 			     Binop(op,u,(derive v s))))
 
+    (* (x/y) does not change if x and y are values*)
+    | Frac(Pi,Pi) | Frac(Pi,Exp1) | Frac(Exp1,Pi) | Frac(Exp1,Exp1)
+    | Frac(Pi,Val(_)) | Frac(Val(_),Pi) | Frac(Val(_),Exp1) | Frac(Exp1,Val(_))
+    | Frac(Val(_),Val(_))as f -> f
+
     (* (y/u)' = -y*(u'/u²) y is a variable*)
     | Frac((Var(_) as y),u) -> Unop('-',
 				    Binop('*',y,Frac((derive u s),
 						     Pow(u,Val(Num.Int(2))))))
+
 
     (* (1/u)' = -(u'/u²)*)
     | Frac(Val(Num.Int(1)),u) -> Unop('-',Frac((derive u s),
@@ -66,7 +72,7 @@ let rec derive : math_expr -> string -> math_expr =
     | Expo(u) as e -> simpl(Binop('*',(derive u s),e))
 
     (* cos(u)' = u'*(-sin(u)) *)
-    | Cos(u) -> simpl(Binop('*',(derive u s),Unop('-',Sin(u))))
+    | Cos(u) -> (Binop('*',(derive u s),Unop('-',Sin(u))))
     | Sin(u) -> simpl(Binop('*',(derive u s),Cos(u)))
     | Tan(u) -> simpl(Frac(Val(Num.Int(1)),Pow(Cos(u),Val(Num.Int(2)))))
 
