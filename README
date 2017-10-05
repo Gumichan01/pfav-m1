@@ -1,18 +1,12 @@
-
-Auteurs :
-
-Raphael AUVERT
-Luxon JEAN-PIERRE
-
-
 Utilisation
 
 Commande pour compiler:
-$make
+
+    $make
 
 Lancer le programme 
 
-$ ./main.native
+    $ ./main.native
 
 
 
